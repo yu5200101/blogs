@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>Document</title>
+</head>
+<body>
+  <div id="clock"></div>
+</body>
+<script>
+/*   长轮询是对轮询的改进版，客户端发送HTTP给服务器之后，看有没有新消息，如果没有新消息，就一直等待。当有新消息的时候，才会返回给客户端。在某种程度上减小了网络带宽和CPU利用率等问题。由于http数据包的头部数据量往往很大（通常有400多个字节），但是真正被服务器需要的数据却很少（有时只有10个字节左右），这样的数据包在网络上周期性的传输，难免对网络带宽是一种浪费。
+
+  优点：比 Polling 做了优化，有较好的时效性
+  缺点：保持连接会消耗资源; 服务器没有返回有效数据，程序超时。 */
+  let clockDiv = document.getElementById('clock');
+  function send() {
+    let xhr = new XMLHttpRequest();
+    xhr.open('GET', '/clock', true);
+    xhr.onreadystatechange = function () {
+      if(xhr.readyState === 4) {
+        if(xhr.status === 200) {
+          //如果返回成功了，则显示结果
+          clockDiv.innerHTML = xhr.responseText;
+        }
+        send(); //不管成功还是失败都会发下一次请求
+      }
+    }
+    xhr.ontimeout = function () {
+      send();
+    }
+    xhr.send();
+  }
+  send();
+</script>
+</html>

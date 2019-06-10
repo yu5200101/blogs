@@ -1,0 +1,7 @@
+{
+  "dependencies": {
+    "bluebird": "^3.5.5",
+    "co": "^4.6.0",
+    "fs": "^0.0.1-security"
+  }
+}
