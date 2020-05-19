@@ -17,7 +17,8 @@ function showTop () {
   var scrollTop = document.body.scrollTop || document.documentElement.scrollTop
   console.log('滚动条的位置' + scrollTop)
 }
-window.onscroll = throttle(showTop, 1000)
+// window.onscroll = throttle(showTop, 1000)
+window.addEventListener('scroll', throttle(showTop, 1000), false)
 
 /* 
 函数节流的应用场景有:

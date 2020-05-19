@@ -103,13 +103,13 @@ Array.prototype.myUnique = function myUnique(){
   var obj = {};
     for (var i = 0; i < this.length; i++) {
         var item = this[i];
-       if(typeof obj[item] !== 'undefined')  {
-           this[i] = this[this.length - 1];
-           this.length--;
-           i--;
-           continue;
-       }
-           obj[item] = item;
+      if(typeof obj[item] !== 'undefined')  {
+          this[i] = this[this.length - 1];
+          this.length--;
+          i--;
+          continue;
+      }
+          obj[item] = item;
     }
     obj = null;
     return this;
@@ -268,7 +268,7 @@ function quick(ary){
     }
     //->获取中间项的索引：把中间项的值获取到，在原有数组中删除中间项
     var centerIndex = Math.floor(ary.length/2),
-         centerValue = ary.splice(centerIndex,1)[0];//->splice返回的是一个数组，数组中包含了删除的内容
+        centerValue = ary.splice(centerIndex,1)[0];//->splice返回的是一个数组，数组中包含了删除的内容
     //->用剩余数组中的每一项和中间项进行比较，比中间项大的放在右边，比他小的放在左边（左右两边都是新数组）
     var aryLeft = [],
         aryRight = [];
