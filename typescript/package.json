@@ -1,0 +1,19 @@
+{
+  "name": "hellotypescript",
+  "version": "1.0.0",
+  "description": "hello typescript",
+  "main": "index.html",
+  "scripts": {
+    "start": "tsc && npm run tsc:w",
+    "tsc": "tsc",
+    "tsc:w": "tsc -w"
+  },
+  "keywords": [
+    "typescript"
+  ],
+  "dependencies": {},
+  "devDependencies": {
+    "lite-server": "^2.2.0",
+    "concurrently": "^2.0.0"
+  }
+}

@@ -1,0 +1,24 @@
+{
+  "compilerOptions": {
+    "module": "commonjs",
+    "noImplicitAny": true,
+    "removeComments": true,
+    "emitDecoratorMetadata": true,
+    "experimentalDecorators":true,
+    "preserveConstEnums": true,
+    "strictNullChecks": true,
+    "noImplicitReturns": false,
+    "moduleResolution": "node",
+    "esModuleInterop":true,
+    "target": "es6",/*编译成es6规范的js*/
+    "allowJs": false,/*不允许js混合编程，新项目强烈推荐，迁移的老项目只能设置成true了*/
+    "sourceMap": true,/*调试时的时候必须开sourceMap*/
+    "outDir": "dist"//js文件的输出目录
+  },
+  "include": [
+    "src/*"
+  ],
+  "exclude": [
+    "node_modules"
+  ]
+}
