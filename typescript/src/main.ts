@@ -1,3 +1,105 @@
+class Student {
+  fullName: string;
+  constructor(public firstName: string, public middleInitial: string, public lastName: string) {
+    this.fullName = "Your name is " + firstName + middleInitial + lastName
+  }
+}
+interface Person {
+  firstName: string,
+  lastName: string
+}
+
+function getters(person: Person) {
+  return "Your name is " + person.firstName + person.lastName
+}
+
+let user = new Student("haha", 'xixi', 'hehe')
+// 数据类型：
+// number, string, null, undefined, object, void, never, any
+// 定义数组
+// 1.在元素后面接上[]
+let list: number[] = [1, 2, 3]
+// 2.使用数组泛型 Array<元素类型>
+let list1: Array<number> = [1, 2, 3]
+
+let x: [string, number]
+x = ['hello', 10]
+
+enum Color {Red = 1, Green, Blue}
+let c1: Color = Color.Red
+
+let colorName: string = Color[2]
+console.log(colorName)
+
+let notSure: any = 4
+notSure = 'haha'
+notSure = true
+// okay, toFixed exists (but the compiler doesn't check)
+// 不校验是否存在此方法
+// notSure.toFixed()
+
+// 校验存在此方法
+let prettySure: Object = 4
+// prettySure.toFixed()
+
+let list2: any[] = [1, '2', true]
+list2[1] = 100
+console.log(list2)
+
+document.body.innerHTML = getters(user)
+// void 类型没有返回值
+function warnUser(): void {
+  console.log('object')
+}
+// 声明void 只能赋值 null和undefined
+// let unusable: void = null
+// 默认情况下 null和undefined 是所有类型的子类型 就是说你可以把 null和undefined赋值给number类型的变量。
+// 但是如果指定--strictNullChecks标记，null和undefined只能赋值给void和它们各自
+
+// never类型表示那些永不存在的值的类型
+// 是任何类型的子类型，然而，没有类型是never的子类型或可以赋值给never类型（除了never本身之外）。 即使 any也不可以赋值给never。
+
+// 返回never的函数必须存在无法达到的终点
+function error(message: string): never {
+  throw new Error(message)
+}
+
+// 推断的返回值类型为never
+function fail() {
+  return error('something failed')
+}
+
+function infiniteLoop(): never {
+  while(true){}
+}
+
+declare function create(o: object | null): void
+create({prop: 0})
+
+// 类型断言
+let someValue: any = 'this is a something'
+
+let strLength: number = (<string>someValue).length
+
+let strLength1: number = (someValue as string).length
+
+let o1 = {
+    a1: "foo",
+    b1: 12,
+    c1: "bar"
+};
+
+let {a1, b1}: {a1: string, b1: number} = o1
+
+interface Point {
+  readonly x: number,
+  readonly y: number
+}
+
+let p12: Point = {x: 1, y: 2}
+// p1.x = 3 //报错
+
+
 let isDone: boolean = false
 console.log(isDone)
 
