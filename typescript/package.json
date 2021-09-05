@@ -6,7 +6,8 @@
   "scripts": {
     "start": "tsc && npm run tsc:w",
     "tsc": "tsc",
-    "tsc:w": "tsc -w"
+    "tsc:w": "tsc -w",
+    "build" : "tsc --outFile ./dist/sample.js ./src/Test.ts"
   },
   "keywords": [
     "typescript"
