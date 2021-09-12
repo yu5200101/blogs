@@ -9,23 +9,48 @@ import {
   Body,
   HttpException,
   HttpStatus,
-  UseFilters
+  UseFilters,
+  UsePipes,
+  UseGuards,
+  UseInterceptors
 } from '@nestjs/common';
 import {CreateCatDto} from './dto/create-cats.dto'
 import { CatsService } from './cats.service';
 import { Cat } from './interfaces/cats.interface'
-import {ForbiddenException} from '../common/httpException/forbidden.exception'
+import {ForbiddenException} from '../common/filter/forbidden.exception'
 import {HttpExceptionFilter} from '../common/filter/http-exception.filter'
+// import {JoiValidationPipe} from '../common/validate/validate.pipe'
+import {ValidationPipe} from '../common/validate/validate.pipe'
+import {ParseIntPipe} from '../common/validate/parse-int.pipe'
+import {RolesGuard} from '../common/guard/roles.guard'
+import {Roles} from '../common/decorator/roles.decorator'
+import {User} from '../common/decorator/user.decorator'
+import {LoggingInterceptor} from '../common/interceptor/logging.interceptor'
 
 @Controller('cats')
 @UseFilters(new HttpExceptionFilter())
+// @UseGuards(new RolesGuard())
+@UseGuards(RolesGuard)
+@UseInterceptors(LoggingInterceptor)
 export class CatsController {
   constructor(private catsService: CatsService) {}
 
+  @Post('firstName')
+  async findFirstNameOne(@User('firstName') firstName: string) {
+    return `Hello ${firstName}`
+  }
+
   @Post('service')
+  // @UsePipes(new JoiValidationPipe())
+  // @UsePipes(new ValidationPipe())
+  @UsePipes(ValidationPipe)
+  @Roles('admin')
   async create(@Body() createCatDto: CreateCatDto) {
     this.catsService.create(createCatDto);
   }
+  // async create(@Body(new ValidationPipe()) createCatDto: CreateCatDto) {
+  //   this.catsService.create(createCatDto);
+  // }
 
   @Get('service')
   async findAll(): Promise<Cat[]> {
@@ -45,10 +70,14 @@ export class CatsController {
   }
 
   @Get('getId/:id')
-  findOne(@Param() params): string {
-    console.log(params.id);
-    return `This action returns a #${params.id} cat`;
+  findGetIdOne(@Param('id', new ParseIntPipe()) id): string {
+    return `This action returns a #${id} cat`;
   }
+
+  // @Get(':id')
+  // findIdOne(@Param('id', UserByIdPipe) userEntity: UserEntity) {
+  //   return userEntity;
+  // }
 
   @Post('dto')
   async createCatDto(@Body() createCatDto: CreateCatDto) {
