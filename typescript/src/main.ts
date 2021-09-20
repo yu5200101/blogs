@@ -1370,4 +1370,34 @@ function applyMixins(derivedCtor: any, baseCtors: any[]) {
             derivedCtor.prototype[name] = baseCtor.prototype[name];
         });
     });
+interface Shape {
+    color: string;
+}
+interface Square extends Shape {
+    sideLength: number;
+}
+
+let square = <Square>{}
+square.color = "blue";
+square.sideLength = 10;
+console.log(square)
+
+interface PenStroke {
+    penWidth: number;
+}
+
+interface Square1 extends Shape, PenStroke {
+    sideLength: number;
+}
+
+let square1 = <Square1>{};
+square1.color = "blue";
+square1.sideLength = 10;
+square1.penWidth = 5.0;
+console.log(square1)
+
+interface Counter{
+  (start: number): string,
+  interval: string,
+  reset(): void
 }

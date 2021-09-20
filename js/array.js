@@ -327,3 +327,51 @@ function insert (array) {
 
 console.log(insert(ary));
 
+// 提取改成编号形如
+// ["1-1", "1-2", "2-1", "2-2", "2-3", "3-1", "3-2", "3-3"]
+// 设置编号
+const setViolationNo = function (data, idList) {
+  /**
+   * data: [{
+   * id: 12,
+   * ....
+   * }, {
+   * id: 12,
+   * ....
+   * }, {
+   * id: 23
+   * ....
+   * }]
+   * idList: [12, 13]
+   * 最后
+   * data: [{
+   * id: 12,
+   * newNo: 1-1
+   * ....
+   * }, {
+   * id: 12,
+   * newNo: 1-2
+   * ....
+   * }, {
+   * id: 13
+   * newNo: 2-1
+   * ....
+   * }]
+   */
+  let secNo = 1
+  let cuId = ''
+  data.forEach(item => {
+    const firstNo = idList.findIndex(id => id === item.id)
+    if (firstNo === -1) return
+    if (cuId !== item.id) {
+      cuId = item.id
+      secNo = 1
+      item.newNo = `${firstNo + 1}-${secNo}`
+      return
+    }
+    secNo++
+    item.newNo = `${firstNo + 1}-${secNo}`
+  })
+}
+// 扁平化数组
+const flatten = arr => arr.reduce((item, next) => item.concat(Array.isArray(next) ? flatten(next) : next, []))
