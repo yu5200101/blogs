@@ -1,8 +1,5 @@
 
 
-const obj = {
-  foo: 1
-}
 const ITERATE_KEY = Symbol()
 
 // 利用scheduler 调度器来控制副作用函数的执行时机和方式、
@@ -12,47 +9,6 @@ let activeEffect
 
 const effectStack = []
 const bucket = new WeakMap()
-
-const p = new Proxy(obj, {
-  ownKeys(target) {
-    // 将副作用函数与ITERATE_KEY关联
-    track(target, ITERATE_KEY)
-    return Reflect.ownKeys(target)
-  },
-  deleteProperty(target, key) {
-    // 检查被操作的属性是否是对象自己的属性
-    const hadKey = Object.prototype.hasOwnProperty.call(target, key)
-    // 使用Reflect.deleteProperty完成属性的删除
-    const res = Reflect.deleteProperty(target, key)
-    if (res && hadKey) {
-      // 只有当被删除的属性是对象自己的属性并且成功删除时，才触发更新
-      trigger(target, key, 'DELETE')
-    }
-    return res
-  },
-  has(target, key) {
-    track(target, key)
-    return Reflect.has(target, key)
-  },
-  get(target, key, receiver) {
-    track(target, key)
-    return Reflect.get(target, key, receiver)
-  },
-  set(target, key, newVal, receiver) {
-    // 先获取旧值
-    const oldVal = target[key]
-    // 如果属性不存在，则说明是在添加新属性，否则是设置已有属性
-    const type = Object.prototype.hasOwnProperty.call(target, key) ? 'SET' : 'ADD'
-    // 设置属性值
-    const res = Reflect.set(target, key, newVal, receiver)
-    // 比较新值与旧值，只要当不全等的时候才触发响应
-    if (oldVal !== newVal && (oldVal === oldVal || newVal === newVal)) {
-      // 将type作为第三个参数传递给trigger函数
-      trigger(target, key, type)
-    }
-    return res
-  }
-})
 
 function cleanup(effectFn) {
   for(let i = 0; i < effectFn.deps.length; i++) {
@@ -103,7 +59,7 @@ function track(target, key) {
   deps.add(activeEffect)
   // deps就是一个与当前副作用函数存在联系的依赖集合
   activeEffect.deps.push(deps)
-}
+};
 
 function trigger(target, key, type) {
   const depsMap = bucket.get(target)
@@ -139,12 +95,82 @@ function trigger(target, key, type) {
   // effects && effects.forEach(fn => fn())
 }
 
-effect(() => {
-  console.log(p.foo)
-})
-p.foo = 1
-
-const TriggerType = {
-  SET: 'SET',
-  ADD: 'ADD'
+// 封装createReactive 函数，接收一个参数isShallow，代表是否为浅响应，默认为false，即非浅响应
+function createReactive(obj, isShallow = false) {
+  return new Proxy(obj, {
+    ownKeys(target) {
+      // 将副作用函数与ITERATE_KEY关联
+      track(target, ITERATE_KEY)
+      return Reflect.ownKeys(target)
+    },
+    deleteProperty(target, key) {
+      // 检查被操作的属性是否是对象自己的属性
+      const hadKey = Object.prototype.hasOwnProperty.call(target, key)
+      // 使用Reflect.deleteProperty完成属性的删除
+      const res = Reflect.deleteProperty(target, key)
+      if (res && hadKey) {
+        // 只有当被删除的属性是对象自己的属性并且成功删除时，才触发更新
+        trigger(target, key, 'DELETE')
+      }
+      return res
+    },
+    has(target, key) {
+      track(target, key)
+      return Reflect.has(target, key)
+    },
+    get(target, key, receiver) {
+      // 代理对象可以通过raw 属性访问原始数据
+      if (key === 'raw') {
+        return target
+      }
+      // 得到原始值结果
+      const res = Reflect.get(target, key, receiver)
+      track(target, key)
+      // 如果是浅响应，则直接返回原始值
+      if (isShallow) {
+        return res
+      }
+      if (typeof res === 'object' && res !== null) {
+        // 调用reactive 将结果包装成响应式数据并返回
+        return reactive(res)
+      }
+      return res
+    },
+    set(target, key, newVal, receiver) {
+      // 先获取旧值
+      const oldVal = target[key]
+      // 如果属性不存在，则说明是在添加新属性，否则是设置已有属性
+      const type = Object.prototype.hasOwnProperty.call(target, key) ? 'SET' : 'ADD'
+      // 设置属性值
+      const res = Reflect.set(target, key, newVal, receiver)
+      // target === receiver.raw 说明 receiver 就是target的代理对象
+      if(target === receiver.raw) {
+        // 比较新值与旧值，只要当不全等的时候才触发响应
+        if (oldVal !== newVal && (oldVal === oldVal || newVal === newVal)) {
+          // 将type作为第三个参数传递给trigger函数
+          trigger(target, key, type)
+        }
+      }
+      return res
+    }
+  })
 }
+
+function shallowReactive(obj) {
+  return createReactive(obj, true)
+}
+
+function reactive(obj) {
+  return createReactive(obj)
+}
+
+const obj = shallowReactive({foo: { bar: 1 }})
+
+effect(() => {
+  console.log(obj.foo.bar);
+})
+
+// obj.foo是响应的，可以触发副作用函数重新执行
+obj.foo = {bar: 2}
+// obj.foo.bar 不是响应的，不能触发副作用函数重新执行
+obj.foo.bar = 3
