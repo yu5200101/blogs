@@ -39,6 +39,10 @@ function shouldSetAsProps(el, key, value) {
   return key in el
 }
 function unmount(vnode) {
+  if (vnode.type === Fragment) {
+    vnode.children.forEach(c => unmount(c))
+    return
+  }
   const parent = vnode.el.parentNode
   if (parent) {
     parent.removeChild(vnode.el)
@@ -76,17 +80,88 @@ function patchChildren(n1, n2, container) {
   } else if (Array.isArray(n2.children)) {
     // 说明新子节点是一组子节点
     // 判断旧子节点是否也是一组子节点
-    if (Array.isArray(n1.children)) {
-      // 代码运行到这里，则说明新旧子节点都是一组子节点，这里涉及核心的diff算法
-      // 傻瓜式：将旧的一组全部清空，将新的一组全部挂载
-      n1.children.forEach(c => unmount(c))
-      n2.children.forEach(c => patch(null, c, container))
-    } else {
-      // 此时
-      // 旧子节点要么是文本子节点，要么不存在
-      // 但无论哪种情况，我们都只需要将容器清空，然后将新的一组子节点逐个挂载
-      setElementText(container, '')
-      n2.children.forEach(c => patch(null, c, container))
+    // if (Array.isArray(n1.children)) {
+    //   // 代码运行到这里，则说明新旧子节点都是一组子节点，这里涉及核心的diff算法
+    //   const newLen = newChildren.length
+    //   const oldLen = oldChildren.length
+    //   const commonLength = Math.mix(newLen, oldLen)
+    //   for (let i = 0; i < commonLength; i++) {
+    //     patch(oldChildren[i], newChildren[i], container)
+    //   }
+    //   if (newLen > oldLen) {
+    //     for (let i = commonLength; i < newLen; i++) {
+    //       patch(null, newChildren[i], container)
+    //     }
+    //   } else {
+    //     for (let i = commonLength; i < oldLen; i++) {
+    //       unmount(oldChildren[i])
+    //     }
+    //   }
+    // } else {
+    //   // 此时
+    //   // 旧子节点要么是文本子节点，要么不存在
+    //   // 但无论哪种情况，我们都只需要将容器清空，然后将新的一组子节点逐个挂载
+    //   setElementText(container, '')
+    //   n2.children.forEach(c => patch(null, c, container))
+    // }
+    const oldChildren = n1.children
+    const newChildren = n2.children
+    // 用来存储寻找过程中遇到的最大索引值
+    let lastIndex = 0
+    // 遍历新的children
+    for (let i = 0; i < newChildren.length; i++) {
+      const newVNode = newChildren[i]
+      // 在第一层循环中定义变量find,代表是否在旧的一组子节点中找到可复用的节点
+      // 初始值为false，代表没找到
+      let j = 0
+      let find = false
+      // 遍历旧的children
+      for (j; j < oldChildren.length; j++) {
+        const oldVNode = oldChildren[j]
+        // 如果找到了具有相同key值的两个节点，说明可以复用，但仍然需要调用patch函数更新
+        if (newVNode.key === oldVNode.key) {
+          find = true
+          patch(oldVNode, newVNode, container)
+          if (j < lastIndex) {
+            // 如果当前找到的节点在旧children中的索引小于最大索引值lastIndex
+            // 说明该节点对应的真实DOM需要移动
+            // 获取newVNode的前一个vnode 即prevVNode
+            const prevVNode = newChildren[i - 1]
+            // 如果prevVNode不存在，则说明当前newVNode是第一个节点，它不需要移动
+            if(prevVNode) {
+              // 由于我们要将newVNode对应的真实DOM移动到prevVNode所对应真实DOM后面，
+              // 所以我们需要获取prevVNode所对应真实DOM的下一个兄弟节点，并将其作为锚点
+              const anchor = prevVNode.el.nextSibling
+              // 调用insert方法将newVNode 对应的真实DOM插入到锚点元素前面
+              // 也就是prevVNode对应真实DOM的后面
+              insert(newVNode.el, container, anchor)
+            }
+          } else {
+            // 更新lastIndex
+            lastIndex = j
+          }
+          // 这里需要break
+          break
+        }
+      }
+      // 如果代码运行到这里，find仍然未false
+      // 说明当前newVNode没有在旧的一组子节点中找到可复用的节点
+      // 也就是说，当前newVNode是新增节点，需要挂载
+      if (!find) {
+        // 为了将节点挂载到正确为止，我们需要先获取锚点元素
+        // 首先获取当前newVNode的前一个vnode节点
+        const prevVNode = newChildren[i - 1]
+        if (prevVNode) {
+          // 如果有前一个vnode节点，则使用它的下一个兄弟节点作为锚点元素
+          anchor = prevVNode.el.nextSibling
+        } else {
+          // 如果没有前一个vnode节点，说明即将挂载的新节点是第一个子节点
+          // 这时我们使用容器元素的firstChild作为锚点
+          anchor = container.firstChild
+        }
+        // 挂载newVNode
+        patch(null, newVNode, container, anchor)
+      }
     }
   } else {
     // 代码运行到这里，说明新子节点不存在
@@ -114,14 +189,27 @@ const newVNode2 = {
   children: '我是注释内容'
 }
 
+const Fragment = Symbol()
+const newVNode3 = {
+  type: Fragment,
+  children: [
+    { type: 'li', children: 'text1' },
+    { type: 'li', children: 'text2' },
+    { type: 'li', children: 'text3' }
+  ]
+}
+
 function createRenderer(options) {
   const {
     createElement,
     insert,
-    setElementText
+    setElementText,
+    createText,
+    setText,
+    createComment
   } = options
   // 在这个作用域内定义的函数都可以访问那些API
-  function mountElement(vnode, container) {
+  function mountElement(vnode, container, anchor) {
     const el = vnode.el = createElement(vnode.type)
     if (typeof vnode.children === 'string') {
       setElementText(el, vnode.children)
@@ -133,18 +221,18 @@ function createRenderer(options) {
         patch(null, child, el)
       })
     }
-    if(vnode.props) {
+    if (vnode.props) {
       // 遍历vnode.props
-      for(const key in vnode.props) {
+      for (const key in vnode.props) {
         // 用in操作符判断key是否存在对应的DOM Properties
         // 调用setAttribute将属性设置到元素上
         // el.setAttribute(key, vnode.props[key])
         patchProps(el, key, null, vnode.props[key])
       }
     }
-    insert(el, container)
+    insert(el, container, anchor)
   }
-  function patch(n1, n2, container) {
+  function patch(n1, n2, container, anchor) {
     // 如果n1存在，则对比n1和n2的类型
     if (n1 && n1.type !== n2.type) {
       // 如果新旧vnode的类型不同，则直接将旧vnode卸
@@ -154,14 +242,50 @@ function createRenderer(options) {
     const { type } = n2
     if (typeof type === 'string') {
       if (!n1) {
-        mountElement(n2, container)
+        // 挂载时将锚点元素作为第三个参数传递给mountElement函数
+        mountElement(n2, container, anchor)
       } else {
         patchElement(n1, n2)
       }
     } else if (typeof type === 'object') {
       // 如果n2.type的值的类型是对象，则它描述的是组件
-    } else if (type === 'xxx') {
+    } else if (type === Text) {
       // 处理其他类型的vnode
+      if (!n1) {
+        // const el = n2.el = document.createTextNode(n2.children)
+        const el = n2.el = createText(n2.children)
+        insert(el, container)
+      } else {
+        // 如果旧vnode存在，只需要使用新文本节点的文本内容更新旧文本节点即可
+        const el = n2.el = n1.el
+        if (n2.children !== n1.children) {
+          // el.nodeValue = n2.children
+          setText(el, n2.children)
+        }
+      }
+    } else if (type === Comment) {
+      // 处理其他类型的vnode
+      if (!n1) {
+        // const el = n2.el = document.createComment(n2.children)
+        const el = n2.el = createComment(n2.children)
+        insert(el, container)
+      } else {
+        // 如果旧vnode存在，只需要使用新文本节点的文本内容更新旧文本节点即可
+        const el = n2.el = n1.el
+        if (n2.children !== n1.children) {
+          // el.nodeValue = n2.children
+          setText(el, n2.children)
+        }
+      }
+    } else if (type === Fragment) {
+      // 处理Fragment类型的vnode
+      // 如果旧vnode不存在，则只需要将Fragment 的children逐个挂载即可
+      if (!n1) {
+        n2.children.forEach(c => patch(null, c, container))
+      } else {
+        // 如果旧vnode存在，则只需要更新Fragment的children即可
+        patchChildren(n1, n2, container)
+      }
     }
   }
   function render(vnode, container) {
@@ -178,7 +302,7 @@ function createRenderer(options) {
     // 把vnode存储到container._vnode下，即后续渲染中的旧vnode
     container._vnode = vnode
   }
-  function hydrate(vnode, container) {}
+  function hydrate(vnode, container) { }
   return {
     render,
     hydrate
@@ -257,6 +381,9 @@ const renderer = createRenderer({
   createText(text) {
     return document.createTextNode(text)
   },
+  createText(text) {
+    return document.createComment(text)
+  },
   setText(el, text) {
     el.nodeValue = text
   }
@@ -276,3 +403,33 @@ const renderer = createRenderer({
 // })
 
 renderer.render(vnode, document.querySelector('#app'))
+
+const newNode3 = {
+  type: 'ul',
+  children: [{
+    type: Fragment,
+    children: [
+      { type: 'li', children: 'text1' },
+      { type: 'li', children: 'text2' },
+      { type: 'li', children: 'text3' }
+    ]
+  }]
+}
+
+const oldVNode = {
+  type: 'div',
+  children: [
+    { type: 'p', children: '1' },
+    { type: 'p', children: '2' },
+    { type: 'p', children: '3' }
+  ]
+}
+
+const newVNode = {
+  type: 'div',
+  children: [
+    { type: 'p', children: '4' },
+    { type: 'p', children: '5' },
+    { type: 'p', children: '6' }
+  ]
+}
