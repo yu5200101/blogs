@@ -1,38 +1,39 @@
-// 快速diff算法
-const { effect, ref } = VueReactivity
-
-const count = ref(1)
-const bol = ref(false)
-
-effect(() => {
-  const vnode = {
-    type: 'div',
-    props: bol.value ? {
-      onClick: () => {
-        alert('父元素clicked')
-      }
-    } : {},
-    children: [{
-      type: 'p',
-      props: {
-        onClick: () => {
-          bol.value = true
-        }
-      },
-      children: 'text'
-    }]
+const MyComponent = {
+  name: 'MyComponent',
+  props: {
+    title: String
+  },
+  data() {
+    return {
+      foo: 'hello world'
+    }
+  },
+  render() {
+    return {
+      type: 'div',
+      children: '文本'
+    }
+  },
+  setup(props, setupContext) {
+    // 访问传入的props数据
+    // props.foo
+    const { slots, emit, attrs, expose } = setupContext
+    // setup函数可以返回一个函数，该函数将作为组件的渲染函数
+    // return () => {
+    //   return {type: 'div', children: 'hello'}
+    // }
+    // 发射change事件，并传递给事件处理函数两个参数
+    emit('change', 1, 2)
+    const count = ref(0)
+    // 返回一个对象，对象中的数据会暴露到渲染函数中
+    return {
+      count
+    }
+  },
+  render() {
+    // 通过this可以访问setup暴露出来的响应式数据
+    return {type: 'div', children: `count id : ${this.count}`}
   }
-  renderer.render(vnode, document.querySelector('#app'))
-})
-
-function renderer(domString, container) {
-  container.innerHTML = domString
-}
-count.value++
-
-const vnode = {
-  type: 'h1',
-  children: 'hello'
 }
 
 function shouldSetAsProps(el, key, value) {
@@ -416,29 +417,6 @@ function patchFastKeyedChildren(n1, n2, container) {
   }
 }
 
-const Text = Symbol()
-const newVNode1 = {
-  // 描述文本节点
-  type: Text,
-  children: '我是文本内容'
-}
-
-const Comment = Symbol()
-const newVNode2 = {
-  type: Comment,
-  children: '我是注释内容'
-}
-
-const Fragment = Symbol()
-const newVNode3 = {
-  type: Fragment,
-  children: [
-    { type: 'li', children: 'text1' },
-    { type: 'li', children: 'text2' },
-    { type: 'li', children: 'text3' }
-  ]
-}
-
 function createRenderer(options) {
   const {
     createElement,
@@ -489,6 +467,13 @@ function createRenderer(options) {
       }
     } else if (typeof type === 'object') {
       // 如果n2.type的值的类型是对象，则它描述的是组件
+      if (!n1) {
+        // 挂载组件
+        mountComponent(n2, container, anchor)
+      } else {
+        // 更新组件
+        patchComponent(n1, n2, anchor)
+      }
     } else if (type === Text) {
       // 处理其他类型的vnode
       if (!n1) {
@@ -546,6 +531,230 @@ function createRenderer(options) {
   return {
     render,
     hydrate
+  }
+}
+
+// resolveProps函数用于解析组件props和attrs数据
+function resolveProps(options, propsData) {
+  const props = {}
+  const attrs = {}
+  // 遍历为组件传递的props数据
+  for (const key in propsData) {
+    // 以字符串on开头的props,无论是否显示地声明，都将其添加到props数据中，而不是添加到attrs中
+    if (key in options || key.startsWith('on')) {
+      // 如果为组件传递的props数据在组件自身的props选项中有定义，则将其视为合法的props
+      props[key] = propsData[key]
+    } else {
+      // 否则将其作为attrs
+      attrs[key] = propsData[key]
+    }
+  }
+  // 最后返回props与attrs数据
+  return [props, attrs]
+}
+// 全局变量，存储当前正在被初始化的组件实例
+let currentInstance = null
+// 该方法接收组件实例作为参数，并将该实例设置为currentInstance
+function setCurrentInstance(instance) {
+  currentInstance = instance
+}
+function mountComponent(vnode, container, anchor) {
+  // 通过vnode获取组件的选项对象，即vnode.type
+  const componentOptions = vnode.type
+  // 直接使用编译好的vnode.children对象作为slots对象即可
+  const slots = vnode.children || {}
+  // 获取组件的渲染函数render
+  // 从组件选项对象中取出props定义，即propsOption
+  const { render, data, setup, props: propsOptions, beforeCreate, created, beforeMount, mounted, beforeUpdate, updated } = componentOptions
+  // 在这里调用beforeCreate钩子
+  beforeCreate && beforeCreate()
+  // 执行渲染函数，获取组件要渲染的内容，即render函数返回的虚拟DOM
+  // 调用data函数得到原始数据，并调用reactive函数将其包装为响应式数据
+  const state = data ? reactive(data()) : null
+
+  // 调用resolveProps函数解析处最终的props数据与attrs数据
+  const [props, attrs] = resolveProps(propsOption, vnode.props)
+
+  // 定义组件实例，一个组件实例本质上就是有一个对象，它包含与组件有关的状态信息
+  const instance = {
+    // 组件自身的状态数据，即data
+    state,
+    // 将解析处的props数据包装为shallowReactive并定义到组件实例上
+    props: shallowReactive(props),
+    // 一个布尔值，用来表示组件是否已经被挂在，初始值为false
+    isMounted: false,
+    // 组件所渲染的内容，即子树(subTree)
+    subTree: null,
+    // 在组件实例中添加mounted数组，用来存储通过onMounted函数注册的生命周期钩子函数
+    mounted: []
+  }
+  // 定义emit函数，它接收两个参数
+  // event: 事件名称
+  // payload: 传递给事件处理函数的参数
+  function emit(event, ...payload) {
+    // 根据约定对事件名称进行处理，例如change->onChange
+    const eventName = `on${event[0].toUpperCase() + event.slice(1)}`
+    // 根据处理后的事件名称去props中寻找对象的事件处理函数
+    const handler = instance.props[eventName]
+    if (handler) {
+      // 调用事件处理函数并传递参数
+      handler(...payload)
+    } else {
+      console.error('事件不存在')
+    }
+  }
+
+  function onMounted(fn) {
+    if (currentInstance) {
+      currentInstance.mounted.push(fn)
+    } else {
+      console.error('onMounted函数只能在setup中调用')
+    }
+  }
+
+  // setupContext, 由于我们还没有讲解emit和slots，所以暂时只需要attrs
+  const setupContext = { attrs, emit, slots }
+  // 在调用setup函数之前，设置当前组件实例
+  setCurrentInstance(instance)
+
+  // 调用setup函数，将只读版本的props作为第一个个参数传递，避免用户意外地修改props的值
+  // 将setupContext作为第二个参数传递
+  const setupResult = setup(shallowReadonly(instance.props), setupContext)
+  // 在setup函数执行完毕之后，重置当前组件实例
+  setCurrentInstance(null)
+
+  // setupState用来存储由setup返回的数据
+  let setupState = null
+  // 如果setup函数的返回值是函数，则将其作为渲染函数
+  if (typeof setupResult === 'function') {
+    // 报告冲突
+    if (render) console.error('setup函数返回渲染函数，render选项将被忽略')
+    // 将setupResult作为渲染函数
+    render = setupResult
+  } else {
+    // 如果setup的返回值不是函数，则作为数据状态赋值给setupState
+    setupState = setupResult
+  }
+
+  // 将组件实例设置到vnode上，用于后续更新
+  vnode.component = instance
+
+  // 创建渲染上下文对象，本质上是组件实例的代理
+  const renderContext = new Proxy(instance, {
+    get(t, k, r) {
+      // 取得组件自身状态与props数据
+      const {state, props, slots} = t
+      // 当k的值为$slots时，直接返回组件实例上的slots
+      if (k === '$slots') return slots
+      // 先尝试读取自身状态数据
+      if (state && k in state) {
+        return state[k]
+      } else if (k in props) {
+        // 如果组件自身没有该数据，则尝试从props中读取
+        return props[k]
+      } else {
+        console.error('不存在')
+      }
+    },
+    set(t, k, v, r) {
+      const {state, props} = t
+      if (state && k in state) {
+        state[k] = v
+      } else if (k in props) {
+        console.warn('attempting')
+      } else {
+        console.error('不存在')
+      }
+    }
+  })
+
+  created && created.call(renderContext)
+  // 调用render函数时，将其this设置为state,
+  // 从而render函数内部可以通过this访问组件自身状态信息
+  effect(() => {
+    const subTree = render.call(renderContext, renderContext)
+    // 检查组件是否已经被挂载
+    if (!instance.isMounted) {
+      beforeMount && beforeMount.call(state)
+      // 初次挂载，调用patch函数第一个参数传递null
+      patch(null, subTree, container, anchor)
+      // 重点：将组件实例的isMounted设置为true,这样当更新发生时就不会再次进行挂载操作
+      // 而是会执行更新
+      instance.isMounted = true
+      mounted && mounted.call(state)
+      instance.mounted && instance.mounted.forEach(hook => hook.call(renderContext))
+    } else {
+      beforeUpdate && beforeUpdate.call(state)
+      // 当isMounted为true时，说明组件已经被挂载，只需要完成自更新即可
+      // 所以在调用patch函数时，第一个参数为组件上一个渲染的子树
+      // 意思是，使用新的子树与上一次渲染的子树进行打补丁操作
+      patch(instance.subTree, subTree, container, anchor)
+      updated && updated.call(state)
+    }
+    instance.subTree = subTree
+    // 最后调用patch 函数来载组件所描述的内容，即subTree
+  }, {
+    // 指定该副作用函数的调度器为queueJob即可
+    scheduler: queueJob
+  })
+}
+
+function patchComponent(n1, n2, anchor) {
+  // 获取组件实例，即n1.component,同时让新的组件虚拟节点n2.component也指向组件实例
+  const instance = (n2.component = n1.component)
+  // 获取当前的props数据
+  const { props } = instance
+  // 调用hasPropsChanged检测为子组件传递的props是否发生变化，如果没有变化，则不需要更新
+  if (hasPropsChanged(n1.props, n2.props)) {
+    // 调用resolveProps函数重新获取props数据
+    const [nextProps] = resolveProps(n2.type.props, n2.props)
+    // 更新props
+    for (const k in nextProps) {
+      props[k] = nextProps[k]
+    }
+    // 删除不存在的props
+    for (const k in props) {
+      if (!(k in nextProps)) delete props[k]
+    }
+  }
+}
+
+function hasPropsChanged(prevProps, nextProps) {
+  const nextKeys = Object.keys(nextProps)
+  // 如果旧props的数量变了，则说明有变化
+  if (nextKeys.length !== Object.keys(prevProps).length) return true
+  for (let i = 0; i < nextKeys.length; i++) {
+    const key = nextKeys[i]
+    // 有不相等的props，则说明有变化
+    if (nextKeys[key] !== prevProps[key]) return true
+  }
+  return false
+}
+
+// 任务缓存队列，用一个Set数据结构来表示，这样就可以自动对任务进行去重
+const queue = new Set()
+// 一个标志，代表是否正在刷新任务队列
+let isFlushing = false
+// 创建一个立即resolve的Promise实例
+const p = Promise.resolve()
+
+// 调度器的主要函数，用来将一个任务添加到缓冲队列中，并开始刷新队列
+function queueJob(job) {
+  // 将job添加到任务队列queue中
+  queue.add(job)
+  // 如果还没有开始刷新队列，则刷新之
+  if (!isFlushing) {
+    // 将该标志设置为true以避免重复刷新
+    isFlushing = true
+    // 在微任务中刷新缓冲队列
+    p.then(() => {
+      try {
+        queue.forEach(job => job())
+      } finally {
+        isFlushing = false
+        queue.clear = 0
+      }
+    })
   }
 }
 
@@ -629,47 +838,5 @@ const renderer = createRenderer({
   }
 })
 
-// const renderer = createRenderer({
-//   createElement(tag) {
-//     console.log(`创建元素${tag}`);
-//     return {tag}
-//   },
-//   setElementText(el, text) {
-//     el.textContent = text
-//   },
-//   insert(el, parent, anchor = null) {
-//     parent.children = el
-//   }
-// })
+renderer.render(MyComponent, document.querySelector('#app'))
 
-renderer.render(vnode, document.querySelector('#app'))
-
-const newNode3 = {
-  type: 'ul',
-  children: [{
-    type: Fragment,
-    children: [
-      { type: 'li', children: 'text1' },
-      { type: 'li', children: 'text2' },
-      { type: 'li', children: 'text3' }
-    ]
-  }]
-}
-
-const oldVNode = {
-  type: 'div',
-  children: [
-    { type: 'p', children: '1' },
-    { type: 'p', children: '2' },
-    { type: 'p', children: '3' }
-  ]
-}
-
-const newVNode = {
-  type: 'div',
-  children: [
-    { type: 'p', children: '4' },
-    { type: 'p', children: '5' },
-    { type: 'p', children: '6' }
-  ]
-}
