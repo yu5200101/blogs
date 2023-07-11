@@ -415,7 +415,7 @@ function genArrayExpression(node, context) {
 function genReturnStatement(node, context) {
   const { push } = context
   // 追加return关键字和空格
-  push('return')
+  push('return ')
   // 调用genNode函数递归地生成返回值代码
   genNode(node.return, context)
 }
