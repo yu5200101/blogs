@@ -110,7 +110,7 @@ function parseAttributes(context) {
   const props = []
 
   // 开启while循环，不断地消费模板内容，直至遇到标签的“结束部分”为止
-  while(
+  while (
     !context.source.startsWith('>') &&
     !context.source.startsWith('/>')
   ) {
@@ -256,7 +256,7 @@ function decodeHtml(rawText, asAttr = false) {
   }
 
   // 消费字符串，直到处理完毕为止
-  while(offset < end) {
+  while (offset < end) {
     // 用于匹配字符引用的开始部分，如果匹配成，那么head[0]的值将有三种可能
     // head[0] === '&'这说明该字符引用是命名字符引用
     // head[0] === '&#'这说明该字符引用是用十进制表示的数字字符引用
@@ -277,7 +277,7 @@ function decodeHtml(rawText, asAttr = false) {
     // 消费字符&之前的内容
     advance(head.index)
 
-    if(head[0] === '&') {
+    if (head[0] === '&') {
       let name = ''
       let value = ''
       // 字符&的下一个字符必须是ASCII字母或数字，这样才是合法的命名字符引用
@@ -303,13 +303,13 @@ function decodeHtml(rawText, asAttr = false) {
           if (asAttr &&
             !semi &&
             /[=a-z0-9]/i.test(rawText[name.length + 1] || '')) {
-              decodedText += '&' + name
-              advance(1 + name.length)
-            } else {
-              // 其他情况下，正常使用解码后的内容拼接到decodedText上
-              decodedText += value
-              advance(1 + name.length)
-            }
+            decodedText += '&' + name
+            advance(1 + name.length)
+          } else {
+            // 其他情况下，正常使用解码后的内容拼接到decodedText上
+            decodedText += value
+            advance(1 + name.length)
+          }
         } else {
           // 如果没有找到对应的值，说明解码失败
           decodedText += '&' + name
@@ -320,7 +320,90 @@ function decodeHtml(rawText, asAttr = false) {
         decodedText += '&'
         advance(1)
       }
+    } else {
+      // 判断是以十进制表示还是以十六进制表示
+      const hex = head[0] === '&#x'
+      // 根据不同进制表示法，选用不同的正则
+      const pattern = hex ? /^&#x([0-9a-f]+);?/i : /^&#([0-9]+);?/
+      // 最终body[1]的值就是Unicode码点
+      const body = pattern.exec(rawText)
+
+      if (body) {
+        // 根据对应的进制，将码点字符串转换为数字
+        const cp = Number.parseInt(body[1], hex ? 16 : 10)
+        // 检查码点的合法性
+        if (cp === 0) {
+          // 如果码点值为0x00，替换为0xfffd
+          cp = 0xfffd
+        } else if (cp > 0x10ffff) {
+          // 如果码点值超过了Unicode的最大值，替换为0xfffd
+          cp - 0xfffd
+        } else if (cp >= 0xd800 && cp <= 0xdfff) {
+          // 如果码点值处于surrogate pair范围内 替换为0xfffd
+          cp - 0xfffd
+        } else if ((cp >= 0xfdd0 && cp <= 0xfdef) || (cp & 0xfffe) === 0xfffe) {
+          // 如果码点值处于noncharacter 范围内，则什么都不做，交给平台处理
+        } else if (
+          // 控制字符集的范围是：[0x01, 0x1r]加上[0x7f,0x9f]
+          // 去掉ASICC空白符0x09(TAB).0X0A(LF).0X0C(FF)
+          // 0X0D(CR)虽然也是ASICC空白符，但需要包含
+          (cp >= 0x01 && cp <= 0x08) ||
+          cp === 0x0b ||
+          (cp >= 0x0d && cp <= 0x1f) ||
+          (cp >= 0x7f && cp <= 0x9f)
+        ) {
+          cp = CCR_replacements[cp] || cp
+        }
+        // 解码
+        decodedText += String.fromCharCode(cp)
+        advance(body[0].length)
+      } else {
+        decodedText += head[0]
+        advance(head[0].length)
+      }
     }
   }
   return decodedText
+}
+
+function parseInterpolation(context) {
+  // 消费开始定界符
+  context.advanceBy('{{'.length)
+  // 找到结束定界符的位置索引
+  closeIndex = context.source.indexOf('}}')
+  if (closeIndex < 0) {
+    console.error('插值缺少结束定界符')
+  }
+  // 截取开始定界符与结束定界符之间的内容作为插值表达式
+  const content = context.source.slice(0, closeIndex)
+  // 消费表达式的内容
+  context.advanceBy(content.length)
+  // 消费结束定界符
+  context.advanceBy('}}'.length)
+
+  return {
+    type: 'Interpolation',
+    content: {
+      type: 'Expression',
+      // 表达式节点的内容则是经过HTML解码后的插值表达式
+      content: decodeHtml(content)
+    }
+  }
+}
+
+const ast = parse(`<div>foo {{ bar }} baz</div>`)
+
+
+function parseComment(context) {
+  context.advanceBy('<!--'.length)
+  // 找到注释结束部分的位置索引
+  closeIndex = context.source.indexOf('-->')
+  // 截取注释节点的内容
+  const content = context.source.slice(0, closeIndex)
+  context.advanceBy(content.length)
+  context.advanceBy('-->'.length)
+  return {
+    type: 'Comment',
+    content
+  }
 }
