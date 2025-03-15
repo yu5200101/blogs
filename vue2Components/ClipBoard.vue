@@ -1,7 +1,7 @@
 <!-- 父级组件必须加上样式 position: relative 此按钮占的位置就是父级元素的位置 -->
 <template>
   <div class="clip-box">
-    <div class="clip-box-btn" @click="handleClipboard" />
+    <div class="clip-box-btn" @click="handleClipboardFn" />
     <div
       ref="clipContentRef"
       class="clip-box-value"
@@ -16,21 +16,21 @@ import Clipboard from 'clipboard'
 
 export default {
   methods: {
-    handleClipboard(event) {
+    handleClipboardFn(event) {
       this.$emit('clickFn')
-      const valueTarget = this.$refs.clipContentRef
-      const successSite = event && valueTarget
+      const valueTargetEle = this.$refs.clipContentRef
+      const successSite = event && valueTargetEle
       if (successSite) {
-        const clipboard = new Clipboard(event.target, {
-          target: () => valueTarget
+        const clipboardObj = new Clipboard(event.target, {
+          target: () => valueTargetEle
         })
-        clipboard.on('success', () => {
-          clipboard.destroy()
+        clipboardObj.on('success', () => {
+          clipboardObj.destroy()
         })
-        clipboard.on('error', () => {
-          clipboard.destroy()
+        clipboardObj.on('error', () => {
+          clipboardObj.destroy()
         })
-        clipboard.onClick(event)
+        clipboardObj.onClick(event)
       }
     }
   },
