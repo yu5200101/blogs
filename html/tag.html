@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="icon" href="https://sns-avatar-qc.xhscdn.com/avatar/66b41b43cd080253f1a14d24.jpg" type="图片名称" sizes="16*16">
+    <title>语义化标签</title>
+  </head>
+  <body>
+    <header>顶部</header>
+    <nav>导航</nav>
+    <main>页面主要内容</main>
+    <aside>侧边栏</aside>
+    <section>
+      独立内容区块，可以用h1~h6组成大纲，表示文档结构，也可以有章节、页眉、页脚或页眉的其他部分；
+    </section>
+    <article>特殊独立区块，表示这篇页眉中的核心内容； </article>
+    <mark>标注</mark>
+    <progress max="100" value="30"></progress>
+    <time datetime="2014-12-25T09:00">9：00</time>
+    <time datetime="2015-01-23T04:00" pubdate>4:00</time>
+    wbr：软换行，页面宽度到需要换行时换行；<wbr/>
+    <details>
+      <summary>折叠标签</summary>
+      <p>折叠内容</p>
+    </details>
+    下拉框
+    <input list="browsers">
+    <datalist id="browsers">
+      <option value="Internet Explorer">
+      <option value="Firefox">
+      <option value="Chrome">
+      <option value="Opera">
+      <option value="Safari">
+    </datalist>
+    <ruby><rt>注释内容</rt><rp>浏览器不支持时如何显示</rp></ruby>
+    <footer>页面底部内容</footer>
+    <figure>独立的单元，例如某个有图片与内容的新闻块。</figure>
+    <hgroup>hgroup</hgroup>
+    对于js进行添加的属性。
+    <script defer src="../js/array.js" οnlοad="alert('a')"></script>
+    <script async src="../js/array1.js" οnlοad="alert('b')">
+    </script>
+    如果没有以上两个属性的话，执行顺序为先加载（下载）第一个src，然后在执行其onload，然后在向下依次同步执行<br/>
+    defer属性在h5之前就已经有了，输入延迟加载（推迟执行），它会先加载（下载）src中文件内容，然后等页面全部加载完成后，再加载onload中js,<br/>
+    async属性属于异步加载，它会在加载src后，立即执行onload,同时还会继续加载页面以上执行顺序，alert显示会先显示b然后再显示a
+  </body>
+</html>

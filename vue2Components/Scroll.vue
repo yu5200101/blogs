@@ -50,8 +50,8 @@ export default {
     })
   },
   methods: {
-      // 超出边界时需要重置位置
-      isNeedReset() {
+    // 超出边界时需要重置位置
+    isNeedReset() {
       let offsetX
       if (this.offsetX < this.minX) {
         offsetX = this.minX

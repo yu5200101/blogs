@@ -1,27 +1,7 @@
-/* 隔一行展示省略号 */
-.ellipsis1 {
-  white-space: nowrap;
-  overflow: hidden;
-  /* 文本溢出显示省略号 */
-  text-overflow: ellipsis;
-}
-/* 隔两行展示省略号 */
-.ellipsis2 {
-  display: -webkit-box;
-  overflow: hidden;
-  /* 文本溢出显示省略号 */
-  text-overflow: ellipsis;
-  /* 控制文字行数 */
-  -webkit-line-clamp: 2;
-  /* 子元素数值排列 */
-  -webkit-box-orient: vertical;
-}
-
 .con {
   font-size: 14px;
   color: #666;
   width: 600px;
-  margin: 50px auto;
   border-radius: 8px;
   padding: 15px;
   overflow: hidden;
@@ -65,5 +45,33 @@
   overflow: hidden;
   text-overflow: ellipsis;
   direction: rtl;
+}
+
+/* 隔一行展示省略号 */
+.ellipsis1 {
+  width: 100px;
+  white-space: nowrap;
+  overflow: hidden;
+  /* 文本溢出显示省略号 */
+  text-overflow: ellipsis;
+}
+/* 隔两行展示省略号 */
+.ellipsis2 {
+  width: 100px;
+  display: -webkit-box;
+  overflow: hidden;
+  /* 文本溢出显示省略号 */
+  text-overflow: ellipsis;
+  /* 控制文字行数 */
+  -webkit-line-clamp: 2;
+  /* 子元素数值排列 */
+  -webkit-box-orient: vertical;
+}
+
+/* 如何让 chrome 浏览器显示小于 12px 的文字 */
+.less-size {
+  font-size: 22px;
+  -webkit-text-size-adjust: none;
+  -webkit-transform: scale(0.5);
 }
 

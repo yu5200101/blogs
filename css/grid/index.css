@@ -1,0 +1,111 @@
+.item {
+  padding: 30px;
+  text-align: center;
+  border: 1px solid #000;
+}
+
+.box {
+  width: 800px;
+  height: 500px;
+  background-color: #fac;
+  font-size: 24px;
+  font-weight: 700;
+  margin: 100px auto;
+  display: grid;
+  grid-template: repeat(3, auto) / repeat(3, auto);
+
+  /* grid-auto-flow: dense; */
+  /* grid-gap: 10px; */
+  /* grid-template-columns: 100px 100px; */
+  /* grid-template-columns: repeat(2, 100px); */
+  /* grid-template-columns: repeat(auto-fill, 150px); */
+  /* grid-template-columns: 1fr 2fr; */
+  /* grid-template-columns: minmax(100px, 200px) 1fr; */
+  /* grid-template-columns: 200px auto 100px; */
+  /* grid-template-columns: fit-content(100px) auto 100px; */
+
+  /* justify-items: center;
+  align-items: end; */
+  /* place-items: end center; */
+
+  /* justify-content: space-between;
+  align-content: center; */
+  /* place-content: center space-between; */
+
+  /* 2行 列高100px，2列 行宽300px */
+  /* grid-template: repeat(2, 100px) /repeat(2, 300px); */
+  /* 超出的没列 列高200px */
+  /* grid-auto-rows: 200px; */
+}
+
+.item:nth-child(1) {
+  grid-row-start: span 2;
+  background: red;
+  /* justify-self: center;
+  align-self: end; */
+  /* place-self: end center; */
+}
+
+.item:nth-child(2) {
+  grid-column-start: span 2;
+  background: yellow;
+}
+
+.item:nth-child(3) {
+  background: blue;
+}
+
+.item:nth-child(4) {
+  background: green;
+}
+
+.item:nth-child(5) {
+  background: pink;
+}
+
+.item:nth-child(6) {
+  background: orange;
+  /* grid-column-start: span 2; */
+}
+
+.item:nth-child(7) {
+  background: purple;
+}
+
+.grid-box {
+  width: 800px;
+  height: 500px;
+  background-color: #fac;
+  font-size: 24px;
+  font-weight: 700;
+  margin: 100px auto;
+  display: grid;
+  grid-auto-flow: row;
+  grid-template:
+  ". header" 100px
+  "aside main" 300px
+  "footer footer" 100px / 200px 1fr;
+  /* grid-column-gap: 10px;
+  grid-row-gap: 20px; */
+  grid-gap: 20px 10px;
+}
+
+.grid-box-item:nth-child(1) {
+  background: red;
+  grid-area: header;
+}
+
+.grid-box-item:nth-child(2) {
+  background: yellow;
+  grid-area: aside;
+}
+
+.grid-box-item:nth-child(3) {
+  background: yellowgreen;
+  grid-area: main;
+}
+
+.grid-box-item:nth-child(4) {
+  background: blue;
+  grid-area: footer
+}
