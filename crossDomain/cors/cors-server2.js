@@ -45,7 +45,7 @@ app.use(function (req, res, next) {
     // 允许返回的头
     res.setHeader('Access-Control-Expose-Headers', 'serve-name')
     if (req.method === 'OPTIONS') {
-      res.end() // OPTIONS请求不做任何处理
+      return res.end() // OPTIONS请求不做任何处理
     }
   }
   next()
