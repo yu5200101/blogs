@@ -1,6 +1,6 @@
 //server2.js
 // 2.cors跨域
-/* 
+/*
 jsonp 只能支持 get 请求，cors 可以支持多种请求。cors 并不需要前端做什么工作。
 只要服务器设置的Access-Control-Allow-Origin Header和请求来源匹配，浏览器就允许跨域
 
