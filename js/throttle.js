@@ -30,19 +30,17 @@ Canvas 模拟画板功能（mousemove）
 */
 
 //利用时间戳实现
-/* function throttle(func, delay) {
-  var lastTime = 0;
-  function throttled() {
-    var context = this;
-    var args = arguments;
-    var nowTime = Date.now();
-    if(nowTime > lastTime + delay) {
-      func.apply(context, args);
-      lastTime = nowTime;
-    }
-  }
-  return throttled;
-} */
+// function throttle (fn, delay) {
+//   let last = 0
+//   return function() {
+//     let now = new Date()
+//     if (now - last < delay) {
+//       return
+//     }
+//     last = now
+//     fn.apply(this, Array.prototype.slice.call(arguments, 0))
+//   }
+// }
 
 // 利用定时器实现
 /* function throttle (func, delay) {
@@ -121,3 +119,22 @@ container.onmousemove = throttle(getUserAction, 1000, {
   trailing: false
 }); */
 
+// 防抖和节流结合版本
+// function throttle (fn, delay) {
+//   let last = 0
+//   let timer = null
+
+//   return function() {
+//     let now = new Date()
+//     if (now - last < delay) {
+//       clearTimeout(timer)
+//       timer = setTimeout(() => {
+//         last = now
+//         fn.apply(this, Array.prototype.slice.call(arguments, 0))
+//       }, delay)
+//       return
+//     }
+//     last = now
+//     fn.apply(this, Array.prototype.slice.call(arguments, 0))
+//   }
+// }
