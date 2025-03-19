@@ -32,6 +32,7 @@
     }
     xhr.send()
   }
+  simpleRequest()
   // 非简单请求
   function notSimpleRequest() {
     // 预检请求+响应字段
@@ -42,7 +43,7 @@
     // setRequestHeader为非简单请求，表示预检请求
     // xhr.setRequestHeader('name', 'xiamen');
     // 在预检请求的响应返回后,会先触发options，若请求header不满足响应头的条件，则会触发XMLHttpRequest的onError事件，那么cors请求也不会发出去了。
-    xhr.setRequestHeader('name1', 'xiamen');
+    // xhr.setRequestHeader('name1', 'xiamen');
     xhr.onreadystatechange = function() {
       if(xhr.readyState === 4) {
         if((xhr.status >=200 && xhr.status < 300) || xhr.status === 304) {
@@ -54,6 +55,6 @@
     }
     xhr.send()
   }
-  notSimpleRequest()
+  // notSimpleRequest()
 </script>
 </html>
