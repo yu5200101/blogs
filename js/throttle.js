@@ -1,26 +1,25 @@
 // 节流，每隔一段时间执行一次
 // 在规定时间内只会执行一次，执行一次后，只有大于设定的执行周期后才会执行第二次。
-/* function throttle (fn, wait) {
-  var timer = null;
-
+function throttle (fn, delay) {
+  let timer = null
   return function () {
     if (!timer) {
       timer = setTimeout(() => {
-        fn.apply(this, Array.prototype.slice.call(arguments, 0));
-        timer = null;
-      }, wait);
+        fn.apply(this, Array.prototype.slice.call(arguments, 0))
+        timer = null
+      }, delay)
     }
   }
-} */
+}
 // 以下照旧
 function showTop () {
   var scrollTop = document.body.scrollTop || document.documentElement.scrollTop
   console.log('滚动条的位置' + scrollTop)
 }
-// window.onscroll = throttle(showTop, 1000)
-window.addEventListener('scroll', throttle(showTop, 1000), false)
+window.onscroll = throttle(showTop, 1000)
+// window.addEventListener('scroll', throttle(showTop, 1000), false)
 
-/* 
+/*
 函数节流的应用场景有:
 DOM 元素的拖拽功能实现（mousemove）
 射击游戏的 mousedown/keydown 事件（单位时间只能发射一颗子弹）
@@ -68,46 +67,46 @@ Canvas 模拟画板功能（mousemove）
 // leading: false 表示禁用第一次执行
 // trailing: false 表示禁用停止触发的回调
 // 不能同时设置为false
-function throttle (func, wait = 100, options) {
-  var timeout, context, args, result;
-  var previous = 0;
-  if(!options) options = {};
-  var later = function () {
-    previous = options.leading === false ? 0 : new Date().getTime();
-    timeout = null;
-    result = func.apply(context, args);
-    if(!timeout) context = args = null;
-  }
-  var throttled = function () {
-    var now = Date.now() || new Date().getTime();
-    if (!previous && options.leading === false) previous = now;  
-    //下次触发 func 剩余的时间
-    var remaining = wait - (now - previous);
-    context = this;
-    args = arguments;
-    // 如果没有剩余的时间了或者你改了系统时间
-    // 第一次执行 中间执行
-    if(remaining <= 0 || remaining > wait) {
-      if(timeout) {
-        clearTimeout(timeout);
-        timeout = null;
-      }
-      previous = now;
-      result = func.apply(context, args);
-      if(!timeout) context = args = null;
-    } else if(!timeout && options.trailing !== false) {
-      // 判断是否设置了定时器和trailing 最后一次执行
-      timeout = setTimeout(later, remaining);
-    }
-    return result;
-  }
-  throttled.cancel = function () {
-    clearTimeout(timeout);
-    previous = 0;
-    timeout = context = args = null;
-  }
-  return throttled;
-}
+// function throttle (func, wait = 100, options) {
+//   var timeout, context, args, result;
+//   var previous = 0;
+//   if(!options) options = {};
+//   var later = function () {
+//     previous = options.leading === false ? 0 : new Date().getTime();
+//     timeout = null;
+//     result = func.apply(context, args);
+//     if(!timeout) context = args = null;
+//   }
+//   var throttled = function () {
+//     var now = Date.now() || new Date().getTime();
+//     if (!previous && options.leading === false) previous = now;
+//     //下次触发 func 剩余的时间
+//     var remaining = wait - (now - previous);
+//     context = this;
+//     args = arguments;
+//     // 如果没有剩余的时间了或者你改了系统时间
+//     // 第一次执行 中间执行
+//     if(remaining <= 0 || remaining > wait) {
+//       if(timeout) {
+//         clearTimeout(timeout);
+//         timeout = null;
+//       }
+//       previous = now;
+//       result = func.apply(context, args);
+//       if(!timeout) context = args = null;
+//     } else if(!timeout && options.trailing !== false) {
+//       // 判断是否设置了定时器和trailing 最后一次执行
+//       timeout = setTimeout(later, remaining);
+//     }
+//     return result;
+//   }
+//   throttled.cancel = function () {
+//     clearTimeout(timeout);
+//     previous = 0;
+//     timeout = context = args = null;
+//   }
+//   return throttled;
+// }
 /* 我们要注意 underscore 的实现中有这样一个问题：
 
 那就是 leading：false 和 trailing: false 不能同时设置。
