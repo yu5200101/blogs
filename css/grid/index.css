@@ -12,11 +12,12 @@
   font-weight: 700;
   margin: 100px auto;
   display: grid;
+  /* 2行 2列 */
   grid-template: repeat(3, auto) / repeat(3, auto);
 
   /* grid-auto-flow: dense; */
   /* grid-gap: 10px; */
-  /* grid-template-columns: 100px 100px; */
+  /* grid-template-co2lumns: 100px 100px; */
   /* grid-template-columns: repeat(2, 100px); */
   /* grid-template-columns: repeat(auto-fill, 150px); */
   /* grid-template-columns: 1fr 2fr; */
@@ -24,18 +25,26 @@
   /* grid-template-columns: 200px auto 100px; */
   /* grid-template-columns: fit-content(100px) auto 100px; */
 
-  /* justify-items: center;
-  align-items: end; */
-  /* place-items: end center; */
+  /* stretch: 网格项拉伸填满单元格 */
+  /* justify-items,用于控制网格项在网格单元格内的 水平对齐 方式,可选值：start end center stretch*/
+  /* justify-items: center; */
+  /* align-items,用于控制网格项在网格单元格内的 垂直对齐 方式,可选值：start end center stretch baseline*/
+  /* align-items: end; */
+  /* place-items: center center; */
 
-  /* justify-content: space-between;
-  align-content: center; */
-  /* place-content: center space-between; */
+  /* align-content，控制网格内容在 垂直方向 上的对齐方式，可选值：start end center stretch space-between space-around space-evenly*/
+  /* align-content: space-evenly; */
+  /* justify-content，控制网格内容在 水平方向 上的对齐方式，可选值：start end center stretch space-between space-around space-evenly*/
+  /* justify-content: space-between; */
+  /* place-content: center center; */
 
   /* 2行 列高100px，2列 行宽300px */
   /* grid-template: repeat(2, 100px) /repeat(2, 300px); */
-  /* 超出的没列 列高200px */
-  /* grid-auto-rows: 200px; */
+
+  /* 超出的每列 列高200px */
+  grid-auto-rows: 200px;
+  /* 超出的每行 行宽200px */
+  /* grid-auto-columns: 200px; */
 }
 
 .item:nth-child(1) {
@@ -65,7 +74,7 @@
 
 .item:nth-child(6) {
   background: orange;
-  /* grid-column-start: span 2; */
+  grid-column-start: span 2;
 }
 
 .item:nth-child(7) {
@@ -80,11 +89,12 @@
   font-weight: 700;
   margin: 100px auto;
   display: grid;
+  /* 先行后列 */
   grid-auto-flow: row;
   grid-template:
   ". header" 100px
   "aside main" 300px
-  "footer footer" 100px / 200px 1fr;
+  "footer footer" 200px;
   /* grid-column-gap: 10px;
   grid-row-gap: 20px; */
   grid-gap: 20px 10px;

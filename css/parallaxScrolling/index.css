@@ -1,0 +1,27 @@
+div {
+  height: 100vh;
+  background: rgba(0, 0, 0, 0.7);
+  color: #ffffff;
+  line-height: 100vh;
+  text-align: center;
+  font-size: 20vh;
+}
+.a-img1 {
+  background-image: url('https://gw.alicdn.com/bao/uploaded/i1/2207806982565/O1CN01zhc0gf1UoovIgIneq_!!2207806982565.jpg');
+  background-attachment: fixed;
+  background-size: cover;
+  background-position: center center;
+}
+
+.a-img2 {
+  background-image: url('https://img.alicdn.com/imgextra/i4/2207969171848/O1CN01vKRSIW1PWQuvrzLBo_!!2207969171848.jpg');
+  background-attachment: fixed;
+  background-size: cover;
+  background-position: center center;
+}
+.a-img3 {
+  background-image: url('https://gw.alicdn.com/bao/uploaded/i3/2216122730985/O1CN01FPchZb1J9B9OAx3CG_!!2216122730985.jpg');
+  background-attachment: fixed;
+  background-size: cover;
+  background-position: center center;
+}

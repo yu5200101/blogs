@@ -1,0 +1,41 @@
+.box {
+  width: 0;
+  height: 0;
+  border-style: solid;
+  border-width: 0 50px 50px;
+  border-color: transparent transparent #000000;
+  position: relative;
+  margin-bottom: 50px;
+}
+
+.box:after {
+  content: '';
+  border-style: solid;
+  border-width: 0 40px 40px;
+  border-color: transparent transparent #ffffff;
+  position: absolute;
+  top: 6px;
+  left: -40px;
+}
+
+.right-angle {
+  width: 0;
+  height: 0;
+  border-top: 50px solid #000000;
+  border-right: 50px solid transparent;
+  margin-bottom: 20px;
+  transform: rotate(45deg) translateY(-90%);
+}
+
+.border-triangle {
+  width: 50px;
+  height: 50px;
+  background: #000000;
+  clip-path: polygon(0 0, 100% 0, 50% 50%, 0 100%);
+  border-radius: 5px 0 0;
+  transform: rotate(45deg) translateY(-90%);
+}
+
+.border-color {
+  border: 5px solid red;
+}

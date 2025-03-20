@@ -71,7 +71,9 @@
 /* 如何让 chrome 浏览器显示小于 12px 的文字 */
 .less-size {
   font-size: 22px;
+  /* 方案一 chrome >27 不支持，只对英文和数字生效 */
   -webkit-text-size-adjust: none;
+  /* 方案二 */
   -webkit-transform: scale(0.5);
 }
 

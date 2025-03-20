@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>block formatting context</title>
+  <style>
+    body {
+      margin: 0;
+    }
+    .box {
+      position: relative;
+      overflow: hidden;
+      background: yellow;
+    }
+    .box-item {
+      margin: 10px;
+      background: red;
+    }
+    .box-item[data-attr=data-value] {
+      color: #E57859;
+    }
+    /* 以data开头 */
+    .box-item[data-attr|=data] {
+      color: #CB6173;
+    }
+    /* 包含value */
+    .box-item[data-attr*=value] {
+      color: #6F8D66;
+    }
+    /* 以da开头 */
+    .box-item[data-attr^=da] {
+      color: #9C6CAA;
+    }
+    /* 以ue结尾 */
+    .box-item[data-attr$=ue] {
+      color: #D3851E;
+    }
+    .float-right {
+      height: 200px;
+      float: right;
+      background: yellowgreen;
+    }
+    .box-item3 {
+      background: green;
+      overflow: hidden;
+    }
+    .box-absolute {
+      position: absolute;
+      top: 0;
+      left: 0;
+    }
+    .box3 {
+      width: 100px;
+      height: 200px;
+      position: relative;
+    }
+    .box-item4 {
+      position: absolute;
+      /* 对于高度设置百分比 */
+      /* top: 20%; */
+      /* 对于宽度设置百分比 */
+      /* left: 20%; */
+      /* 对于宽度设置百分比 */
+      /* right: 20%; */
+      /* 对于高度设置百分比 */
+      bottom: 20%;
+    }
+  </style>
+</head>
+<body>
+  <div class="box">
+    <div class="box-item" data-attr="data-value">box-item1</div>
+    <div class="box-item">box-item2</div>
+    <div class="float-right">float-right</div>
+    <div class="box-item3">box-item3</div>
+    <div class="box-item">box-item4</div>
+    <div class="box-absolute">box-position-absolute</div>
+  </div>
+  <div class="box2">
+    <span class="box-item">box-item1</span>
+    <span class="box-item">box-item2</span>
+  </div>
+  <div class="box3">
+    <span class="box-item4">box-item1</span>
+  </div>
+</body>
+</html>

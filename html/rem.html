@@ -21,12 +21,32 @@
         line-height: 2rem;
         text-align: center;
       }
+      @media screen and (min-width: 375px) and (max-width: 600px) {
+        body {
+          font-size: 75px;
+        }
+      }
     </style>
   </head>
   <body>
     <div class="test">Only test</div>
   </body>
   <script>
+    // 屏幕尺寸变化重新设置html的fontSize
+    function refreshRem(){
+        // 等同于document.body.offsetWidth
+        var width = document.body.getBoundingClientRect().width;
+        const htmlEle =  document.getElementsByTagName("html")[0]
+        const dpr = window.devicePixelRatio
+        // 屏幕尺寸最大是540
+        if (width / dpr > 540) {
+            width = 540 * dpr;
+        }
+        const rem = width / 10;
+        htmlEle.fontSize = rem + 'px';
+    }
+    window.addEventListener('orientationchange', refreshRem)
+    window.addEventListener('resize', refreshRem)
     // 动态设置缩放，让chrome调试的时候能看见对应的px值，而不用查代码
     function fixPixelRatio () {
       var scale = 1 / window.devicePixelRatio;
@@ -49,6 +69,6 @@
       }, false);
     }
     fixPixelRatio()
-    displayRem()
+    // displayRem()
   </script>
   </html>
