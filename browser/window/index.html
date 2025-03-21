@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+  <style>
+    * {
+      margin: 0;
+    }
+    .box {
+      width: 100vw;
+      height: 200vh;
+      background: red;
+      position: relative;
+    }
+    .box-100 {
+      position: absolute;
+      left: 0;
+      top: 100px;
+    }
+    .btn {
+      width: 100px;
+      line-height: 100px;
+      text-align: center;
+      color: #ffffff;
+      background: orange;
+    }
+  </style>
+</head>
+<body>
+  <div class="box">
+    <div class="btn-top" onclick="openFn()">open</div>
+    <div class="btn-top" onclick="scrollByFn()">scrollBy</div>
+    <div class="box-100">100px位置</div>
+  </div>
+  <div class="btn" onclick="scrollToFn()">scrollTo</div>
+</body>
+</html>
+<script>
+  function scrollByFn () {
+    console.log('滚动啦~~')
+    window.scrollBy(0, 100); // 向下滚动100px
+  }
+  function scrollToFn () {
+    console.log('滚动啦~~')
+    window.scrollTo(0, 100); // 滚动到距离顶部100px的位置
+  }
+  function openFn() {
+    window.open('https://www.baidu.com')
+  }
+</script>
