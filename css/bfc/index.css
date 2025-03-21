@@ -1,0 +1,61 @@
+body {
+  margin: 0;
+}
+.box {
+  position: relative;
+  overflow: hidden;
+  background: yellow;
+}
+.box-item {
+  margin: 10px;
+  background: red;
+}
+.box-item[data-attr=data-value] {
+  color: #E57859;
+}
+/* 以data开头 */
+.box-item[data-attr|=data] {
+  color: #CB6173;
+}
+/* 包含value */
+.box-item[data-attr*=value] {
+  color: #6F8D66;
+}
+/* 以da开头 */
+.box-item[data-attr^=da] {
+  color: #9C6CAA;
+}
+/* 以ue结尾 */
+.box-item[data-attr$=ue] {
+  color: #D3851E;
+}
+.float-right {
+  height: 200px;
+  float: right;
+  background: yellowgreen;
+}
+.box-item3 {
+  background: green;
+  overflow: hidden;
+}
+.box-absolute {
+  position: absolute;
+  top: 0;
+  left: 0;
+}
+.box3 {
+  width: 100px;
+  height: 200px;
+  position: relative;
+}
+.box-item4 {
+  position: absolute;
+  /* 对于高度设置百分比 */
+  /* top: 20%; */
+  /* 对于宽度设置百分比 */
+  /* left: 20%; */
+  /* 对于宽度设置百分比 */
+  /* right: 20%; */
+  /* 对于高度设置百分比 */
+  bottom: 20%;
+}

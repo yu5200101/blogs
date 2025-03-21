@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+</head>
+<link rel="stylesheet" href="./index.css">
+<body>
+  rem计算
+</body>
+</html>
+<script>
+  // 屏幕尺寸变化重新设置html的fontSize
+  function refreshRem(){
+    // 等同于document.body.offsetWidth
+    var width = document.body.getBoundingClientRect().width;
+    const htmlEle = document.getElementsByTagName("html")[0]
+    const dpr = window.devicePixelRatio
+    // 屏幕尺寸最大是540
+    if (width / dpr > 540) {
+        width = 540 * dpr;
+    }
+    const rem = width / 10;
+    htmlEle.style.fontSize = rem + 'px';
+  }
+  window.addEventListener('orientationchange', refreshRem)
+  window.addEventListener('resize', refreshRem)
+  // 动态设置缩放，让chrome调试的时候能看见对应的px值，而不用查代码
+  function fixPixelRatio () {
+    var scale = 1 / window.devicePixelRatio;
+    var meta= '<meta name="viewport" content="initial-scale=' + scale + ', maximum-scale=' + scale + ',' + ' minimum-scale=' + scale + ', width=device-width,' + ' user-scalable=no" />';
+    document.write(meta);
+  }
+
+  // 设置font-size
+  function displayRem () {
+    var designW = 750;  //设计稿宽
+    // 定义75px=1rem 且设计稿750px = offsetWidth 那么 offsetWidth = 10rem，由于1rem=fontSize，所以fontSize = offsetWidth/10
+    var font_rate = 75;
+
+    var ratio = designW / font_rate
+    //适配
+    document.getElementsByTagName("html")[0].style.fontSize = document.body.offsetWidth / ratio + "px";
+    //监测窗口大小变化
+    window.addEventListener("orientationchange" in window ? "orientationchange" : "resize", function () {
+        document.getElementsByTagName("html")[0].style.fontSize = document.body.offsetWidth / ratio + "px";
+    }, false);
+  }
+  fixPixelRatio()
+  // displayRem()
+</script>
