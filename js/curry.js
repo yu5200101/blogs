@@ -156,3 +156,43 @@ function curry3 (fn) {
 }
 curry2(connect)(2, _, 4, 5)(_, 1)(_)("占位1", "占位2")("占位3");
 curry3(connect)(2, _, 4, 5)(_, 1)(_)("占位1", "占位2")("占位3");
+
+function add (x, y) {
+  return x + y
+}
+
+const memoize = function (fn, context) {
+  const cache = Object.create(null)
+  const content = context || this
+  return function (...key) {
+    if (!cache[key]) {
+      console.log('not-cache')
+      cache[key] = fn.apply(content, key)
+    }
+    console.log('cache')
+    return cache[key]
+  }
+}
+
+const calc = memoize(add)
+const num1 = calc(100, 200)
+console.log(num1)
+// 计算num2用的是缓存里面的值
+const num2 = calc(100, 200)
+console.log(num2)
+
+const curryFn = function(innerFn) {
+  return function formatFn(...arg) {
+    if (arg.length < innerFn.length) {
+      return function() {
+        return formatFn(...[...arg, ...arguments])
+      }
+    }
+    return innerFn(...arg)
+  }
+}
+
+const fn1 = (x, y, m, n)  => x+y+m+n
+
+const myFn = curryFn(fn1)
+console.log(myFn(1)(2)(3)(4))

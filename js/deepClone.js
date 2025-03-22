@@ -22,3 +22,17 @@ function deepClone (obj) {
   }
   throw new Error("Unable to copy obj! Its type isn't supported.");
 }
+
+function deepCopy(obj) {
+  if (obj === null) return obj
+  if (typeof obj !== 'object') return obj
+  if (obj instanceof Date) return new Date(obj)
+  if (obj instanceof RegExp) return new RegExp(obj)
+  const newObj = new obj.constructor()
+  for (let key in obj) {
+    if (obj.hasOwnProperty(key)) {
+      newObj[key] = deepCopy(obj[key])
+    }
+  }
+  return newObj
+}
