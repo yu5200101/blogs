@@ -53,20 +53,19 @@ const clone = Object.create(Object.getPrototypeOf(obj), Object.getOwnPropertyDes
 // 或者
 const shallowClone = (obj) => Object.create(Object.getPrototypeOf(obj), Object.getOwnPropertyDescriptors(obj))
 
-const obj = Object.create(port);
-obj.foo = 123;
-//或者 
-const obj = Object.assign(Object)
+const obj1 = Object.create(Object);
+obj1.extend = 123;
+//或者
+const obj2 = Object.assign(Object)
 
-const obj = {
+const obj3 = {
   method: function () {
-    
   }
 }
-obj.__proto__ = someOtherObj;
+// obj3.__proto__ = someOtherObj;
 //es6的写法
-var obj = Object.create(someOtherObj);
-obj.method = function () {}
+var obj4 = Object.create(Object);
+obj4.method = function () {}
 // 实现上，__proto__调用的是Object.prototype.__proto__
 Object.defineProperty(Object.prototype, '__proto__', {
   get () {
@@ -99,5 +98,29 @@ with({
   }
 }){
   console.log(a == 1 && a == 2 && a == 3);
-  
 }
+
+const obj5 = Object.create(obj1);
+obj5.enumerable = 'enumerable';
+Object.defineProperty(obj5, 'not-enumerable', {
+  value: 'value1',
+  enumerable: false
+});
+obj5[Symbol('1')] = 'symbol(1)';
+
+// 循环遍历自身，可枚举属性，包含继承，不包含symbol
+for(let key in obj5) {
+  console.log('for...in...:', key)
+}
+// 循环遍历自身，可枚举属性，不包含继承，不包含symbol
+console.log('Object.keys:' , Object.keys(obj5))
+// 循环遍历自身，可枚举属性，不可枚举属性，不包含继承，不包含symbol
+console.log('Object.getOwnPropertyNames:', Object.getOwnPropertyNames(obj5))
+// 循环遍历自身，只包含symbol
+console.log('Object.getOwnPropertySymbols:', Object.getOwnPropertySymbols(obj5))
+// 循环遍历自身，可枚举属性，不可枚举属性，不包含继承，包含symbol
+console.log('Reflect.ownKeys:', Reflect.ownKeys(obj5))
+
+console.log('Object.getPrototypeOf:', Object.getPrototypeOf(obj5) === obj1)
+console.log('Object.setPrototypeOf:', Object.setPrototypeOf(obj5, obj2))
+console.log('Object.getPrototypeOf:', Object.getPrototypeOf(obj5) === obj2)
