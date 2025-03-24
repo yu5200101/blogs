@@ -78,7 +78,7 @@ let t = gen();
 //next方法可以带一个参数，该参数就会被当作上一个yield表达式的返回值
 t.next(1); //第一次调用next函数时，传递的参数无效
 t.next(2); //a输出2;
-t.next(3); //b输出3; 
+t.next(3); //b输出3;
 t.next(4); //c输出4;
 t.next(5); //d输出5;
 
@@ -108,7 +108,7 @@ for (let item of obj) {
   console.log(item);
 }
 //使用generator函数（遍历器对象生成函数）简写Symbol.iterator方法，可以简写如下：
-let obj = {
+let obj2 = {
   name: 'yuan',
   age: 23,
   job: 'web',

@@ -124,3 +124,11 @@ console.log('Reflect.ownKeys:', Reflect.ownKeys(obj5))
 console.log('Object.getPrototypeOf:', Object.getPrototypeOf(obj5) === obj1)
 console.log('Object.setPrototypeOf:', Object.setPrototypeOf(obj5, obj2))
 console.log('Object.getPrototypeOf:', Object.getPrototypeOf(obj5) === obj2)
+
+const ary = [1, 2, 3, 4]
+for(let key in ary) {
+  console.log('for...in...:', key)
+}
+for(let value of ary) {
+  console.log('for...of...:', value)
+}
