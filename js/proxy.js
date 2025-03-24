@@ -356,3 +356,54 @@ try {
   // Invalid attempt to delete private "_prop" property
   console.log(err)
 }
+
+// 观察者接口
+class Observer {
+  update(state) {
+    console.log(`Observer received update: ${state}`);
+  }
+}
+
+// 主题类
+class Subject {
+  constructor() {
+    this.state = null;
+    this.observers = [];
+  }
+
+  addObserver(observer) {
+    this.observers.push(observer);
+  }
+
+  removeObserver(observer) {
+    this.observers = this.observers.filter(obs => obs !== observer);
+  }
+
+  notifyObservers() {
+    this.observers.forEach(observer => observer.update(this.state));
+  }
+}
+
+// 创建Proxy来拦截对Subject状态的修改
+const handler15 = {
+  set(target, property, value) {
+    if (property === 'state') {
+      target[property] = value;
+      target.notifyObservers(); // 状态改变时通知观察者
+      return true;
+    }
+    return false;
+  }
+}
+
+// 使用示例
+const subject = new Subject();
+const proxySubject = new Proxy(subject, handler15);
+
+const observer1 = new Observer();
+const observer2 = new Observer();
+
+proxySubject.addObserver(observer1);
+proxySubject.addObserver(observer2);
+
+proxySubject.state = 'New State'; // 修改状态，观察者会收到通知
