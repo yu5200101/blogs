@@ -325,8 +325,31 @@ const handler14 = {
     return true
   }
 }
-const target14 = {'_prop': 'prop'}
+const target14 = {
+  '_prop': 'prop'
+}
+Object.defineProperty(target14, 'foo', {
+  value: 'bar',
+  // writable: true,
+  enumerable: true,
+  // 没有如下这一行，delete proxy14.foo 会报错
+  // configurable: true
+});
 const proxy14 = new Proxy(target14, handler14)
+try {
+  delete proxy14._prop
+} catch (err) {
+  // Invalid attempt to delete private "_prop" property
+  console.log(err)
+}
+try {
+  delete proxy14.foo
+} catch (err) {
+  console.log(err)
+}
+
+Proxy.revocable(target14, handler14)
+console.log(target14, 'target14')
 try {
   delete proxy14._prop
 } catch (err) {
