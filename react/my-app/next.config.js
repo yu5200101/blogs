@@ -5,7 +5,7 @@ const nextConfig = {
     remotePatterns: [
       {
         protocol: 'https',
-        hostname: 'store.sdbao.com',
+        hostname: 'store.test.com',
         port: '',
         pathname: '/**/**',
       },

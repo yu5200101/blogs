@@ -1,0 +1,5 @@
+node_modules
+dist
+src/assets/**
+src/views/free/scss
+src/components/ConfirmDialog/index.scss

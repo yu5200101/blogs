@@ -407,3 +407,36 @@ proxySubject.addObserver(observer1);
 proxySubject.addObserver(observer2);
 
 proxySubject.state = 'New State'; // 修改状态，观察者会收到通知
+
+function reactive(obj) {
+  if (!obj || typeof obj !== 'object') return obj;
+  const observer = new Proxy(obj, {
+    get(target, key, receiver) {
+      const res = Reflect.get(target, key, receiver)
+      console.log(`get:${key}:${res}`);
+      if (typeof res === 'object') return reactive(obj)
+      return res
+    },
+    set(target, key, value, receiver) {
+      const res = Reflect.set(target, key, value, receiver)
+      console.log(`set:${key}:${res}`);
+      return res
+    },
+    deleteProperty(target, key) {
+      const res = Reflect.deleteProperty(target, key)
+      console.log(`deleteProperty:${key}:${res}`);
+      return res
+    }
+  })
+  return observer
+}
+
+const reactive1 = new reactive({
+  a: 'a',
+  c: {d: 1}
+})
+console.log('init', reactive1.a);
+reactive1.a = 'aa'
+reactive1.b = 'b'
+delete reactive1.b
+reactive1.c.d = 'd'

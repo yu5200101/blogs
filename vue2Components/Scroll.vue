@@ -13,8 +13,6 @@
 </template>
 
 <script>
-import { extractNumber } from '@/views/ins/utils'
-
 export default {
   data() {
     return {
@@ -50,6 +48,18 @@ export default {
     })
   },
   methods: {
+    // 利用js正则取出translateX(-135.469px)里面的数字，答案为-135.469
+    // 利用js正则取出translateX(135px)里面的数字，答案为135
+    // 利用js正则取出translateX(-135px)里面的数字，答案为-135
+    // 利用js正则translateX(135.3333px)里面的数字，答案为135.3333
+    extractNumber(inputString) {
+      const regex = /[-+]?\d*\.\d+|[-+]?\d+/g
+      const matches = inputString.match(regex)
+      if (matches && matches.length > 0) {
+        return parseFloat(matches[0])
+      }
+      return 0
+    },
     // 超出边界时需要重置位置
     isNeedReset() {
       let offsetX
@@ -68,7 +78,7 @@ export default {
     },
     // 停止滚动
     stop() {
-      this.offsetX = extractNumber(this.$refs.scroller.style.transform)
+      this.offsetX = this.extractNumber(this.$refs.scroller.style.transform)
     },
     momentum(current, start, duration) {
       const durationMap = {
