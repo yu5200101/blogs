@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>用户认证演示</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/blueimp-md5/2.19.0/js/md5.min.js"></script>
+    <style>
+        .container { max-width: 600px; margin: 20px auto; padding: 20px; }
+        .form-group { margin-bottom: 15px; }
+        label { display: block; margin-bottom: 5px; }
+        input { width: 100%; padding: 8px; }
+        button { padding: 8px 15px; background: #007bff; color: white; border: none; cursor: pointer; }
+        .result { margin-top: 20px; padding: 10px; background: #f8f9fa; }
+    </style>
+</head>
+<body>
+  <div class="container">
+      <!-- 注册表单 -->
+      <div class="form-section">
+          <h2>用户注册</h2>
+          <form id="registerForm">
+              <div class="form-group">
+                  <label>手机号:</label>
+                  <input type="text" id="regMobile" required>
+              </div>
+              <div class="form-group">
+                  <label>密码:</label>
+                  <input type="password" id="regPassword" required>
+              </div>
+              <button type="submit">注册</button>
+          </form>
+      </div>
+
+      <!-- 登录表单 -->
+      <div class="form-section">
+          <h2>用户登录</h2>
+          <form id="loginForm">
+              <div class="form-group">
+                  <label>手机号:</label>
+                  <input type="text" id="loginMobile" required>
+              </div>
+              <div class="form-group">
+                  <label>密码:</label>
+                  <input type="password" id="loginPassword" required>
+              </div>
+              <button type="submit">登录</button>
+          </form>
+      </div>
+
+      <!-- 用户信息 -->
+      <div class="form-section">
+          <h2>用户信息</h2>
+          <button onclick="getUserInfo()">获取用户信息</button>
+          <div class="result" id="userInfo"></div>
+      </div>
+  </div>
+
+  <script>
+      // 保存Token
+      let authToken = localStorage.getItem('jwtToken');
+
+      // 注册功能
+      document.getElementById('registerForm').addEventListener('submit', async (e) => {
+          e.preventDefault();
+          const mobile = document.getElementById('regMobile').value;
+          const password = md5(document.getElementById('regPassword').value);
+
+          try {
+              const response = await fetch('/register', {
+                  method: 'POST',
+                  headers: { 'Content-Type': 'application/json' },
+                  body: JSON.stringify({ mobile, password })
+              });
+              const result = await response.json();
+              showMessage('register', result);
+          } catch (err) {
+              console.error('注册失败:', err);
+          }
+      });
+
+      // 登录功能
+      document.getElementById('loginForm').addEventListener('submit', async (e) => {
+          e.preventDefault();
+          const mobile = document.getElementById('loginMobile').value;
+          const password = md5(document.getElementById('loginPassword').value);
+
+          try {
+              const response = await fetch('/login', {
+                  method: 'POST',
+                  headers: { 'Content-Type': 'application/json' },
+                  body: JSON.stringify({ mobile, password })
+              });
+
+              const result = await response.json();
+              if (result.token) {
+                  authToken = result.token;
+                  localStorage.setItem('jwtToken', result.token);
+              }
+              showMessage('login', result);
+          } catch (err) {
+              console.error('登录失败:', err);
+          }
+      });
+
+      // 获取用户信息
+      async function getUserInfo() {
+          if (!authToken) {
+              alert('请先登录');
+              return;
+          }
+
+          try {
+              const response = await fetch('/getUserInfo', {
+                  headers: { 'Authorization': `Bearer ${authToken}` }
+              });
+              const result = await response.json();
+              document.getElementById('userInfo').innerHTML = JSON.stringify(result, null, 2);
+          } catch (err) {
+              console.error('获取用户信息失败:', err);
+          }
+      }
+
+      // 显示操作结果
+      function showMessage(type, data) {
+          const msg = type === 'login'
+              ? `登录结果: ${data.code === 200 ? '成功' : '失败'}`
+              : `注册结果: ${data.code === 200 ? '成功' : '失败'}`;
+          alert(`${msg}\n${data.message || ''}`);
+      }
+  </script>
+</body>
+</html>
