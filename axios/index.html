@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+</head>
+<body>
+</body>
+<script src="./axios.js"></script>
+<script>
+  // 创建基础实例
+  const baseAxios = new Axios({
+    baseURL: 'https://api.example.com'
+  });
+
+  // 创建派生实例
+  const authAxios = baseAxios.create({
+    headers: {
+      Authorization: 'Bearer token123'
+    }
+  });
+  // 添加实例专属拦截器
+  authAxios.interceptors.request.use(config => {
+    console.log('实例级请求拦截器');
+    if (config.cancelRequest) {
+      const source = authAxios.CancelToken.source();
+      config.cancelRequest.cancelToken = source.cancel
+      config.cancelToken = source.token
+    }
+    return config;
+  });
+
+  // 发送请求
+  authAxios.get('/user')
+    .then(res => console.log(res))
+    .catch(err => console.error(err));
+
+  const cancelRequest = {}
+  // 取消请求示例
+  authAxios.get('/data', {
+    cancelRequest
+  }).catch(err => {
+    if (axios.isCancel(err)) {
+      console.log('Request canceled:', err.message);
+    }
+  });
+  cancelRequest.cancel('Operation canceled by user');
+</script>
+</html>
