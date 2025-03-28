@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>无跳转文件上传</title>
+</head>
+<body>
+    <!-- 添加 id 和 onsubmit 事件 -->
+    <form id="uploadForm" onsubmit="return false">
+        <input type="file" name="file" id="fileInput" required>
+        <button type="button" onclick="uploadFile()">上传文件</button>
+    </form>
+    <!-- 添加结果展示区域 -->
+    <div id="result"></div>
+
+    <script>
+      async function uploadFile() {
+          const resultDiv = document.getElementById('result');
+          const fileInput = document.getElementById('fileInput');
+          if (!fileInput.files[0]) {
+              resultDiv.innerHTML = '<span style="color:red">请选择文件</span>';
+              return;
+          }
+          const formData = new FormData();
+          formData.append('file', fileInput.files[0]);
+          try {
+              const response = await fetch('/upload', {
+                  method: 'POST',
+                  body: formData
+              });
+              const data = await response.json();
+              if (response.ok) {
+                  resultDiv.innerHTML = `
+                      <p>上传成功！</p>
+                      <p>原始文件名：${data.originalName}</p>
+                      <p>下载地址：<a href="${data.downloadUrl}" target="_blank">点击下载</a></p>
+                  `;
+              } else {
+                resultDiv.innerHTML = `<span style="color:red">错误：${JSON.stringify(data)}</span>`;
+              }
+          } catch (err) {
+              resultDiv.innerHTML = `<span style="color:red">网络错误：${err.message}</span>`;
+          }
+      }
+      </script>
+</body>
+</html>
