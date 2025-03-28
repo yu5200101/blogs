@@ -1,8 +1,10 @@
 let express = require('express');
 let app = express();
 app.use(express.static(__dirname));
-app.listen(8080);
-let webSocketServer = require('ws').Server 
+app.listen(8080, () => {
+  console.log('Server running on http://localhost:8080');
+});
+let webSocketServer = require('ws').Server
 //用ws模块启动一个websocket服务器.监听9999端口
 let wsServer = new webSocketServer({port:9999})
 // 监听客户端的连接请求，当客户端连接服务器的时候，就会触发connection事件
