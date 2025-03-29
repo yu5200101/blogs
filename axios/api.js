@@ -22,11 +22,11 @@ class Api {
   setHttpInterceptors() {
     this.axiosInstance.interceptors.request.use(config => {
       if (config.data && config.data.cancelRequest) {
-        const source = this.axiosInstance.CancelToken.source();
+        const source = axios.CancelToken.prototype.source();
         config.data.cancelRequest.cancelToken = source.cancel
         config.cancelToken = source.token
       }
-      if (config.data) delete config.data.cancelRequest
+      if (config.data && config.data.cancelRequest) delete config.data.cancelRequest
       config.headers.Authorization = `Bearer ${localStorage.getItem('token')}`
       return config;
     }, error => {

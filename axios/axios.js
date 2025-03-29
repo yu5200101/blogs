@@ -96,26 +96,27 @@ const axios = new Axios();
 // 取消令牌实现
 class CancelToken {
   constructor(executor) {
-    let resolvePromise;
-    this.promise = new Promise(resolve => {
-      resolvePromise = resolve;
-    });
-
+    let resolvePromise
+    this.promise = Promise.then(resolve => {
+      resolvePromise = resolve
+    })
     executor(message => {
-      resolvePromise({ message });
-    });
+      resolvePromise({message})
+    })
   }
-
-  static source() {
-    let cancel;
+  cancel() {
+    let cancel
     const token = new CancelToken(c => {
-      cancel = c;
-    });
-    return { token, cancel };
+      cancel = c
+    })
+    return {
+      token,
+      cancel
+    }
   }
 }
 
 // 挂载取消令牌
-axios.CancelToken = CancelToken;
+axios.CancelToken = CancelToken
 
 // export default axios;

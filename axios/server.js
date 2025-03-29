@@ -1,6 +1,5 @@
 // http://localhost:3001/axios.js
 // http://localhost:3001/api.js
-// 访问html
 let express = require('express');
 let app = express();
 app.use(express.static(__dirname));

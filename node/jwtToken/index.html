@@ -102,22 +102,27 @@
               console.error('登录失败:', err);
           }
       });
-
+      const cancelRequest = {}
       // 获取用户信息
       async function getUserInfo() {
-          if (!authToken) {
-              alert('请先登录');
-              return;
-          }
+        if (!authToken) {
+          alert('请先登录');
+          return;
+        }
 
-          try {
-            const result = await api.get({
-              url: '/getUserInfo'
-            })
-            document.getElementById('userInfo').innerHTML = JSON.stringify(result, null, 2);
-          } catch (err) {
-              console.error('获取用户信息失败:', err);
-          }
+        try {
+          // 取消请求，防止第一次点击未返回结果再次点击请求接口
+          cancelRequest.cancelToken && cancelRequest.cancelToken('getUserInfo')
+          const result = await api.get({
+            url: '/getUserInfo',
+            data: {
+              cancelRequest
+            }
+          })
+          document.getElementById('userInfo').innerHTML = JSON.stringify(result, null, 2);
+        } catch (err) {
+          console.error('获取用户信息失败:', err);
+        }
       }
 
       // 显示操作结果
