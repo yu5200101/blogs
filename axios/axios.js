@@ -24,15 +24,6 @@ class Axios {
       request: new InterceptorManager(),
       response: new InterceptorManager()
     };
-
-    // 自动添加快捷方法
-    ['get', 'post', 'put', 'delete'].forEach(method => {
-      this[method] = (url, config) => this.request({
-        ...config,
-        url,
-        method: method.toUpperCase()
-      });
-    });
   }
 
   create(options = {}) {
@@ -69,8 +60,7 @@ class Axios {
   dispatchRequest(config) {
     return new Promise((resolve, reject) => {
       const xhr = new XMLHttpRequest();
-      const { url, method = 'GET', data, cancelToken } = config;
-
+      const { baseUrl, url, method = 'GET', data, cancelToken, headers } = config;
       // 请求取消逻辑
       if (cancelToken) {
         cancelToken.promise.then(reason => {
@@ -79,7 +69,10 @@ class Axios {
         });
       }
 
-      xhr.open(method.toUpperCase(), url);
+      xhr.open(method.toUpperCase(), `${baseUrl}${url}`);
+      Object.keys(headers).forEach(key => {
+        xhr.setRequestHeader(key, headers[key])
+      })
       xhr.onload = () => {
         resolve({
           data: xhr.response,
@@ -92,7 +85,7 @@ class Axios {
       };
 
       xhr.onerror = () => reject(new Error('Network Error'));
-      xhr.send(data);
+      xhr.send(JSON.stringify(data));
     });
   }
 }
@@ -125,4 +118,4 @@ class CancelToken {
 // 挂载取消令牌
 axios.CancelToken = CancelToken;
 
-export default axios;
+// export default axios;
