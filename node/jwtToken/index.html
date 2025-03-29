@@ -46,6 +46,7 @@
           </form>
       </div>
 
+      <button onclick="abort()">abort</button>
       <!-- 用户信息 -->
       <div class="form-section">
           <h2>用户信息</h2>
@@ -57,6 +58,38 @@
   <script src="http://localhost:3001/api.js"></script>
 
   <script>
+    class Parent {
+      constructor(executor) {
+        let resolvePromise
+        this.promise = new Promise(resolve => {
+          resolvePromise = resolve
+        })
+        executor(message => {
+          resolvePromise({ message })
+        })
+      }
+      source() {
+        let cancel
+        const token = new Parent(c => {
+          cancel = c
+        })
+        return {
+          token,
+          cancel
+        }
+      }
+    }
+    const source = Parent.prototype.source()
+    source.token.promise.then(res => {
+      console.log(res, '阻止访问了')
+    })
+    function abort() {
+      source.cancel('测试阻止')
+      console.log('abort')
+    }
+    // 第一次点击abort打印 abort {message: 测试阻止} '阻止访问了'
+    // 第二次点击abort打印abort
+
       // 保存Token
       let authToken = localStorage.getItem('token');
 
