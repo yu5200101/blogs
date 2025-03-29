@@ -10,6 +10,7 @@
     "noImplicitReturns": false,
     "moduleResolution": "node",
     "esModuleInterop":true,
+    "lib": ["ESNext", "DOM"],
     "target": "es6",/*编译成es6规范的js*/
     "allowJs": false,/*不允许js混合编程，新项目强烈推荐，迁移的老项目只能设置成true了*/
     "sourceMap": true,/*调试时的时候必须开sourceMap*/

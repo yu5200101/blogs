@@ -87,3 +87,5 @@ class Api {
 }
 
 const api = new Api()
+
+console.log(api)

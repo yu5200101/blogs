@@ -35,6 +35,6 @@ function* ary() {
   yield 4
   return 5
 }
-for(let key of ary()) {
-  console.log(key)
+for(let value of ary()) {
+  console.log(value)
 }
