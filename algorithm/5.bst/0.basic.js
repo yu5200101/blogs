@@ -1,3 +1,16 @@
+/*
+          A
+      /     \
+      B      C
+    / \     / \
+    D  E   F  G
+    /   \  /   /
+    H    I J   K
+先序遍历：A B D H E I C F J G K
+中序遍历：H D B E I A J F K G C
+后序遍历：H D I E B J F K G C A
+层序遍历: A B C D E F G H I J K
+*/
 class Node {
   constructor(e) {
     this.e = e
@@ -142,6 +155,7 @@ class Bst {
     }
     return this.containsByNode(node.right, element)
   }
+  // 先序遍历
   preOrder() {
     this.preOrderByNode(this.root)
   }
@@ -165,6 +179,7 @@ class Bst {
       }
     }
   }
+  // 中序遍历
   inOrder() {
     this.inOrderByNode(this.root)
   }
@@ -174,6 +189,7 @@ class Bst {
     console.log(node.e)
     this.inOrderByNode(node.right)
   }
+  // 后序遍历
   afterOrder() {
     this.afterOrderByNode(this.root)
   }

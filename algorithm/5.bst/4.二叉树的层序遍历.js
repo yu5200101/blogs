@@ -12,14 +12,14 @@
  */
 var levelOrder = function (root) {
   if (!root) return []
-  let queue = []
-  let res = []
+  const queue = []
+  const res = []
   queue.push(root)
-  while (queue.length) {
-    let curList = []
-    let len = queue.length
+  while(queue.length) {
+    const curList = []
+    const len = queue.length
     for (let i = 0; i < len; i++) {
-      let curNode = queue.shift()
+      const curNode = queue.shift()
       curList.push(curNode.val)
       if (curNode.left) {
         queue.push(curNode.left)
