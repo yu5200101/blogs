@@ -1,4 +1,4 @@
-// 单例模式：为一个对象提供一个代用品或占位符，以便控制对它的访问
+// 代理模式：为一个对象提供一个代用品或占位符，以便控制对它的访问
 var myImage = (function () {
   var imgNode = document.createElement('img');
   document.body.appendChild(imgNode);
