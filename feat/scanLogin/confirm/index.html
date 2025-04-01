@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+</head>
+<body>
+  <button onclick="login()">登录</button>
+</body>
+<script>
+  function getQueryValueByKey(item) {
+    const allSearchStr = window.location.search
+    const sValue = allSearchStr.match(new RegExp(`[?&]${item}=([^&]*)(&?)`, 'i'))
+    return sValue ? sValue[1] : ''
+  }
+  async function initLogin() {
+    await fetch('/api/see-confirm', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        token: getQueryValueByKey('token'),
+        userId: getQueryValueByKey('userId')
+      })
+    })
+  }
+  initLogin()
+  async function login() {
+    await fetch('/api/confirm-login', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        token: getQueryValueByKey('token'),
+        userId: getQueryValueByKey('userId')
+      })
+    })
+  }
+</script>
+</html>

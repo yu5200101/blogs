@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <style>
+    .progress-bar {
+      width: 100%;
+      height: 4px;
+      background-color: #f0f0f0;
+      position: fixed;
+      top: 0;
+      left: 0;
+      z-index: 9999;
+    }
+    .progress {
+      height: 100%;
+      background-color: #4CAF50;
+      width: 0;
+      transition: width 2s ease;
+    }
+  </style>
+</head>
+<body>
+  <div class="progress-bar">
+    <div class="progress"></div>
+  </div>
+  <!-- 页面内容 -->
+  <script>
+    document.addEventListener('readystatechange', () => {
+      const progress = document.querySelector('.progress');
+      const timing = window.performance.timing;
+      console.log(document.readyState, 'document.readyState')
+      // 根据文档加载状态更新进度
+      switch(document.readyState) {
+        case 'interactive':
+          // DOM 解析完成，大约设置进度为 70%
+          updateProgress(70);
+          break;
+        case 'complete':
+          // 页面加载完成，直接到 100%
+          updateProgress(100);
+          break;
+      }
+    });
+
+    window.addEventListener('load', () => {
+      updateProgress(100);
+    });
+
+    // 可选：使用 performance 数据计算实际进度（在 load 事件后）
+    function calculateActualProgress() {
+      const timing = window.performance.timing;
+      console.log(timing)
+      const total = timing.loadEventEnd - timing.navigationStart;
+      if (total <= 0) return;
+
+      const stages = {
+        domInteractive: timing.domInteractive - timing.navigationStart,
+        domContentLoaded: timing.domContentLoadedEventEnd - timing.navigationStart,
+        load: timing.loadEventEnd - timing.navigationStart
+      };
+
+      console.log('实际加载阶段耗时:', stages);
+    }
+
+    // 更新进度条
+    function updateProgress(percent) {
+      const progress = document.querySelector('.progress');
+      progress.style.width = percent + '%';
+    }
+
+    // 页面加载完成后输出详细时间信息
+    window.addEventListener('load', () => {
+      calculateActualProgress();
+    });
+  </script>
+</body>
+</html>

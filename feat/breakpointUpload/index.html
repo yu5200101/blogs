@@ -1,0 +1,153 @@
+<!-- 断点续传 -->
+<!DOCTYPE html>
+<html>
+<body>
+  <input type="file" id="fileInput">
+  <button onclick="upload()">上传</button>
+  <button onclick="pauseUpload()">暂停</button>
+  <button onclick="resumeUpload()">重新上传</button>
+  <div id="progress" style="width: 300px; height: 20px; border: 1px solid #000;">
+    <div id="progressBar" style="height: 100%; width: 0%; background: green;"></div>
+  </div>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/spark-md5/3.0.2/spark-md5.min.js"></script>
+  <script>
+    // 前端保存上传状态
+    const CHUNK_SIZE = 2 * 1024 * 1024;
+    let isPaused = false;
+    let currentChunk = 0;
+    let file = null
+    let fileHash = null
+    let totalChunks = 0
+
+    function pauseUpload() {
+      isPaused = true;
+    }
+
+    async function uploadChunk({ index, file, fileHash, totalChunks }) {
+      if (isPaused) return
+      const chunk = file.slice(index * CHUNK_SIZE, (index + 1) * CHUNK_SIZE);
+      const formData = new FormData();
+      formData.append('file', chunk);
+      formData.append('hash', fileHash);
+      formData.append('chunkIndex', index);
+      formData.append('totalChunks', totalChunks);
+      await fetch('/upload', {
+        method: 'POST',
+        body: formData
+      });
+      // 更新进度条
+      const progress = ((index + 1) / totalChunks) * 100;
+      document.getElementById('progressBar').style.width = `${progress}%`;
+    }
+    function resumeUpload() {
+      isPaused = false;
+      uploadFn({
+        file,
+        fileHash,
+        totalChunks
+      })
+    }
+    // 生成文件哈希（使用SparkMD5库）
+    async function calculateHash(file) {
+      return new Promise((resolve) => {
+        const blobSlice = File.prototype.slice || File.prototype.mozSlice || File.prototype.webkitSlice;
+        const chunkSize = 2 * 1024 * 1024; // 2MB chunks for hash
+        const chunks = Math.ceil(file.size / chunkSize);
+        const spark = new SparkMD5.ArrayBuffer();
+        const fileReader = new FileReader();
+        let currentChunk = 0;
+        fileReader.onload = function(e) {
+          spark.append(e.target.result);
+          currentChunk++;
+          if (currentChunk < chunks) {
+            loadNext();
+          } else {
+            resolve(spark.end());
+          }
+        };
+        function loadNext() {
+          const start = currentChunk * chunkSize;
+          const end = start + chunkSize >= file.size ? file.size : start + chunkSize;
+          fileReader.readAsArrayBuffer(blobSlice.call(file, start, end));
+        }
+        loadNext();
+      });
+    }
+    async function upload() {
+      file = document.getElementById('fileInput').files[0];
+      if (!file) return;
+      // 计算文件哈希
+      fileHash = await calculateHash(file);
+      totalChunks = Math.ceil(file.size / CHUNK_SIZE);
+      uploadFn({
+        file,
+        fileHash,
+        totalChunks
+      })
+    }
+    async function mergeAndVerify({
+      fileHash,
+      filename,
+      totalChunks
+    }) {
+      // 合并请求
+      await fetch('/merge', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          hash: fileHash,
+          filename,
+          totalChunks
+        })
+      });
+      // 最终校验
+      const { success } = await fetch(`/verify?filename=${filename}`).then(res => res.json());
+      if (success) {
+        alert('上传成功！');
+      }
+    }
+    async function uploadFn({
+      fileHash,
+      file,
+      totalChunks
+    }) {
+      // 查询已上传分片
+      const { data: uploadedChunks } = await fetch(`/check?hash=${fileHash}`).then(res => res.json());
+      // 创建分片上传任务
+      const parallel = 3; // 并发数
+      const uploadTasks = [];
+      const totalChunksList =  new Array(totalChunks).fill(0).map((item, index) => index)
+      // 过滤已经上传的
+      const needUploadList = totalChunksList.filter(item => !uploadedChunks.includes(item.toString()))
+      let i = 0
+      while(i !== needUploadList.length) {
+        let end = i + parallel
+        if (end >= needUploadList.length) {
+          end = needUploadList.length
+        }
+        for (i; i < end; i++) {
+          const index = needUploadList[i]
+          uploadTasks.push(() => uploadChunk({
+            index,
+            file,
+            fileHash,
+            totalChunks
+          }));
+        }
+        // 使用Promise.all实现并行上传
+        await Promise.all(uploadTasks.map(fn => fn()))
+          .then(() => {
+            mergeAndVerify({
+              fileHash,
+              filename: file.name,
+              totalChunks
+            })
+          })
+          uploadTasks.length = 0;
+      }
+    }
+    </script>
+</body>
+</html>

@@ -1,4 +1,4 @@
-<!-- index.html -->
+<!-- 分片上传 -->
 <!DOCTYPE html>
 <html>
 <body>
@@ -19,7 +19,7 @@
       const totalChunks = Math.ceil(file.size / CHUNK_SIZE);
       const fileName = `${Date.now()}-${file.name}`;
 
-      for (let i = 0; i < totalChunks; i++) {
+      for (let i = 0; i < totalChunks;) {
         const chunk = file.slice(i * CHUNK_SIZE, (i + 1) * CHUNK_SIZE);
         const formData = new FormData();
         formData.append('file', chunk);
@@ -32,6 +32,7 @@
           body: formData
         });
 
+        i++
         // 更新进度条
         const progress = ((i + 1) / totalChunks) * 100;
         document.getElementById('progressBar').style.width = `${progress}%`;

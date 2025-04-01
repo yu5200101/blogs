@@ -12,7 +12,7 @@ const upload = multer({ dest: 'uploads/' });
 
 // 处理分片上传
 app.post('/upload', upload.single('file'), (req, res) => {
-  const { chunkIndex, filename, totalChunks } = req.body;
+  const { chunkIndex, filename } = req.body;
   const chunkPath = path.join('uploads', `${filename}-${chunkIndex}`);
 
   fs.renameSync(req.file.path, chunkPath);
@@ -44,5 +44,5 @@ app.post('/merge', express.json(), async (req, res) => {
 });
 
 app.listen(3000, () => {
-  console.log('Server running on port 3000');
+  console.log('Server running on port http://localhost:3000');
 });
