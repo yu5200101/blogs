@@ -7,11 +7,12 @@ const ContentTypeEnum  = {
   FORM_DATA: 'multipart/form-data;charset=UTF-8'
 }
 
+const DEFAULT_TIMEOUT = 10 * 1000
 class Api {
   constructor() {
     this.axiosInstance = axios.create({
       baseUrl: 'http://localhost:3000',
-      timeout: 10 * 1000,
+      timeout: DEFAULT_TIMEOUT,
       headers: {
         'content-type': ContentTypeEnum.FORM_URLENCODED
       },
@@ -57,31 +58,46 @@ class Api {
       return Promise.reject(error)
     }
   }
-  get({ url, data, timeout, headers}) {
+  get({ url, data, timeout = DEFAULT_TIMEOUT, headers = {}}) {
     return this.request({
       url,
       data,
       timeout,
-      method: 'get'
+      method: 'get',
+      headers
     })
   }
-  JPost({ url, data, timeout, headers}) {
+  JPost({ url, data, timeout = DEFAULT_TIMEOUT, headers = {}}) {
     return this.request({
       url,
       data,
       timeout,
       method: 'post',
       headers: {
-        'content-type': ContentTypeEnum.JSON
+        'content-type': ContentTypeEnum.JSON,
+        ...headers
       }
     })
   }
-  post({ url, data, timeout, headers}) {
+  post({ url, data, timeout = DEFAULT_TIMEOUT, headers = {}}) {
     return this.request({
       url,
       data,
       timeout,
-      method: 'post'
+      method: 'post',
+      headers
+    })
+  }
+  FormPost({ url, data, timeout = DEFAULT_TIMEOUT, headers = {}}) {
+    return this.request({
+      url,
+      data,
+      timeout,
+      method: 'post',
+      headers: {
+        'content-type': ContentTypeEnum.FORM_DATA,
+        ...headers
+      }
     })
   }
 }

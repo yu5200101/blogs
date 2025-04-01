@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Canvas截图示例</title>
+  <style>
+    .container {
+      margin: 20px;
+    }
+    canvas {
+      border: 1px solid #ccc;
+    }
+    #preview {
+      margin-top: 20px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <canvas id="sourceCanvas" width="600" height="400"></canvas>
+    <div id="preview"></div>
+  </div>
+
+  <script>
+    // 初始化源Canvas
+    const sourceCanvas = document.getElementById('sourceCanvas');
+    const ctx = sourceCanvas.getContext('2d')
+
+    // 加载示例图片
+    const img = new Image();
+    // 支持跨域图片 先设置跨域 再赋值src
+    img.crossOrigin = 'anonymous'
+    img.src = 'https://gw.alicdn.com/bao/uploaded/i1/2207806982565/O1CN01zhc0gf1UoovIgIneq_!!2207806982565.jpg';
+
+    img.onload = function() {
+      ctx.drawImage(img, 0, 0, sourceCanvas.width, sourceCanvas.height);
+    };
+
+    // 随机示例图片
+    // 添加鼠标交互功能
+    let isDrawing = false;
+    let startX, startY, endX, endY;
+
+    sourceCanvas.addEventListener('mousedown', e => {
+      isDrawing = true;
+      startX = e.offsetX;
+      startY = e.offsetY;
+    });
+
+    sourceCanvas.addEventListener('mousemove', e => {
+      if (!isDrawing) return;
+      // 实时更新选区
+      endX = e.offsetX;
+      endY = e.offsetY;
+      // 重绘Canvas时保留原始图片
+      ctx.clearRect(0, 0, sourceCanvas.width, sourceCanvas.height);
+      ctx.drawImage(img, 0, 0, sourceCanvas.width, sourceCanvas.height);
+      // 绘制选区框
+      ctx.strokeStyle = 'red';
+      ctx.lineWidth = 2;
+      // 绘制空心的边框
+      ctx.strokeRect(
+        startX,
+        startY,
+        endX - startX,
+        endY - startY
+      );
+    });
+
+    sourceCanvas.addEventListener('mouseup', () => {
+      isDrawing = false;
+      // 执行实际截图
+      const cropWidth = endX - startX;
+      const cropHeight = endY - startY;
+      const cropCanvas = document.createElement('canvas');
+      cropCanvas.width = cropWidth;
+      cropCanvas.height = cropHeight;
+      const cropCtx = cropCanvas.getContext('2d');
+      cropCtx.drawImage(
+        sourceCanvas,
+        startX + 1, startY + 1,
+        cropWidth - 2, cropHeight - 2,
+        0, 0,
+        cropWidth, cropHeight
+      );
+
+      const previewImg = new Image();
+      previewImg.src = cropCanvas.toDataURL('image/jpeg');
+      document.getElementById('preview').appendChild(previewImg);
+    });
+  </script>
+</body>
+</html>

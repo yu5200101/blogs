@@ -1,0 +1,53 @@
+<!-- index.html -->
+<!DOCTYPE html>
+<html>
+<body>
+  <input type="file" id="fileInput">
+  <button onclick="upload()">上传</button>
+  <div id="progress" style="width: 300px; height: 20px; border: 1px solid #000;">
+    <div id="progressBar" style="height: 100%; width: 0%; background: green;"></div>
+  </div>
+  <script src="http://localhost:3001/axios.js"></script>
+  <script src="http://localhost:3001/api.js"></script>
+  <script>
+    const CHUNK_SIZE = 2 * 1024 * 1024; // 2MB
+
+    async function upload() {
+      const file = document.getElementById('fileInput').files[0];
+      if (!file) return;
+
+      const totalChunks = Math.ceil(file.size / CHUNK_SIZE);
+      const fileName = `${Date.now()}-${file.name}`;
+
+      for (let i = 0; i < totalChunks; i++) {
+        const chunk = file.slice(i * CHUNK_SIZE, (i + 1) * CHUNK_SIZE);
+        const formData = new FormData();
+        formData.append('file', chunk);
+        formData.append('filename', fileName);
+        formData.append('chunkIndex', i);
+        formData.append('totalChunks', totalChunks);
+
+        await fetch('/upload', {
+          method: 'POST',
+          body: formData
+        });
+
+        // 更新进度条
+        const progress = ((i + 1) / totalChunks) * 100;
+        document.getElementById('progressBar').style.width = `${progress}%`;
+      }
+      try {
+        // 所有分片上传完成后请求合并
+        await api.JPost({
+          url: '/merge',
+          data: { filename: fileName }
+        });
+      } catch (error) {
+        console.log(error, 'error')
+      }
+
+      alert('文件上传完成！');
+    }
+  </script>
+</body>
+</html>

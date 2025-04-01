@@ -16,12 +16,12 @@ export const base64ToFile = (dataUrl, filename) => {
   const arr = dataUrl.split(',')
   const type = arr[0].match(/:(.*?);/)[1]
   // 将base64编码转为字符串
-  const bstr = window.atob(arr[1])
-  let n = bstr.length
+  const baseStr = window.atob(arr[1])
+  let n = baseStr.length
   const u8arr = new Uint8Array(n) // 创建初始化为0的，包含length个元素的无符号整型数组
   while (n--) {
     // 将字符串转成unicode码
-    u8arr[n] = bstr.charCodeAt(n)
+    u8arr[n] = baseStr.charCodeAt(n)
   }
   return new File([u8arr], filename, {
     type
