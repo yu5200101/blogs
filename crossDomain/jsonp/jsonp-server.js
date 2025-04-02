@@ -23,6 +23,7 @@ OPTIONS请求方法主要有两个用途
 2.检查服务器的性能，例如：AJAX进行跨域请求时的预检，需要向另外一个域名的资源发送一个HTTP OPTIONS请求头，用以判断实际发送的请求是否安全。
 */
 
-
-app.listen(3000);
+app.listen(3000, () => {
+  console.log('服务器启动', 'http://localhost:3000');
+})
 

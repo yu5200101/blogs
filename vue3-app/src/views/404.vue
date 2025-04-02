@@ -6,7 +6,7 @@
 <script setup lang="ts">
 import { onBeforeUnmount } from 'vue'
 const pageReload = () => {
-  const regExpRules = [new RegExp('')]
+  const regExpRules = [new RegExp('/test')]
   if (regExpRules.some(reg => reg.test(window.location.href))) {
     window.location.reload()
   }

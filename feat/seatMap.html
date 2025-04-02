@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>电影院选座</title>
+    <style>
+        canvas {
+            border: 1px solid #000;
+        }
+        button {
+            margin-top: 20px;
+            padding: 10px 20px;
+        }
+    </style>
+</head>
+<body>
+    <canvas id="seatMap"></canvas>
+    <button id="submitBtn">提交选座</button>
+
+    <script>
+        const canvas = document.getElementById('seatMap');
+        const ctx = canvas.getContext('2d');
+        const submitBtn = document.getElementById('submitBtn');
+
+        // 配置参数
+        const ROWS = 10;
+        const COLS = 10;
+        const SEAT_SIZE = 40;
+        const SPACING = 10;
+        const COLORS = {
+            // 0: 未选, 1: 已选, 2: 已售
+            0: '#CCCCCC',
+            1: '#00FF00',
+            2: '#FF0000'
+        };
+        const TEXT_ENUM = {
+            // 0: 未选, 1: 已选, 2: 已售
+            0: '未选',
+            1: '已选',
+            2: '已售'
+        };
+
+        // 初始化座位状态
+        let seats = Array(ROWS).fill().map(() => Array(COLS).fill(0));
+
+        // 设置canvas尺寸
+        canvas.width = COLS * (SEAT_SIZE + SPACING) + SPACING;
+        canvas.height = ROWS * (SEAT_SIZE + SPACING) + SPACING;
+
+        // 绘制单个座位
+        function drawSeat(row, col) {
+            const x = col * (SEAT_SIZE + SPACING) + SPACING;
+            const y = row * (SEAT_SIZE + SPACING) + SPACING;
+            const state = seats[row][col];
+            // 绘制座位底色
+            ctx.fillStyle = COLORS[state]
+            ctx.fillRect(x, y, SEAT_SIZE, SEAT_SIZE);
+
+            // 绘制文字
+            if (state) {
+                ctx.fillStyle = '#FFFFFF';
+                ctx.font = '14px Arial';
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'middle';
+                ctx.fillText(TEXT_ENUM[state], x + SEAT_SIZE/2, y + SEAT_SIZE/2);
+            }
+        }
+
+        // 绘制全部座位
+        function drawAllSeats() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            for (let row = 0; row < ROWS; row++) {
+                for (let col = 0; col < COLS; col++) {
+                    drawSeat(row, col);
+                }
+            }
+        }
+
+        // 处理点击事件
+        canvas.addEventListener('click', (e) => {
+            const rect = canvas.getBoundingClientRect();
+            const mouseX = e.clientX - rect.left;
+            const mouseY = e.clientY - rect.top;
+
+            // 计算点击位置对应的行列
+            const col = Math.floor((mouseX - SPACING) / (SEAT_SIZE + SPACING));
+            const row = Math.floor((mouseY - SPACING) / (SEAT_SIZE + SPACING));
+
+            const maxX = col * (SEAT_SIZE + SPACING) + SPACING + SEAT_SIZE
+            const maxY = row * (SEAT_SIZE + SPACING) + SPACING + SEAT_SIZE
+            // 不允许点击空格
+            if (mouseX > maxX || mouseY > maxY) return
+
+            if (row >= 0 && row < ROWS && col >= 0 && col < COLS) {
+                const currentState = seats[row][col];
+                if (currentState === 0) {
+                    seats[row][col] = 1; // 切换为已选
+                } else if (currentState === 1) {
+                    seats[row][col] = 0; // 取消选择
+                }
+                drawSeat(row, col);
+            }
+        });
+
+        // 处理提交按钮
+        submitBtn.addEventListener('click', () => {
+            // 记录已选的坐标
+            const selectMap = []
+            seats = seats.map((row, rowIndex) =>
+                row.map((state, rolIndex) => {
+                  if (state === 1) {
+                    selectMap.push({rowIndex, rolIndex})
+                    return 2
+                  }
+                  return state
+                })
+            );
+            selectMap.forEach(item => {
+              drawSeat(item.rowIndex, item.rolIndex);
+            })
+        });
+
+        // 初始绘制
+        drawAllSeats();
+    </script>
+</body>
+</html>

@@ -1,3 +1,5 @@
+import dayjs from '@/utils/dayjs'
+
 const LocalStorageUtil = {
   removeItem(key: string): boolean {
     try {
@@ -18,7 +20,13 @@ const LocalStorageUtil = {
   },
   setItem(key: string, value: any): boolean {
     try {
-      window.localStorage.setItem(key, JSON.stringify(value))
+      const valueData = {
+        data: value,
+        // 过期时间是7天
+        expire: dayjs().add(7, 'day')
+          .valueOf()
+      }
+      window.localStorage.setItem(key, JSON.stringify(valueData))
       return true
     } catch (error) {
       return false
@@ -28,7 +36,13 @@ const LocalStorageUtil = {
   getItem(key: string): any {
     try {
       const value = window.localStorage.getItem(key)
-      return value ? JSON.parse(value) : null
+      if (!value) return null
+      const valueData = JSON.parse(value)
+      if (Date.now() > valueData.expire) {
+        this.removeItem(key)
+        return null
+      }
+      return valueData.data
     } catch (error) {
       return null
     }

@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+</head>
+<body>
+  requestAnimationFrame-打开控制台看处理10,000任务
+</body>
+</html>
+<script>
+  // http://localhost:5500/blogs/feat/task/requestAnimationFrame.html
+  function processMillionTasks() {
+    const tasks = new Array(1e4).fill().map((_,i) => i);
+    let index = 0;
+    const batchSize = 3000; // 每帧处理量
+    const startTime = performance.now();
+    function executeBatch() {
+      const batchEnd = Math.min(index + batchSize, tasks.length);
+      // 执行批量处理
+      for(; index < batchEnd; index++) {
+        // 示例任务：DOM操作需在此处进行
+        console.log(index)
+      }
+      // 进度控制
+      if(index < tasks.length) {
+        const elapsed = performance.now() - startTime;
+        const dynamicBatch = Math.max(100, 5000 - Math.floor(elapsed/10));
+        requestAnimationFrame(() => {
+          setTimeout(executeBatch, 0, dynamicBatch); // 动态调整批次
+        });
+      } else {
+        console.log('All tasks completed');
+      }
+    }
+    requestAnimationFrame(executeBatch);
+  }
+  processMillionTasks();
+</script>

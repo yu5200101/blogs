@@ -8,22 +8,16 @@
     body {
       margin: 0;
     }
-    .box {
-      width: 100vw;
-      height: 100vh;
-      background: red;
-    }
-    .footer {
-      width: 100vw;
-      line-height: 100px;
-      background: yellow;
-    }
   </style>
 </head>
 <body>
-  <div class="box">box</div>
-  <div class="footer">footer</div>
+  <div id="refreshText">refresh-text</div>
+  <ul id="refreshContainer">
+    <li>1</li>
+    <li>2</li>
+    <li>3</li>
+  </ul>
 </body>
-<script src="../debounce.js"></script>
+<script src="../../js/throttle.js"></script>
 <script src="./index.js"></script>
 </html>

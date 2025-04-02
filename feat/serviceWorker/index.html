@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Service Worker 示例</title>
+  <link rel="stylesheet" href="./styles.css">
+</head>
+<body>
+  <h1>Service Worker 缓存示例</h1>
+  <p>尝试离线访问此页面！</p>
+  <button onclick="getData()">getData</button>
+  <script src="./app.js"></script>
+
+  <!-- 注册 Service Worker -->
+  <script>
+    /*
+      当访问
+      http://localhost:4000/index.html
+      会在控制台-application-cacheStorage增加缓存的数据，设置netWork为offline表示离线，此时访问的数据源都来自cacheStorage
+    */
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('./sw.js')
+          .then(registration => {
+            console.log('ServiceWorker 注册成功:', registration.scope);
+          })
+          .catch(error => {
+            console.log('ServiceWorker 注册失败:', error);
+          });
+      });
+    }
+    async function getData() {
+      const data = await fetch('/getData').then(res => res.json());
+      console.log(data)
+    }
+  </script>
+</body>
+</html>

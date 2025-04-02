@@ -1,11 +1,6 @@
-import Cookie from './cookie'
-import session from './sessionStorage'
-import local from './localStorage'
-
-
-export const cookie = Cookie
-export const sessionStorage = session
-export const localStorage = local
+import cookie from './cookie'
+import sessionStorage from './sessionStorage'
+import localStorage from './localStorage'
 
 export default {
   cookie,

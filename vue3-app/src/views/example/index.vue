@@ -15,7 +15,6 @@
     <van-button type="primary" @click="clearLocalStorage">清除key-localStorage</van-button>
     <van-button type="primary" @click="clearSessionStorage">清除key-sessionStorage</van-button>
     <van-button type="primary" @click="clearAllStorage">清除所有缓存</van-button>
-
   </div>
 </template>
 
@@ -62,7 +61,6 @@ const clearAllStorage = () => {
   storage.sessionStorage.clear()
   showToast('清除成功')
 }
-
 </script>
 
 <style lang="scss" scoped>

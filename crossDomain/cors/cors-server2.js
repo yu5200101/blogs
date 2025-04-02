@@ -63,4 +63,6 @@ app.get('/getData', function (req, res) {
   res.send('get请求')
 })
 app.use(express.static(__dirname))
-app.listen(4000)
+app.listen(4000, () => {
+  console.log('服务器启动', 'http://localhost:4000');
+})
