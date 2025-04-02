@@ -77,7 +77,44 @@
               });
               domObserver.observe(document.body, { childList: true });
           };
-          // 2 WATERMARK_CONFIG属性检测
+          let styleLock = false
+          // 2. 样式篡改防护
+          const protectStyleMutation = () => {
+              const observer = new MutationObserver(mutations => {
+                  if (styleLock) return;
+                  styleLock = true;
+                  mutations.forEach(mutation => {
+                      const target = mutation.target;
+                      if (target.id === WATERMARK_CONFIG.ID.value ||
+                      target.hasAttribute(WATERMARK_CONFIG.DATA_ATTR.key)) {
+                        console.log('protectStyleMutation');
+                        // 强制恢复关键属性，此处不设置backgroundImage，因为这个是动态变更会刷新多次导致一直触发超出cpu size浏览器会挂掉
+                        Object.assign(target.style, {
+                          position: 'fixed',
+                          top: '0',
+                          left: '0',
+                          width: '100vw',
+                          height: '100vh',
+                          backgroundRepeat: 'repeat',
+                          pointerEvents: 'none',
+                          zIndex: '2147483647', // 最大z-index值
+                          display: 'block !important',
+                          opacity: '1 !important',
+                          visibility: 'visible !important'
+                        })
+                      }
+                  });
+
+                  styleLock = false;
+              });
+
+              observer.observe(document.documentElement, {
+                  attributes: true,
+                  attributeFilter: ['style'],
+                  subtree: true
+              });
+          };
+          // 3.WATERMARK_CONFIG属性检测
           // 更改id和data-watermark-secure的value值时
           const protectAttribute = () => {
             // 方法2：属性篡改防护
@@ -104,29 +141,19 @@
               subtree: true
             });
           }
-          // 2. 定时刷新策略
+          // 4.定时刷新策略
           const startRefreshInterval = () => {
               setInterval(() => {
                 const target = document.getElementById(WATERMARK_CONFIG.ID.value)
                 console.log('startRefreshInterval')
                 // 强制恢复关键属性
                 Object.assign(target.style, {
-                  position: 'fixed',
-                  top: '0',
-                  left: '0',
-                  width: '100vw',
-                  height: '100vh',
-                  backgroundRepeat: 'repeat',
-                  pointerEvents: 'none',
-                  zIndex: '2147483647', // 最大z-index值
-                  display: 'block !important',
-                  opacity: '1 !important',
-                  visibility: 'visible !important',
                   backgroundImage: `url("${generateWatermark()}")`
                 })
-              }, 5000); // 每5秒刷新水印内容
+              }, 10000); // 每5秒刷新水印内容
           };
           protectDomStructure();
+          protectStyleMutation()
           protectAttribute()
           startRefreshInterval();
       };
