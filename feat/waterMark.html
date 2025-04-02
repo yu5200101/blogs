@@ -15,10 +15,14 @@
     <script>
       // 水印安全配置
       const WATERMARK_CONFIG = {
-          ID: 'secure-watermark-layer',
-          DATA_ATTR: 'data-watermark-secure',
-          CSS_VAR: '--wm-bg-url',
-          LOCK: false
+          ID: {
+            key: 'id',
+            value: 'secure-watermark-layer'
+          },
+          DATA_ATTR: {
+            key: 'data-watermark-secure',
+            value: 'locked'
+          }
       };
       // 生成动态水印图像（带时间戳）
       const generateWatermark = () => {
@@ -43,18 +47,8 @@
       // 创建受保护的水印层
       const createProtectedWatermark = () => {
           const div = document.createElement('div');
-          div.id = WATERMARK_CONFIG.ID;
-          div.setAttribute(WATERMARK_CONFIG.DATA_ATTR, 'locked');
-          // 通过CSS变量控制背景图
-          const style = document.createElement('style');
-          style.textContent = `
-              :root {
-                  ${WATERMARK_CONFIG.CSS_VAR}: url("${generateWatermark()}");
-              }
-              [${WATERMARK_CONFIG.DATA_ATTR}] {
-                  background-image: var(${WATERMARK_CONFIG.CSS_VAR}) !important;
-              }
-          `;
+          div.id = WATERMARK_CONFIG.ID.value
+          div.setAttribute(WATERMARK_CONFIG.DATA_ATTR.key, WATERMARK_CONFIG.DATA_ATTR.value);
           Object.assign(div.style, {
               position: 'fixed',
               top: '0',
@@ -66,117 +60,74 @@
               zIndex: '2147483647', // 最大z-index值
               display: 'block !important',
               opacity: '1 !important',
-              visibility: 'visible !important'
+              visibility: 'visible !important',
+              backgroundImage: `url("${generateWatermark()}")`
           });
-          document.head.appendChild(style);
           document.body.prepend(div);
       };
       // 防护策略核心
       const initWatermarkProtection = () => {
-          // 1. 样式篡改防护
-          const protectStyleMutation = () => {
-              const observer = new MutationObserver(mutations => {
-                  if (WATERMARK_CONFIG.LOCK) return;
-                  WATERMARK_CONFIG.LOCK = true;
-                  mutations.forEach(mutation => {
-                      const target = mutation.target;
-                      if (target.id === WATERMARK_CONFIG.ID ||
-                          target.hasAttribute(WATERMARK_CONFIG.DATA_ATTR)) {
-                            // 强制恢复关键属性
-                            Object.assign(target.style, {
-                              position: 'fixed',
-                              top: '0',
-                              left: '0',
-                              width: '100vw',
-                              height: '100vh',
-                              backgroundRepeat: 'repeat',
-                              pointerEvents: 'none',
-                              zIndex: '2147483647', // 最大z-index值
-                              display: 'block !important',
-                              opacity: '1 !important',
-                              visibility: 'visible !important'
-                          });
-                          target.style.backgroundImage = `var(${WATERMARK_CONFIG.CSS_VAR})`;
-                      }
-                  });
-                  WATERMARK_CONFIG.LOCK = false;
-              });
-              observer.observe(document.documentElement, {
-                  attributes: true,
-                  attributeFilter: ['style', 'class'],
-                  subtree: true
-              });
-          };
-          // 2. DOM结构防护
+          // 1. DOM结构防护-删除dom重新渲染
           const protectDomStructure = () => {
               const domObserver = new MutationObserver(() => {
-                  if (!document.getElementById(WATERMARK_CONFIG.ID)) {
+                  if (!document.getElementById(WATERMARK_CONFIG.ID.value)) {
+                      console.log('protectDomStructure')
                       createProtectedWatermark();
                   }
               });
               domObserver.observe(document.body, { childList: true });
           };
-          // 3 ID、WATERMARK_CONFIG.DATA_ATTR属性检测
-          const attributeProtection = () => {
+          // 2 WATERMARK_CONFIG属性检测
+          // 更改id和data-watermark-secure的value值时
+          const protectAttribute = () => {
             // 方法2：属性篡改防护
             const observer = new MutationObserver(mutations => {
                 mutations.forEach(mutation => {
                     const target = mutation.target;
-                    if (target.id === WATERMARK_CONFIG.ID ||
-                        target.hasAttribute(WATERMARK_CONFIG.DATA_ATTR)) {
-                        // 检测关键属性修改
-                        if (mutation.attributeName === 'id' &&
-                            target.id !== WATERMARK_CONFIG.ID) {
-                            target.id = WATERMARK_CONFIG.ID
-                        }
-                        // 检测data属性删除
-                        if (mutation.attributeName === WATERMARK_CONFIG.DATA_ATTR &&
-                            !target.getAttribute(WATERMARK_CONFIG.DATA_ATTR)) {
-                            target.setAttribute(WATERMARK_CONFIG.DATA_ATTR, 'locked');
-                        }
+                    // 变更前的逻辑判断
+                    if (target.id === WATERMARK_CONFIG.ID.value ||
+                        target.hasAttribute(WATERMARK_CONFIG.DATA_ATTR.key)) {
+                        // 变更后的逻辑判断:
+                        Object.keys(WATERMARK_CONFIG).forEach(item => {
+                          if (mutation.attributeName === WATERMARK_CONFIG[item].key &&
+                          target.getAttribute(WATERMARK_CONFIG[item].key) !== WATERMARK_CONFIG[item].value) {
+                            console.log('protectAttribute')
+                            target.setAttribute(WATERMARK_CONFIG[item].key, WATERMARK_CONFIG[item].value)
+                          }
+                        })
                     }
                 });
             });
             observer.observe(document.documentElement, {
-                    attributes: true,
-                    attributeFilter: ['id', WATERMARK_CONFIG.DATA_ATTR],
-                    subtree: true
-                });
+              attributes: true,
+              attributeFilter: Object.keys(WATERMARK_CONFIG).map(item => WATERMARK_CONFIG[item].key),
+              subtree: true
+            });
           }
-          // 4. CSS变量篡改防护
-          const protectCssVariables = () => {
-              const styleObserver = new MutationObserver(mutations => {
-                  mutations.forEach(mutation => {
-                      if (mutation.type === 'attributes' &&
-                          mutation.attributeName === 'style') {
-                          const currentValue = getComputedStyle(document.documentElement)
-                              .getPropertyValue(WATERMARK_CONFIG.CSS_VAR);
-                          if (!currentValue.includes('data:image/png')) {
-                              document.documentElement.style.setProperty(
-                                  WATERMARK_CONFIG.CSS_VAR,
-                                  `url("${generateWatermark()}")`,
-                                  'important'
-                              );
-                          }
-                      }
-                  });
-              });
-              styleObserver.observe(document.head, { childList: true });
-          };
-          // 5. 定时刷新策略
+          // 2. 定时刷新策略
           const startRefreshInterval = () => {
               setInterval(() => {
-                  document.documentElement.style.setProperty(
-                      WATERMARK_CONFIG.CSS_VAR,
-                      `url("${generateWatermark()}")`,
-                      'important'
-                  );
+                const target = document.getElementById(WATERMARK_CONFIG.ID.value)
+                console.log('startRefreshInterval')
+                // 强制恢复关键属性
+                Object.assign(target.style, {
+                  position: 'fixed',
+                  top: '0',
+                  left: '0',
+                  width: '100vw',
+                  height: '100vh',
+                  backgroundRepeat: 'repeat',
+                  pointerEvents: 'none',
+                  zIndex: '2147483647', // 最大z-index值
+                  display: 'block !important',
+                  opacity: '1 !important',
+                  visibility: 'visible !important',
+                  backgroundImage: `url("${generateWatermark()}")`
+                })
               }, 5000); // 每5秒刷新水印内容
           };
-          protectStyleMutation();
           protectDomStructure();
-          attributeProtection()
-          protectCssVariables();
+          protectAttribute()
           startRefreshInterval();
       };
       // 初始化
