@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+  <style>
+    .box {
+      width: 100vw;
+      height: 200vh;
+      background: red;
+    }
+    .error {
+      color: red;
+    }
+  </style>
+</head>
+<body>
+  <div class="box">box</div>
+  <div class="error">错误</div>
+  <div class="box">box</div>
+  <script>
+    function scrollToFirstError() {
+      const firstErrorElement = document.querySelector('.error');
+      if (!firstErrorElement) return;
+
+      // 计算偏移量（根据导航栏高度调整）
+      const offset = 80;
+      const elementPosition = firstErrorElement.getBoundingClientRect().top;
+      const offsetPosition = elementPosition + window.pageYOffset - offset;
+
+      // 方式1：使用 scrollTo
+      // window.scrollTo({
+      //   top: offsetPosition,
+      //   behavior: 'smooth'
+      // });
+
+      // 方式2：CSS transform（更流畅）
+      firstErrorElement.style.scrollMarginTop = `${offset}px`;
+      firstErrorElement.scrollIntoView({
+        behavior: 'smooth',
+        block: 'start'
+      });
+    }
+    scrollToFirstError()
+  </script>
+</body>
+</html>

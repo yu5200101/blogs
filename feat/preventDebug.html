@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>preventDebug</title>
+</head>
+<body>
+  preventDebug-禁止调试，增加无线debugger，
+  但是可以通过command+F8阻止debugger
+  <script>
+    // 防调试检测（基础版）
+    const blockDebug = () => {
+      const startTime = Date.now();
+      debugger;
+      const endTime = Date.now();
+      // 如果时间差过大（调试时暂停），则触发无限 debugger
+      if (endTime - startTime > 100) {
+        setInterval(() => {Function('debugger')();}, 1);
+      }
+    };
+
+    // 持续监听开发者工具状态（增强检测）
+    let isDevToolsOpen = false;
+    const devToolsChecker = () => {
+      const element = new Image();
+      Object.defineProperty(element, 'id', {
+        get: () => {
+          isDevToolsOpen = true;
+          setInterval(() => {Function('debugger')();}, 1);
+        }
+      });
+      console.log(element); // 控制台输出会触发 getter
+    };
+
+    // 组合检测 + 循环触发
+    setInterval(() => {
+      blockDebug();
+      devToolsChecker();
+      if (isDevToolsOpen) {
+        window.location.reload(); // 检测到工具则刷新页面（激进策略）
+      }
+    }, 1000);
+  </script>
+</body>
+</html>

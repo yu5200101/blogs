@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>push</title>
+</head>
+<body>
+  <script>
+    // 页面代码
+    const worker = new SharedWorker('./worker.js');
+    worker.port.start();
+
+    // 发送消息
+    worker.port.postMessage(`Hello via SharedWorker ${Date.now()}`);
+  </script>
+</body>
+</html>

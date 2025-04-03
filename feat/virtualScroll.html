@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <style>
+    .container {
+      height: 400px;
+      overflow: auto;
+      border: 1px solid #ccc;
+      position: relative;
+    }
+    .list-phantom {
+      position: absolute;
+      left: 0;
+      top: 0;
+      right: 0;
+    }
+    .list-content {
+      position: relative;
+      left: 0;
+      top: 0;
+      width: 100%;
+    }
+    .list-item {
+      position: absolute;
+      left: 0;
+      width: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-bottom: 1px solid #eee;
+      box-sizing: border-box;
+    }
+    .sentinel {
+      width: 100%;
+      background: red;
+      height: 1px;
+      position: absolute;
+    }
+  </style>
+</head>
+<body>
+  <div id="container" class="container">
+    <!-- 占位符 -->
+    <div class="list-phantom"></div>
+    <!-- 可视区域内容 -->
+    <div class="list-content"></div>
+    <div id="sentinelTop" class="sentinel"></div>
+    <div id="sentinelBottom" class="sentinel"></div>
+  </div>
+  <script src="../js/throttle.js"></script>
+  <script>
+    // 模拟数据
+    const data = Array.from({ length: 100 }, (_, i) => `Item ${i + 1}`);
+    const itemHeight = 50; // 每项固定高度
+    const container = document.getElementById('container');
+    const phantom = document.querySelector('.list-phantom');
+    const content = document.querySelector('.list-content');
+    const sentinelTop = document.getElementById('sentinelTop');
+    const sentinelBottom = document.getElementById('sentinelBottom');
+
+    let startIndex = 0;
+    let endIndex = 0;
+
+    // 计算可见项数量
+    const visibleCount = Math.ceil(container.clientHeight / itemHeight);
+
+    // 初始化占位元素高度
+    phantom.style.height = data.length * itemHeight + 'px';
+
+    // IntersectionObserver 配置
+    const options = {
+      root: container,
+      rootMargin: '40px 0px' // 提前触发观察
+    };
+
+    // 观察者回调
+    const callback = (entries) => {
+      entries.forEach(entry => {
+        if (entry.target === sentinelTop && entry.isIntersecting) {
+          // 向上滚动时调整起始索引
+          startIndex = Math.max(0, startIndex - visibleCount);
+        }
+        if (entry.target === sentinelBottom && entry.isIntersecting) {
+          // 向下滚动时调整起始索引
+          startIndex = Math.min(
+            data.length - visibleCount,
+            startIndex + visibleCount
+          );
+        }
+      });
+      throttle(render, 1000)()
+      throttle(updateSentinels, 1000)()
+    };
+    // 创建观察者实例
+    const observer = new IntersectionObserver(callback, options);
+    observer.observe(sentinelTop);
+    observer.observe(sentinelBottom);
+
+    function createItemElement(index, item) {
+      const top = index * itemHeight;
+      // 创建元素
+      const div = document.createElement('div');
+      div.className = 'list-item';
+      div.style.cssText = `
+        height: ${itemHeight}px;
+        top: ${top}px;
+      `;
+      div.textContent = item;
+      return div
+    }
+
+    // 可以缓存已创建元素
+    const itemCache = new Map();
+
+    function getCachedItem(index, item) {
+      if (itemCache.has(index)) {
+        return itemCache.get(index)
+      }
+      // 创建新元素并缓存
+      const newItem = createItemElement(index, item);
+      itemCache.set(index, newItem);
+      return newItem
+    }
+
+    // 渲染可见项（优化版）
+    function render(type) {
+      // 动态调整缓冲量
+      const dynamicBuffer = Math.min(visibleCount, 10); // 最大缓冲10项
+      endIndex = startIndex + visibleCount + dynamicBuffer;
+      const items = data.slice(startIndex, endIndex);
+
+      // 创建文档片段
+      const fragment = document.createDocumentFragment();
+      // 在render函数中使用缓存
+      items.forEach((item, index) => {
+        const cachedItem = getCachedItem(startIndex + index, item);
+        fragment.appendChild(cachedItem);
+      });
+
+      // 清空现有内容（推荐使用 replaceChildren）
+      content.replaceChildren(fragment);
+      // 如果浏览器不支持 replaceChildren 可以使用：
+      // content.innerHTML = '';
+      // content.appendChild(fragment);
+    }
+
+    // 更新哨兵位置
+    function updateSentinels(type) {
+      sentinelTop.style.top = Math.max(0, startIndex * itemHeight - 1) + 'px';
+      sentinelBottom.style.top = (endIndex * itemHeight + 1) + 'px';
+    }
+
+    // 使用滚动速度预测
+    let lastScrollTime = 0;
+    function setCacheScroll() {
+      const now = Date.now();
+      const speed = now - lastScrollTime;
+      lastScrollTime = now;
+      // 根据滚动速度调整缓冲方向
+      if (speed < 50) { // 快速滚动
+        endIndex += Math.round(visibleCount * 0.2);
+      }
+    }
+    container.addEventListener('scroll', throttle(setCacheScroll, 500), false);
+
+    // 初始渲染
+    requestAnimationFrame(render);
+    requestAnimationFrame(updateSentinels);
+  </script>
+</body>
+</html>

@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <style>
+    .container {
+      height: 100vh;
+      overflow: auto;
+    }
+    .item {
+      padding: 4px;
+      border-bottom: 1px solid #ccc;
+      box-sizing: border-box;
+    }
+  </style>
+</head>
+<body>
+  <div class="container" id="container"></div>
+
+  <script>
+    // 提示：最好不要一次创建这么多dom元素，dom文档内容过多会导致很难进行调试，可以参考virtualScroll.html使用虚拟滚动创建元素
+    // 创建容器元素
+    const container = document.getElementById('container');
+    // 生成 10 万条模拟数据
+    const dataCount = 1e5;
+    const mockData = Array.from({ length: dataCount }, (_, i) => `Item ${i + 1}`);
+
+    // 分批次配置
+    const batchSize = 500; // 每批处理数量
+    let currentIndex = 0;  // 当前处理位置
+
+    // 创建文档片段
+    const fragment = document.createDocumentFragment();
+
+    // 渲染函数
+    function renderBatch() {
+      // 本帧需要处理的内容
+      const endIndex = Math.min(currentIndex + batchSize, dataCount);
+      // 批量创建元素
+      while (currentIndex < endIndex) {
+        const div = document.createElement('div');
+        div.className = 'item';
+        div.textContent = mockData[currentIndex];
+        fragment.appendChild(div);
+        currentIndex++;
+      }
+
+      // 一次性插入文档片段
+      container.appendChild(fragment);
+
+      // 继续处理下一批
+      if (currentIndex < dataCount) {
+        requestAnimationFrame(renderBatch);
+      }
+    }
+
+    // 启动首次渲染
+    requestAnimationFrame(renderBatch);
+
+    // 可选：使用 transform 提升性能（强制开启 GPU 加速）
+    container.style.transform = 'translateZ(0)';
+  </script>
+</body>
+</html>

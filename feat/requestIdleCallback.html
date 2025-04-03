@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+</head>
+<body>
+  <div>
+    requestIdleCallback 是浏览器提供的一个 API，它允许开发者安排在浏览器空闲时段执行的低优先级任务，以避免影响关键操作（如动画或输入响应）。当主线程空闲时，浏览器会调用注册的回调函数，并传入一个 IdleDeadline 对象，该对象提供了剩余空闲时间的信息<br>
+    timeRemaining()：返回当前空闲时段的剩余毫秒数<br>
+
+    didTimeout：布尔值，表示是否因超时触发回调<br>
+
+    递归调用：在回调中再次调用自身以继续处理剩余任务<br>
+
+    超时参数：{ timeout } 选项确保任务最终会被执行<br>
+  </div>
+  <script>
+    // 创建需要处理的大型任务数组
+    const bigTask = new Array(1000).fill(null).map((_, i) => () => {
+      console.log(`Processing item ${i}`);
+      // 模拟耗时操作
+      for(let i = 0; i < 100000; i++) {
+      }
+    });
+
+    function processChunk(deadline) {
+      // 处理任务直到用尽空闲时间或超时
+      while (
+        (deadline.timeRemaining() > 0 || deadline.didTimeout) &&
+        bigTask.length > 0
+      ) {
+        const task = bigTask.shift();
+        task();
+      }
+
+      // 显示进度
+      const progress = ((1000 - bigTask.length) / 10).toFixed(1);
+      console.log(`Progress: ${progress}%`);
+
+      // 如果还有剩余任务，继续处理
+      if (bigTask.length > 0) {
+        // 设置超时时间为100ms
+        requestIdleCallback(processChunk, { timeout: 1000 });
+      }
+    }
+
+    // 初始请求空闲回调，设置超时保险
+    requestIdleCallback(processChunk, { timeout: 1000 });
+  </script>
+</body>
+</html>

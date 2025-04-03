@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+  <link rel="stylesheet" href="./index.css">
+</head>
+<body>
+  <div>PerformanceObserver</div>
+  <script>
+    // 创建观察者实例
+    const observer = new PerformanceObserver((list) => {
+      // 遍历所有性能条目
+      for (const entry of list.getEntries()) {
+        console.log('[性能数据]', `name:${entry.name}`, `startTime:${entry.startTime}`, `duration:${entry.duration}`);
+      }
+    });
+
+    // 开始观察特定类型的性能指标（可观察多个类型）
+    observer.observe({
+      entryTypes: ['resource', 'paint', 'largest-contentful-paint']
+    });
+
+    // 停止观察
+    // observer.disconnect();
+
+    const observerResource = new PerformanceObserver((list) => {
+      list.getEntriesByType('resource').forEach(entry => {
+        console.log(
+          `资源: ${entry.name}`,
+          `类型: ${entry.initiatorType}`,
+          `加载耗时: ${entry.duration.toFixed(2)}ms`
+        );
+      });
+    });
+
+    observerResource.observe({ entryTypes: ['resource'] });
+
+    const observerLargest = new PerformanceObserver((list) => {
+      const entries = list.getEntries();
+      const lastEntry = entries[entries.length - 1]; // 获取最新的 LCP
+      console.log('LCP:', lastEntry.startTime);
+    });
+
+    // 监测 LCP 类型
+    observerLargest.observe({ type: 'largest-contentful-paint', buffered: true });
+
+    // 观察测量结果
+    const observerMark = new PerformanceObserver(list => {
+      list.getEntries().forEach(entry => {
+        console.log(`自定义测量: ${entry.name} 耗时 ${entry.duration}ms`);
+      });
+    });
+    observerMark.observe({ entryTypes: ['measure'] });
+
+    // 添加标记
+    performance.mark('custom:start');
+    // ...执行某些操作
+    for(let i = 0; i < 1e5; i++) {
+      console.log(i)
+    }
+    performance.mark('custom:end');
+    // 测量两个标记之间的时间
+    performance.measure('custom-measure', 'custom:start', 'custom:end');
+  </script>
+</body>
+</html>
