@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+</head>
+<body>
+  <button onclick="GlobalError()">全局错误</button>
+  <button onclick="sendSelfError()">自定义错误</button>
+  <button onclick="addRequestByXML()">addRequestByXML</button>
+  <button onclick="addRequestByFetch()">addRequestByFetch</button>
+  <button onclick="addRequestByAxios()">addRequestByAxios</button>
+  <button onclick="unhandledrejection()">unhandledrejection</button>
+  <div id="app">
+    <!-- 方法2：调用会报错的方法 -->
+    <button @click="throwError">点击抛出错误</button>
+
+    <!-- 方法1：模板中引用不存在的变量 -->
+    <!-- {{ undefinedVariable }} -->
+    <!-- 方法3：渲染错误组件 -->
+    <!-- <error-component></error-component> -->
+    <!-- 方法7：边界组件 -->
+    <!-- <error-boundary></error-boundary> -->
+    <!-- 方法6：计算属性错误 -->
+    <!-- {{ willError }} -->
+  </div>
+
+  <script src="http://localhost:3001/axios.js"></script>
+  <script src="http://localhost:3001/api.js"></script>
+  <script src="https://unpkg.com/vue@2.6.14/dist/vue.js"></script>
+  <script src="./monitor.js"></script>
+  <script>
+
+    function unhandledrejection() {
+      // 创建一个未处理的拒绝Promise
+      const promise = new Promise((resolve, reject) => {
+        reject(new Error('未处理的拒绝'));
+      });
+
+      // 不添加 .catch() 处理
+    }
+    function GlobalError() {
+      a()
+    }
+    function sendSelfError() {
+      monitor.reportError({
+        title: '自定义错误'
+      })
+    }
+
+    function addRequestByXML() {
+      try {
+        xhr = new XMLHttpRequest();
+        xhr.open('post', '/getData1', true);
+        xhr.setRequestHeader('Content-Type', 'application/json')
+        xhr.onreadystatechange = function() {
+          if(xhr.readyState === 4) {
+            if((xhr.status >=200 && xhr.status < 300) || xhr.status === 304) {
+              console.log('addRequestByXML-success', xhr.response)
+            }
+          }
+        }
+        xhr.send(JSON.stringify({ key: 'value' }))
+      } catch(error) {
+      };
+    }
+
+    async function addRequestByFetch() {
+      try {
+        // 使用示例
+        const response = await fetch(
+          '/getData1',
+          {
+            method: 'post',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ key: 'value' })
+          }
+        ).then(res => res.json());
+        console.log('addRequestByFetch-success', response)
+      } catch(error) {
+        console.log('addRequestByFetch-error', error)
+      };
+    }
+
+    async function addRequestByAxios() {
+      try {
+        const res = await api.JPost({
+          url: '/getData1',
+          data: {
+            key: 'value'
+          }
+        })
+        console.log('addRequestByAxios-success', res)
+      } catch(error) {
+        monitor.reportError({
+          title: '自定义错误-addRequestByAxios',
+          error
+        })
+        console.log('addRequestByAxios-error', error)
+      };
+    }
+
+    // 注册问题组件
+    Vue.component('error-component', {
+      template: '<div>{{ invalidMethod() }}</div>',
+      methods: {
+        invalidMethod() {
+          throw new Error('来自组件的渲染错误')
+        }
+      }
+    })
+
+    Vue.component('error-boundary', {
+      data: () => ({ error: null }),
+      errorCaptured(err, vm, info) {
+        this.error = err
+        // 阻止错误继续向上传播
+        return false
+        // 配置true,错误会向上传播
+        // return true
+      },
+      render(h) {
+        return this.error ? h('pre', this.error.toString()) : this.$slots.default[0]
+      }
+    })
+
+    new Vue({
+      el: '#app',
+      data: {
+        // 空数据
+      },
+      methods: {
+        throwError() {
+          // 方法4：主动抛出错误
+          throw new Error('来自点击事件的错误')
+        }
+      },
+      // 方法5：生命周期钩子错误
+      created() {
+        // 这里抛出的错误会被捕获
+        // throw new Error('来自created钩子的错误')
+      },
+      // 方法6：计算属性错误
+      computed: {
+        willError() {
+          throw new Error('来自计算属性的错误')
+        }
+      }
+    })
+
+  </script>
+</body>
+</html>

@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>requestWithRetry</title>
+</head>
+<body>
+  <button onclick="addRequestByXML()">请求xml重试</button>
+  <button onclick="addRequestByAxios()">请求axios重试</button>
+  <script src="http://localhost:3001/axios.js"></script>
+  <script src="http://localhost:3001/api.js"></script>
+  <script>
+    function requestWithRetry(url, options = {}, timeout = 10000, retryTimes = 3) {
+      return new Promise((resolve, reject) => {
+        let xhr = null;
+        let timeoutId = null;
+        let isAborted = false;
+
+        const sendRequest = () => {
+          // 终止前一个请求和定时器
+          if (xhr) xhr.abort();
+          if (timeoutId) clearTimeout(timeoutId);
+
+          xhr = new XMLHttpRequest();
+          xhr.open(options.method || 'GET', url);
+
+          // 设置请求头
+          if (options.headers) {
+            Object.entries(options.headers).forEach(([key, value]) => {
+              xhr.setRequestHeader(key, value);
+            });
+          }
+
+          xhr.responseType = options.responseType || 'json';
+
+          // 成功处理
+          xhr.onload = () => {
+            clearTimeout(timeoutId);
+            if (xhr.status >= 200 && xhr.status < 300) {
+              resolve(xhr.response);
+            } else {
+              handleError(new Error(`HTTP Error ${xhr.status}`));
+            }
+          };
+
+          // 错误处理
+          xhr.onerror = () => {
+            clearTimeout(timeoutId);
+            handleError(new Error('Network error'));
+          };
+
+          // 启动超时检测
+          timeoutId = setTimeout(() => {
+            xhr.abort(); // 手动终止请求
+            handleError(new Error(`Request timed out after ${timeout}ms`));
+          }, timeout);
+
+          // 发送请求
+          try {
+            xhr.send(options.body);
+          } catch (error) {
+            clearTimeout(timeoutId);
+            handleError(error);
+          }
+        };
+
+        const handleError = (error) => {
+          clearTimeout(timeoutId);
+          if (retryTimes > 0 && !isAborted) {
+            retryTimes--;
+            console.log(`Retrying... (${retryTimes} left)`);
+            sendRequest();
+          } else {
+            reject(error);
+          }
+        };
+
+        // 暴露取消方法
+        const abort = () => {
+          isAborted = true;
+          if (xhr) xhr.abort();
+          if (timeoutId) clearTimeout(timeoutId);
+        };
+
+        sendRequest();
+        return { abort };
+      });
+    }
+
+    async function addRequestByXML() {
+      try {
+        // 使用示例
+        const res = await requestWithRetry(
+          '/getData',
+          {
+            method: 'post',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ key: 'value' })
+          },
+          5000,
+          3
+        );
+        console.log(`addRequestByXML-success: ${res.data}`)
+      } catch(error) {
+        console.log(`addRequestByXML-error: ${error}`)
+      };
+      // 可随时取消请求
+      // abort();
+    }
+
+    async function addRequestByAxios() {
+      try {
+        const res = await api.JPost({
+          url: '/getData',
+          data: {
+            key: 'value'
+          }
+        })
+        console.log(`addRequestByAxios-success: ${res.data}`)
+      } catch(error) {
+        console.log(`addRequestByAxios-error: ${error}`)
+      };
+    }
+
+  </script>
+</body>
+</html>

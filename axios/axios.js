@@ -60,7 +60,20 @@ class Axios {
   dispatchRequest(config) {
     return new Promise((resolve, reject) => {
       const xhr = new XMLHttpRequest();
-      const { baseUrl, url, method = 'GET', data, cancelToken, headers } = config;
+      const { baseUrl, url, timeout, method = 'GET', data, cancelToken, headers } = config;
+
+      let timeoutId = null
+      // 启动超时检测
+      timeoutId = setTimeout(() => {
+        // 手动终止请求
+        xhr.abort();
+        reject({
+          config,
+          code: 'ECONNABORTED',
+          message: `timeout: ${method}ms`
+        });
+      }, timeout);
+
       // 请求取消逻辑
       if (cancelToken) {
         cancelToken.promise.then(reason => {
@@ -74,6 +87,14 @@ class Axios {
         xhr.setRequestHeader(key, headers[key])
       })
       xhr.onload = () => {
+        clearTimeout(timeoutId)
+        if (xhr.status >= 400) {
+          reject({
+            config,
+            code: 'network error'
+          })
+          return
+        }
         resolve({
           data: xhr.response,
           status: xhr.status,
@@ -84,7 +105,13 @@ class Axios {
         });
       };
 
-      xhr.onerror = () => reject(new Error('Network Error'));
+      xhr.onerror = () => {
+        clearTimeout(timeoutId)
+        reject({
+          config,
+          code: 'network error'
+        })
+      };
       xhr.send(JSON.stringify(data));
     });
   }

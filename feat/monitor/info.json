@@ -1,0 +1,143 @@
+[
+  {
+    "extraData": {
+      "appVersion": "1.0.0",
+      "userId": "12345"
+    },
+    "type": "VueError",
+    "message": "来自组件的渲染错误",
+    "component": "error-component",
+    "stack": "Error: 来自组件的渲染错误\n    at VueComponent.invalidMethod (http://localhost:3000/:109:17)\n    at Proxy.eval (eval at createFunction (https://unpkg.com/vue@2.6.14/dist/vue.js:11698:14), <anonymous>:3:35)\n    at VueComponent._render (https://unpkg.com/vue@2.6.14/dist/vue.js:3572:24)\n    at VueComponent.updateComponent (https://unpkg.com/vue@2.6.14/dist/vue.js:4082:23)\n    at Watcher.get (https://unpkg.com/vue@2.6.14/dist/vue.js:4494:27)\n    at new Watcher (https://unpkg.com/vue@2.6.14/dist/vue.js:4483:14)\n    at mountComponent (https://unpkg.com/vue@2.6.14/dist/vue.js:4089:5)\n    at VueComponent.<anonymous> (https://unpkg.com/vue@2.6.14/dist/vue.js:9088:12)\n    at VueComponent.$mount (https://unpkg.com/vue@2.6.14/dist/vue.js:11993:18)\n    at init (https://unpkg.com/vue@2.6.14/dist/vue.js:3144:15)",
+    "info": "render",
+    "timestamp": "2025-04-05T03:23:57.766Z",
+    "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/134.0.0.0 Safari/537.36",
+    "url": "http://localhost:3000/",
+    "receivedAt": "2025-04-05T03:23:57.767Z"
+  },
+  {
+    "extraData": {
+      "appVersion": "1.0.0",
+      "userId": "12345"
+    },
+    "type": "PromiseError",
+    "message": "未处理的拒绝",
+    "stack": "Error: 未处理的拒绝\n    at http://localhost:3000/:38:16\n    at new Promise (<anonymous>)\n    at unhandledrejection (http://localhost:3000/:37:23)\n    at HTMLButtonElement.onclick (http://localhost:3000/:14:42)",
+    "timestamp": "2025-04-05T03:24:12.717Z",
+    "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/134.0.0.0 Safari/537.36",
+    "url": "http://localhost:3000/",
+    "receivedAt": "2025-04-05T03:24:12.724Z"
+  },
+  {
+    "extraData": {
+      "appVersion": "1.0.0",
+      "userId": "12345"
+    },
+    "type": "GlobalError",
+    "message": "Uncaught ReferenceError: a is not defined",
+    "filename": "http://localhost:3000/",
+    "lineno": 44,
+    "colno": 7,
+    "stack": "ReferenceError: a is not defined\n    at defaultFn (http://localhost:3000/:44:7)\n    at HTMLButtonElement.onclick (http://localhost:3000/:9:33)",
+    "timestamp": "2025-04-05T03:24:15.911Z",
+    "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/134.0.0.0 Safari/537.36",
+    "url": "http://localhost:3000/",
+    "receivedAt": "2025-04-05T03:24:15.918Z"
+  },
+  {
+    "extraData": {
+      "appVersion": "1.0.0",
+      "userId": "12345"
+    },
+    "title": "自定义错误",
+    "timestamp": "2025-04-05T03:24:18.815Z",
+    "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/134.0.0.0 Safari/537.36",
+    "url": "http://localhost:3000/",
+    "receivedAt": "2025-04-05T03:24:18.821Z"
+  },
+  {
+    "extraData": {
+      "appVersion": "1.0.0",
+      "userId": "12345"
+    },
+    "type": "VueError",
+    "message": "来自点击事件的错误",
+    "stack": "Error: 来自点击事件的错误\n    at Vue.throwError (http://localhost:3000/:136:17)\n    at invokeWithErrorHandling (https://unpkg.com/vue@2.6.14/dist/vue.js:1872:28)\n    at HTMLButtonElement.invoker (https://unpkg.com/vue@2.6.14/dist/vue.js:2197:16)\n    at original._wrapper (https://unpkg.com/vue@2.6.14/dist/vue.js:7591:27)",
+    "info": "v-on handler",
+    "timestamp": "2025-04-05T03:24:25.544Z",
+    "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/134.0.0.0 Safari/537.36",
+    "url": "http://localhost:3000/",
+    "receivedAt": "2025-04-05T03:24:25.552Z"
+  },
+  {
+    "extraData": {
+      "appVersion": "1.0.0",
+      "userId": "12345"
+    },
+    "type": "VueError",
+    "message": "来自计算属性的错误",
+    "stack": "Error: 来自计算属性的错误\n    at Vue.willError (http://localhost:3000/:147:17)\n    at Watcher.get (https://unpkg.com/vue@2.6.14/dist/vue.js:4494:27)\n    at Watcher.evaluate (https://unpkg.com/vue@2.6.14/dist/vue.js:4596:23)\n    at Proxy.computedGetter (https://unpkg.com/vue@2.6.14/dist/vue.js:4847:19)\n    at Proxy.eval (eval at createFunction (https://unpkg.com/vue@2.6.14/dist/vue.js:11698:14), <anonymous>:3:127)\n    at Vue._render (https://unpkg.com/vue@2.6.14/dist/vue.js:3572:24)\n    at Vue.updateComponent (https://unpkg.com/vue@2.6.14/dist/vue.js:4082:23)\n    at Watcher.get (https://unpkg.com/vue@2.6.14/dist/vue.js:4494:27)\n    at new Watcher (https://unpkg.com/vue@2.6.14/dist/vue.js:4483:14)\n    at mountComponent (https://unpkg.com/vue@2.6.14/dist/vue.js:4089:5)",
+    "info": "render",
+    "timestamp": "2025-04-05T03:25:26.540Z",
+    "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/134.0.0.0 Safari/537.36",
+    "url": "http://localhost:3000/",
+    "receivedAt": "2025-04-05T03:25:26.543Z"
+  },
+  {
+    "extraData": {
+      "appVersion": "1.0.0",
+      "userId": "12345"
+    },
+    "type": "XHRError",
+    "method": "post",
+    "url": "http://localhost:3000/",
+    "status": 404,
+    "response": "<!DOCTYPE html>\n<html lang=\"en\">\n<head>\n<meta charset=\"utf-8\">\n<title>Error</title>\n</head>\n<body>\n<pre>Cannot POST /getData1</pre>\n</body>\n</html>\n",
+    "timestamp": "2025-04-05T03:25:53.794Z",
+    "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/134.0.0.0 Safari/537.36",
+    "receivedAt": "2025-04-05T03:25:53.797Z"
+  },
+  {
+    "extraData": {
+      "appVersion": "1.0.0",
+      "userId": "12345"
+    },
+    "type": "FetchError",
+    "url": "http://localhost:3000/",
+    "status": 404,
+    "duration": 6,
+    "timestamp": "2025-04-05T03:25:54.720Z",
+    "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/134.0.0.0 Safari/537.36",
+    "receivedAt": "2025-04-05T03:25:54.724Z"
+  },
+  {
+    "extraData": {
+      "appVersion": "1.0.0",
+      "userId": "12345"
+    },
+    "title": "自定义错误-addRequestByAxios",
+    "error": {
+      "config": {
+        "baseUrl": "http://localhost:3000",
+        "timeout": 33750,
+        "headers": {
+          "content-type": "application/json;charset=UTF-8",
+          "Authorization": "Bearer null"
+        },
+        "withCredentials": true,
+        "retry": 3,
+        "retryDelay": 1000,
+        "shouldResetTimeout": true,
+        "method": "post",
+        "url": "/getData1",
+        "data": {
+          "key": "value"
+        }
+      },
+      "code": "network error"
+    },
+    "timestamp": "2025-04-05T03:30:49.513Z",
+    "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/134.0.0.0 Safari/537.36",
+    "url": "http://localhost:3000/",
+    "receivedAt": "2025-04-05T03:30:49.516Z"
+  }
+]
