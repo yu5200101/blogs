@@ -52,25 +52,36 @@ fun2(); */
 var number = 5;
 var obj = {
   number: 3,
+  // 自执行函数
   fn: (function () {
     var number;
     this.number *= 2;
+    // 10 让window.number = 10
+    console.log('this.number', this.number);
     number = number * 2;
+    // NAN
+    console.log('number1', number);
     number = 3;
+    // 3
+    console.log('number2', number);
     return function () {
+      console.log('return function this.number', this.number);
       var num = this.number;
+      console.log('fn-num', num);
       this.number *= 2;
-      console.log(num);
+      console.log('fn-this.number', this.number);
       number *= 3;
-      console.log(number);
+      console.log('fn-number', number);
     }
   })()
 }
 var myFun = obj.fn;
+// 让window.number = 20 上级作用域 number = 9
 myFun.call(null);
+// 让obj.number = 3*2 = 6 上级作用域number = 27
 obj.fn();
-console.log(window.number);
-console.log(obj.number);
+console.log('window.number', window.number);
+console.log('obj.number', obj.number);
 
 
 //测试代码
@@ -149,31 +160,6 @@ bar.apply(null, ['teacher', 25]);
 bind和call/apply有一个很重要的区别，一个函数被call/apply的时候，会直接调用，但是bind会创建一个新函数。当这个新函数被调用时，bind()的第一个参数将作为它运行时的this,之后的一系列参数将会在传递的实参前传入作为它的参数。
 */
 
-Function.prototype.myBind = function () {
-  const self = this
-  if (typeof self !== 'function') {
-    throw new Error('not a function')
-  }
-  const arg = [...arguments].slice(1)
-  let context = arguments[0]
-  function Fn () {}
-  Fn.prototype = self.prototype
-  let bound = function () {
-    const args = [...arg, ...arguments]
-    context = (this instanceof Fn ? this : context) || this
-    return self.apply(context, args)
-  }
-  bound.prototype = new Fn()
-
-  return bound
-}
-var name = 'Jack';
-function person (age, job, gender) {
-  console.log(this.name, age, job, gender);
-}
-var Yve = { name: 'Yvette' };
-let result = person.myBind(Yve, 22, 'enginner')('female');
-
 function fn () {
   this.user = 'user-name'
   return null
@@ -195,3 +181,50 @@ function getUser(name, age) {
 
 const user = myNew(getUser, '白白', 18)
 console.log(user, 'user')
+
+Function.prototype.myBind = function(context, ...presetArgs) {
+  const originalFunc = this;
+  function boundFunc(...callArgs) {
+    const allArgs = presetArgs.concat(callArgs);
+    const isNewCall = this instanceof boundFunc;
+    if (isNewCall) {
+      // 通过 new 调用，忽略绑定的 context，使用新实例作为 this
+      const instance = originalFunc.apply(this, allArgs);
+      // 如果构造函数返回对象，则返回该对象，否则返回实例
+      if ((typeof instance === 'object' && instance !== null) || typeof instance === 'function' ) {
+        return instance
+      }
+      return this
+    }
+    // 普通调用，使用绑定的 context
+    return originalFunc.apply(context, allArgs);
+  }
+  // 维护原型关系，使通过 new boundFunc 创建的实例继承原函数的原型
+  boundFunc.prototype = Object.create(originalFunc.prototype);
+  return boundFunc;
+};
+// 测试普通调用
+const obj2 = { x: 42 };
+function test(a, b) { return this.x + a + b; }
+const boundTest = test.myBind(obj2, 2);
+console.log(boundTest(3)); // 42 + 2 + 3 = 47
+
+// 测试 new 调用
+function Person(name, age) {
+    this.name = name
+    this.age = age;
+}
+Person.prototype.sayHi = function() { console.log(`Hi, I'm ${this.name}`); };
+
+// 测试构造函数返回函数
+const BoundPerson = Person.myBind(null, 'Alice');
+const person2 = new BoundPerson(30);
+console.log(person2 instanceof Person); // true
+person2.sayHi(); // Hi, I'm Alice
+console.log(person2.age); // 30
+
+// 测试构造函数返回对象
+function Test() { return { foo: 'bar' }; }
+const BoundTest = Test.myBind(null);
+const testObj = new BoundTest();
+console.log(testObj.foo); // 'bar'

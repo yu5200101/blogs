@@ -65,7 +65,7 @@ function Child1() {
   this.type = 'child1'
 }
 
-const child3 = new Child()
+const child3 = new Child1()
 // 没问题
 console.log(child3)
 // 报错
