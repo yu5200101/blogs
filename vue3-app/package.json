@@ -18,7 +18,7 @@
     "analyze": "vite build --mode analyze"
   },
   "dependencies": {
-    "axios": "1.6.8",
+    "axios": "1.8.2",
     "clipboard": "2.0.8",
     "dayjs": "1.11.13",
     "highcharts": "11.4.6",
