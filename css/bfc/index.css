@@ -2,6 +2,9 @@ body {
   margin: 0;
 }
 .box {
+  margin: 20px;
+  padding: 20px;
+  border: 10px solid black;
   position: relative;
   overflow: hidden;
   background: yellow;
@@ -40,6 +43,9 @@ body {
 }
 .box-absolute {
   position: absolute;
+  width: 100px;
+  height: 100px;
+  background: #CB6173;
   top: 0;
   left: 0;
 }
