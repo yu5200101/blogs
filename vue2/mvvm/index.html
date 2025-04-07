@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Document</title>
+</head>
+<body>
+  <input type="text" id="input" /><br /><br />
+  <input type="button" value="改变data内容" onclick="changeInput()">
+  <input type="button" value="改变count内容" onclick="changeCount()">
+  <div id="app">
+    <!-- name1:
+    <div>{{ user.name }}</div>
+    name2:
+    <div v-text="user.name"></div> -->
+    desc:
+    <div v-text="desc"></div>
+  </div>
+</body>
+<script src="./vue.js"></script>
+<script>
+    /*
+    实现数据的双向绑定，首先要对数据进行劫持监听，所以我们需要设置一个监听器Observer，用来监听所有属性。如果属性发生变化了，就需要告诉订阅者Watcher看是否需要更新。因为订阅者是有很多个，所以我们需要有一个消息订阅器Dep来专门收集这些订阅者，然后在监听器Observer和订阅者Watcher之间进行统一管理的。
+    computed原理
+    watch原理
+    */
+    var inputEle = document.querySelector('#input');
+
+    const myVue = new Vue({
+      el: '#app',
+      data() {
+        return {
+          user: {
+            name: 'nameValue',
+          },
+          count: 2
+        }
+      },
+      computed: {
+        desc() {
+          return `${this.count}`
+        }
+      },
+      // watch: {
+      //   user: {
+      //     handler(val, oldVal) {
+      //       console.log('watch-name1- val:', val, 'oldVal', oldVal)
+      //     },
+      //     deep: true,
+      //     immediate: true
+      //   },
+      //   'user.name': {
+      //     handler(val, oldVal) {
+      //       console.log(`watch-name2- val:${val}, oldVal: ${oldVal}`)
+      //     }
+      //   }
+      // }
+    });
+    const changeInput = () => {
+      myVue.user.name = inputEle.value
+    }
+    const changeCount = () => {
+      myVue.count += myVue.count
+    }
+</script>
+</html>
