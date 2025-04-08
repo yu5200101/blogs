@@ -84,7 +84,6 @@ class Watcher {
   }
 
   addDep(dep) {
-    debugger
     if (!this.depIds.has(dep.id)) {
       this.deps.add(dep);
       this.depIds.add(dep.id);
