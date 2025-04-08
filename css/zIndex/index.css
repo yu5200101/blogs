@@ -1,0 +1,64 @@
+* {
+  margin: 0;
+}
+.wrap {
+  width: 700px;
+  height: 700px;
+  background: seashell;
+
+}
+.wrapper {
+  width: 600px;
+  height: 600px;
+  background: darkblue;
+}
+
+.box-bg {
+  width: 200px;
+  height: 200px;
+  background: firebrick;
+  position: relative;
+}
+
+.z-less0 {
+  width: 150px;
+  height: 150px;
+  background: sienna;
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: -1;
+}
+.z-0 {
+  width: 100px;
+  height: 100px;
+  background: saddlebrown;
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: 0;
+}
+
+.block {
+  width: 300px;
+  height: 30px;
+  background: darkcyan;
+}
+
+.inline {
+  background: silver;
+}
+
+.box {
+  width: 300px;
+  background: indigo;
+}
+.clear {
+  clear: right;
+}
+.right {
+  float: right;
+  width: 200px;
+  height: 100px;
+  background: salmon;
+}

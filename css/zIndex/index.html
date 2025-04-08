@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+  </head>
+  <link rel="stylesheet" href="./index.css">
+  <body>
+<!--
+  z-index 默认值是auto
+  0 会强制创建一个新的层叠上下文，影响子元素的堆叠。
+  auto 则不会创建新的层叠上下文，子元素直接与外部上下文比较
+
+  position:absolute float会脱离文档流
+-->
+    <!-- 默认后面设置的元素层级大于前面的层级 -->
+    <div class="wrap">
+      <div class="wrapper">
+        <div class="box-bg">
+          <div class="z-less0">z-index:-1</div>
+          <div class="z-0">z-index:0</div>
+          <span class="inline">inlineinlineinlineinlineinlineinlineinlineinlineinlineinline</span>
+          <div class="block">block</div>
+          <div class="block">block</div>
+          <div class="block">block</div>
+          <div class="block">block</div>
+          <div class="block">block</div>
+        </div>
+        <div class="block">block</div>
+
+        <!-- 在浮动元素后面的一个元素clear浮动，后面的元素还是按照文档流展示 -->
+        <div class="box">
+          <div class="right">right</div>
+          <div class="block">block</div>
+          <div class="block clear">block-clear</div>
+        </div>
+        <div class="block">block</div>
+      </div>
+    </div>
+  </body>
+</html>

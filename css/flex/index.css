@@ -74,3 +74,33 @@
   flex: 1;
   background: orange;
 }
+
+.box2 {
+  display: flex;
+}
+.box2-item-left {
+  width: 100px;
+  background: saddlebrown;
+}
+
+/* flex设置三个值 flex-grow flex-shrink flex-basic */
+/* flex: 2 相当于 2 1 0 */
+/* flex: 1 相当于 1 1 0 */
+/* flex: auto 相当于 1 1 auto */
+/* flex: none 相当于 0 0 auto */
+
+/* flex: auto 和 1 的区别是 auto考虑自身的大小，在缩放时自身的大，其他元素小 */
+.box2-item-right-auto {
+  flex: auto;
+  background: lawngreen;
+}
+.box2-item-right-1 {
+  flex: 1;
+  background: lawngreen;
+}
+
+.inner-box {
+  width: 400px;
+  height: 400px;
+  background: silver;
+}
