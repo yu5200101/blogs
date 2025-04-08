@@ -132,3 +132,36 @@ for(let key in ary) {
 for(let value of ary) {
   console.log('for...of...:', value)
 }
+
+function myObjectIs(old, val) {
+  // 处理NAN = NAN
+  if (old !== old && val !== val) return true
+  if (old === 0 && val === 0) {
+    // +Infinity ≠ -Infinity
+    return 1 / old === 1 / val
+  }
+  return old === val
+}
+
+// 1. NaN 比较
+console.log(myObjectIs(NaN, NaN)); // true
+console.log(NaN === NaN);          // false
+
+// 2. ±0 比较
+console.log(myObjectIs(+0, -0));   // false
+console.log(+0 === -0);            // true
+
+// 3. 普通值比较
+console.log(myObjectIs(42, 42));   // true
+console.log(myObjectIs("a", "a")); // true
+
+// 4. 对象引用比较
+const obj6 = {};
+console.log(myObjectIs(obj6, obj6)); // true
+console.log(myObjectIs({}, {}));   // false
+
+// 测试所有边界条件
+console.log(myObjectIs(NaN, NaN) === Object.is(NaN, NaN));  // true
+console.log(myObjectIs(+0, -0) === Object.is(+0, -0));      // true
+console.log(myObjectIs(0, -0) === Object.is(0, -0));        // true
+console.log(myObjectIs("a", "a") === Object.is("a", "a"));  // true

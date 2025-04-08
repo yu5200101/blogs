@@ -52,6 +52,7 @@ body {
 .box3 {
   width: 100px;
   height: 200px;
+  background: darkgray;
   position: relative;
 }
 .box-item4 {
@@ -64,4 +65,17 @@ body {
   /* right: 20%; */
   /* 对于高度设置百分比 */
   bottom: 20%;
+}
+
+.box4 {
+  padding: 30px;
+  margin: 10px;
+  border: 10px solid black;
+  position: relative;
+}
+
+.box4-item {
+  position: absolute;
+  top: 0;
+  left: 0;
 }
