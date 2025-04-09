@@ -6,6 +6,7 @@ function Person(name) {
   }
 }
 const personObj = new Person('test-name')
+console.log(personObj instanceof Person);
 
 // 原型链指向:__proto__
 // 原型对象prototype

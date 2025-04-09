@@ -1,7 +1,10 @@
-
+// private 只能在类内部使用
+// static 只能使用类型.xx使用
+// protected 可以在类和子类内部使用
 class Octopus {
   readonly name: string;
   readonly numberOfLegs: number = 8;
+  protected age: number = 10
   constructor (theName: string) {
       this.name = theName;
   }
@@ -9,10 +12,12 @@ class Octopus {
 let dad = new Octopus("Man with the 8 strong legs");
 // dad.name = "Man with the 3-piece suit"; // 错误! name 是只读的.
 
-class Octopus1 {
+class Octopus1 extends Octopus {
   private newName: string
   readonly numberOfLegs: number = 8;
   constructor(readonly name: string) {
+    super(name)
+    console.log(this.age)
     this.newName = name
     console.log(this.newName);
   }

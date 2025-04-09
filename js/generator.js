@@ -7,6 +7,7 @@ function* helloWorldGenerator() {
 const hw = helloWorldGenerator()
 
 console.log(hw[Symbol.iterator]() === hw)
+// {value: 'hello', done: false}
 console.log(hw.next())
 console.log(hw.next())
 console.log(hw.next())

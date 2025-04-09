@@ -207,8 +207,8 @@ Promise.prototype.finally = function (callback) {
     })
   })
 }
-/* 
-Promies.all(promises) 返回一个promise对象
+/*
+Promise.all(promises) 返回一个promise对象
 1.如果传入的参数是一个空的可迭代对象，那么此promise对象回调完成(resolve),只有此情况，是同步执行的，其他都是异步返回的
 2.如果传入的参数不包含任何promise，则返回一个异步完成。
 3.promises中所有的promise都‘完成’时或者参数中不包含promise时回调完成。

@@ -203,6 +203,7 @@ Function.prototype.myBind = function(context, ...presetArgs) {
   boundFunc.prototype = Object.create(originalFunc.prototype);
   return boundFunc;
 };
+
 // 测试普通调用
 const obj2 = { x: 42 };
 function test(a, b) { return this.x + a + b; }
