@@ -69,3 +69,29 @@ setTimeout-2
 requestAnimationFrame
 
 */
+
+function Counter() {
+  const start = Date.now()
+  // new Counter()的时候this 指向counter
+  // Counter()的时候 this指向window
+  console.log(this, 'counter');
+  this.num = 0
+
+  this.timer1 = setInterval(function() {
+    console.log(this, 'this');
+    this.num++
+    const gap = Date.now() - start
+    console.log('timer1', this.num , gap)
+  }, 1000);
+
+  this.timer2 = setTimeout(function() {
+    this.num++
+    const gap = Date.now() - start
+    console.log('timer2', this.num , gap)
+  }, 0);
+}
+
+// this指向window
+// const counter = new Counter()
+// this指向window
+// Counter()
