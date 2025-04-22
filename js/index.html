@@ -9,9 +9,30 @@
   body{
     height: 10000px;
   }
+  #box {
+    width: 100px;
+    height: 100px;
+    background: darkcyan;
+  }
   </style>
 </head>
 <body>
+  <div id="box">
+    <a href="javascript:console.log(1)" id="anchor">click</a>
+  </div>
+  <script>
+    const box = document.getElementById('box')
+    const anchor = document.getElementById('anchor')
+    anchor.addEventListener('click', function() {
+      console.log(2)
+    })
+    box.addEventListener('click', function() {
+      console.log(3)
+    }, true)
+    box.addEventListener('click', function() {
+      console.log(4)
+    })
+  </script>
 </body>
-<script src="./eventLoop.js"></script>
+<script src="./curry.js"></script>
 </html>

@@ -151,6 +151,7 @@ console.log(person7.getFriends());
 
 // 寄生组合式继承
 function clone6(parent, child) {
+  // 2. 继承父类原型方法
   child.prototype = Object.create(parent.prototype)
   child.prototype.constructor = child
 }
@@ -163,6 +164,7 @@ Parent6.prototype.getName = function() {
   return this.name
 }
 function Child6() {
+  // 1. 继承父类实例属性
   Parent6.call(this)
   this.friends = 'child6'
 }
@@ -210,3 +212,83 @@ class Student extends Person1 {
 
 const student = new Student('test', 12)
 student.getName()
+
+function Fnn() {}
+Fnn.prototype.arr = [1]
+Fnn.prototype.b = 1
+
+const Fnn1 = new Fnn()
+Fnn1.arr = [2]
+Fnn1.b = 2
+
+const Fnn2 = new Fnn()
+console.log(Fnn1.arr, Fnn1.b);
+console.log(Fnn2.arr, Fnn2.b);
+
+function myInstanceof(obj, constructor) {
+  // 处理基本类型，若 obj 不是对象或为 null，直接返回 false
+  if (typeof obj !== 'object' || obj === null) {
+    return false;
+  }
+
+  // 检查右侧是否为可调用的构造函数
+  if (typeof constructor !== 'function') {
+    throw new TypeError('Right-hand side of instanceof is not callable');
+  }
+
+  // 获取构造函数的 prototype 属性
+  const prototype = constructor.prototype;
+  // 确保 prototype 是对象类型
+  if (typeof prototype !== 'object' || prototype === null) {
+    throw new TypeError('Constructor.prototype is not an object');
+  }
+
+  // 获取对象的原型
+  let objProto = Object.getPrototypeOf(obj);
+  while (objProto !== null) {
+    // 发现匹配，返回 true
+    if (objProto === prototype) {
+      return true;
+    }
+    // 继续向上遍历原型链
+    objProto = Object.getPrototypeOf(objProto);
+  }
+
+  // 遍历完原型链未找到匹配项，返回 false
+  return false;
+}
+
+console.log('myInstanceof', myInstanceof(Fnn2, Fnn));
+
+function Parent10() {
+  this.name = "Parent"; // 父类实例属性，不会被继承
+}
+Parent10.prototype.say = function() {
+  console.log("Parent method");
+};
+
+function Child10() {}
+Child10.prototype.__proto__ = Parent10.prototype;
+
+const child10 = new Child10();
+child10.say();          // 输出: "Parent method"（继承原型方法）
+console.log(child10.name); // 输出: undefined（未继承实例属性）
+
+function Parent11() {
+  this.name = "Parent"; // 父类实例属性，会被添加到 child.prototype
+}
+Parent11.prototype.say = function() {
+  console.log("Parent method");
+};
+
+function Child11() {}
+Child11.prototype = new Parent11();
+
+const Child111 = new Child11();
+const Child112 = new Child11();
+
+Child111.say();          // 输出: "Parent method"（继承原型方法）
+console.log(Child111.name); // 输出: "Parent"（继承自 child.prototype.name）
+
+Child112.name = "Child";
+console.log(Child112.name); // 输出: "Parent"（修改的是实例自身属性，不影响原型）
