@@ -196,3 +196,23 @@ const fn1 = (x, y, m, n)  => x+y+m+n
 
 const myFn = curryFn(fn1)
 console.log(myFn(1)(2)(3)(4))
+
+function add(...args) {
+  return args.reduce((total, cur) => total + cur, 0)
+}
+console.log('add', add(1, 2, 3, 4, 5, 6));
+
+function addCurry(num) {
+  let total = num
+  const addCurryFn = (...newArgs) => {
+    total += newArgs.reduce((all, cur) => all + cur, 0)
+    return addCurryFn
+  }
+  // 动态属性
+  Object.defineProperty(addCurryFn, 'val', {
+    get: () => total,
+    enumerable: true
+  });
+  return addCurryFn
+}
+console.log('addCurry', addCurry(1)(2)(3)(4)(5)(6).val)
