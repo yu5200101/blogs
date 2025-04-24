@@ -80,7 +80,7 @@ var myFun = obj.fn;
 myFun.call(null);
 // 让obj.number = 3*2 = 6 上级作用域number = 27
 obj.fn();
-console.log('window.number', window.number);
+// console.log('window.number', window.number);
 console.log('obj.number', obj.number);
 
 
@@ -162,10 +162,11 @@ bind和call/apply有一个很重要的区别，一个函数被call/apply的时�
 
 function fn () {
   this.user = 'user-name'
-  return null
+  return {}
 }
 const fnObj = new fn()
-console.log(fnObj.user)
+// 打印{}
+console.log('fnObj', fnObj)
 
 function myNew(func, ...arg) {
   const obj = {}

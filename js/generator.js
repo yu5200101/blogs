@@ -5,12 +5,15 @@ function* helloWorldGenerator() {
 }
 
 const hw = helloWorldGenerator()
-
+// true
 console.log(hw[Symbol.iterator]() === hw)
 // {value: 'hello', done: false}
 console.log(hw.next())
+// { value: 'world', done: false }
 console.log(hw.next())
+// { value: 'end', done: true }
 console.log(hw.next())
+// { value: undefined, done: true }
 console.log(hw.next())
 
 function* foo(x) {
@@ -20,13 +23,25 @@ function* foo(x) {
   console.log(z, 'z')
   return x + y + z
 }
+// x=5
 const foo1 = foo(5)
+// { value: 6, done: false }
 console.log(foo1.next())
+// NAN y
+// { value: NaN, done: false }
 console.log(foo1.next())
+// undefined z
+// { value: NaN, done: true }
 console.log(foo1.next())
+// x=5
 const foo2 = foo(5)
+// { value: 6, done: false }
 console.log(foo2.next())
+// 12 y
+// { value: 4, done: false }
 console.log(foo2.next(6))
+// 8 z
+// { value: 25, done: true }
 console.log(foo2.next(8))
 
 function* ary() {
