@@ -70,4 +70,21 @@ interface ReadonlyObj1 {
 //条件类型
 type ifObj = Obj extends Button ? string : number
 
-// 泛型
+// 泛型-创建可复用的类型和函数
+// infer 用于条件类型推导类型
+
+// 提取函数返回值类型（类似内置的 ReturnType<T>）
+type MyReturnType<T> = T extends (...arg: any[]) => infer P ? P : never
+type FnReturnType = MyReturnType<() => number>
+
+// 提取数组元素类型
+type ElementType<T> = T extends (infer U)[] ? U : never
+type ArrElement = ElementType<number[]>
+
+// 提取 Promise 的 resolve 类型
+type UnwrapPromise<T> = T extends Promise<infer U> ? U : T
+type Resolved = UnwrapPromise<Promise<number>>
+
+// 将函数参数类型转为元组类型（类似内置的 Parameters<T>）
+type MyParams<T> = T extends (...arg: infer P) => any ? P : never
+type Params = MyParams<(a: number, b: string) => void>

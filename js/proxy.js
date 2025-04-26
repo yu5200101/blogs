@@ -440,3 +440,13 @@ reactive1.a = 'aa'
 reactive1.b = 'b'
 delete reactive1.b
 reactive1.c.d = 'd'
+
+let count = 0;
+Object.defineProperty(window, 'a', {
+  get() {
+    count++;
+    return count;
+  }
+});
+
+console.log(a === 1 && a === 2 && a === 3); // true
