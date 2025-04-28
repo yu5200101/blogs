@@ -217,31 +217,41 @@ Promise.all(promises) 返回一个promise对象
  */
 Promise.all = function (promises) {
   return new Promise((resolve, reject) => {
-    let index = 0;
-    let result = [];
-    if (promises.length === 0) {
-      resolve(result);
-    } else {
-      function processValue (i, data) {
-        result[i] = data;
-        if (++index === promises.length) {
-          resolve(result);
+    let index = 0
+    const result = []
+    const len = promises.length
+    if (len === 0) {
+      resolve(result)
+      return
+    }
+    for(let i = 0; i < promises.length; i++) {
+      Promise.resolve(promises[i]).then((data) => {
+        result[i] = data
+        if (++index === len) {
+          resolve(result)
         }
-      }
-      for (let i = 0; i < promises.length; i++) {
-        //promise[i] 可能是普通值
-        Promise.resolve(promises[i]).then((data) => {
-          processValue(i, data);
-        }, (err) => {
-          reject(err);
-          return;
-        })
-      }
+      }, (err) => {
+        reject(err)
+        return
+      })
     }
   })
 }
 
-/* 
+Promise.allSettled = function (promises) {
+  const lastPromises = Array.from(promises).map(item => {
+    return Promise.resolve(item).then(value => ({
+      status: 'fulfilled',
+      value
+    }), reason => ({
+      status: 'rejected',
+      reason
+    }))
+  })
+  return Promise.all(lastPromises)
+}
+
+/*
 Promise.race函数返回一个Promise，它将与第一个传递的promise以相同的完成方式被完成。它可以是成功(resolve)，也可以是失败（reject）,这要取决于第一个完成的方式是两个中的哪个
 如果传的参数数组是空，则返回的promise将永远等待
 如果迭代包含一个或多个非promise值/已成功/已失败的promise，则Promise.race将解析为迭代中找到的第一个值。

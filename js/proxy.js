@@ -197,18 +197,21 @@ proxy6.foo = 'bar';
 // apply方法可以接受三个参数，分别是目标对象、目标对象的上下文对象（this）和目标对象的参数数组。
 var target7 = function () { return 'I am the target'; };
 var handler7 = {
-  apply: function () {
+  apply: function (target, ctx, args) {
     return 'I am the proxy';
   }
 };
 
 var proxy7 = new Proxy(target7, handler7);
 
-console.log(proxy7())
+console.log(proxy7('proxy7'))
 // "I am the proxy"
-// 上面代码中，变量p是 Proxy 的实例，当它作为函数调用时（p()），就会被apply方法拦截，返回一个字符串
+// 上面代码中，变量proxy7是 Proxy 的实例，当它作为函数调用时（p()），就会被apply方法拦截，返回一个字符串
 var twice = {
   apply (target, ctx, args) {
+    console.log('target', target)
+    console.log('ctx', ctx)
+    console.log('args', args)
     return Reflect.apply(...arguments) * 2;
   }
 };
@@ -295,16 +298,18 @@ var handler12 = {
 /*
 construct方法可以接受两个参数。
 target：目标对象
-args：构造函数的参数对象
+args：构造函数的参数数组
 newTarget：创造实例对象时，new命令作用的构造函数（下面例子的p）
 */
 var proxy13 = new Proxy(function(){}, {
-  construct: function(target, args) {
-    console.log('called:' + args.join(', '));
+  construct: function(target, args, newTarget) {
+    console.log('target', target);
+    console.log('arg', args);
+    console.log('newTarget', newTarget);
     return {value: args[0] * 10}
   }
 });
-(new proxy13(1)).value
+(new proxy13(1, 2, 3, 4)).value
 // construct方法返回的必须是一个对象，否则会报错。
 var proxy13 = new Proxy(function () { }, {
   construct: function (target, argumentsList) {

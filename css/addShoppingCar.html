@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+    }
+    .container {
+      animation: horizontal 2s linear infinite;
+    }
+    .ball {
+      width: 50px;
+      height: 50px;
+      background: #ff5252;
+      border-radius: 50%;
+      animation: vertical 2s ease-in-out infinite;
+    }
+
+    @keyframes horizontal {
+      to { transform: translateX(300px); }
+    }
+
+    @keyframes vertical {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(150px); }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="ball"></div>
+  </div>
+</body>
+</html>

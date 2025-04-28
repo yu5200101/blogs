@@ -45,4 +45,34 @@
     defer属性在h5之前就已经有了，输入延迟加载（推迟执行），它会先加载（下载）src中文件内容，然后等页面全部加载完成后，再加载onload中js,<br/>
     async属性属于异步加载，它会在加载src后，立即执行onload,同时还会继续加载页面以上执行顺序，alert显示会先显示b然后再显示a
   </body>
+  <script>
+    // 获取标签个数最多的标签
+    function getMostFrequentTag(root) {
+      let tagCountObj = {}
+      function calTagCount(ele) {
+        const tagName = ele.tagName.toLowerCase()
+        tagCountObj[tagName] = (tagCountObj[tagName] || 0) + 1
+        if (ele.children) {
+          for (const value of ele.children) {
+            calTagCount(value)
+          }
+        }
+      }
+      // 确定是元素节点
+      if (root.nodeType === 1) {
+        calTagCount(root)
+      }
+      let maxCount = 0
+      let maxTagName = ''
+      Object.keys(tagCountObj).forEach(key => {
+        if (tagCountObj[key] > maxCount) {
+          maxCount = tagCountObj[key]
+          maxTagName = key
+        }
+      })
+      return maxTagName
+    }
+    const tagName = getMostFrequentTag(document.body)
+    console.log('getMostFrequentTag', tagName)
+  </script>
 </html>

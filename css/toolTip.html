@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+  <style>
+    /* CSS 样式补充 */
+    .js-tooltip-trigger {
+      margin-top: 100px;
+    }
+    .js-tooltip {
+      background: #333;
+      color: white;
+      padding: 8px;
+      border-radius: 4px;
+      font-size: 14px;
+      display: none;
+      z-index: 1000; /* 确保在最上层 */
+    }
+    </style>
+</head>
+<body>
+  <!-- HTML -->
+  <button class="js-tooltip-trigger">点击或悬停显示 Tooltip</button>
+  <script>
+    // JavaScript
+    const trigger = document.querySelector('.js-tooltip-trigger');
+    let tooltip = null;
+
+    // 创建 Tooltip 元素
+    function createTooltip(text) {
+      const div = document.createElement('div');
+      div.className = 'js-tooltip';
+      div.textContent = text;
+      document.body.appendChild(div);
+      return div;
+    }
+
+    // 显示 Tooltip
+    function showTooltip(event) {
+      if (!tooltip) {
+        tooltip = createTooltip('动态生成的 Tooltip 内容');
+      }
+      const { top, left, height } = event.target.getBoundingClientRect();
+      tooltip.style.display = 'block';
+      tooltip.style.position = 'absolute';
+      tooltip.style.top = `${top - tooltip.offsetHeight - 10}px`; // 上方显示
+      tooltip.style.left = `${left + (event.target.offsetWidth - tooltip.offsetWidth) / 2}px`;
+    }
+
+    // 隐藏 Tooltip
+    function hideTooltip() {
+      if (tooltip) {
+        tooltip.style.display = 'none';
+      }
+    }
+
+    // 事件监听
+    trigger.addEventListener('mouseenter', showTooltip);
+    trigger.addEventListener('mouseleave', hideTooltip);
+  </script>
+</body>
+</html>

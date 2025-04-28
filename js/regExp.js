@@ -54,3 +54,7 @@ const html = '<div class="example" data-info="test"><span class="test" data-info
 const html2 = '<span class="example" data-info="test"><div class="test" data-info="yes">hhhhh</div><img src="data.img" /></span>'
 console.log('validateDom', validateDom(html))
 console.log('validateDom', validateDom(html2))
+
+const date = '2025-04-27'
+const regDate = /^(\d{4})\-(\d{2})\-(\d{2})$/
+console.log(date.replace(regDate, '$2-$3/$1'))

@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Document</title>
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+    }
+    .fixed-aspect-ratio {
+      width: 100%; /* 宽度自适应父容器 */
+      aspect-ratio: 10/3; /* 宽高比 10:3 */
+      background: darkcyan
+    }
+
+    .aspect-ratio-wrapper {
+      width: 100%; /* 控制容器宽度 */
+      position: relative;
+    }
+
+    /* 通过 padding-top 控制宽高比 */
+    .aspect-ratio-wrapper::before {
+      content: '';
+      display: block;
+      padding-top: 30%;
+    }
+
+    .content {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: #ccc;
+    }
+    .viewport-ratio {
+      width: 100vw; /* 视窗宽度的 100% */
+      height: calc(100vw * 3 / 10); /* 高度 = 宽度 * 3/10 */
+      background: sandybrown;
+    }
+    /* ✅ 正确顺序：LVHA */
+    a:link { color: #0066cc; }          /* 未访问：蓝色 */
+    a:visited { color: #6600cc; }       /* 已访问：紫色 */
+    a:hover { color: #ff3300; }         /* 悬停：橙色 */
+    a:active { color: #ccc }       /* 激活：深红 */
+
+  </style>
+</head>
+<body>
+  <a href="http://www.baidu.com">百度</a>
+  <div class="fixed-aspect-ratio">10/3</div>
+  <div class="aspect-ratio-wrapper">
+    <div class="content">10/3</div>
+  </div>
+  <div class="viewport-ratio">10/3</div>
+</body>
+</html>
