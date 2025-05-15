@@ -156,16 +156,16 @@ npm install -g promises-aplus-tests
 promises-aplus-tests promise.js 
 */
 /* 
-1.onFulfilled和onRejected的调用需要放在serTimeout，因为规范中表示onFulfilled or onRejected must not be called until the execution context stack contains only platform code, 使用setTimeout只是模拟异步，原生Promise并非是这样实现的。
+1.onFulfilled和onRejected的调用需要放在setTimeout，因为规范中表示onFulfilled or onRejected must not be called until the execution context stack contains only platform code, 使用setTimeout只是模拟异步，原生Promise并非是这样实现的。
 2.在resolvePromise的函数中，为何需要used这个flag，同样是因为规范中表示：if both resolvePromise and rejectPromise are called, or multiple calls to same argument are made, the first call takes precedence, and ant further calls are ignored. 因此我们需要这样的flag 来确保只会执行一次。
 3.self.onFulfilled 和 self.onRejected中存储了成功的回调和失败的回调，根据规范2.6显示，当promise从pending态改变的时候，需要按照顺序去指定then对应的回调。
  */
 
-/* 
+/*
 Promise.resolve(value)返回一个以给定值解析后的Promise对象。
 1.如果value是个thenable对象，返回的promise会‘跟随’这个thenable的对象，采用它的最终状态
 2.如果传入的value本身就是promise对象，那么Promise.resolve将不做任何修改。原封不动地返回这个promise对象。
-3.其他情况，直接返回该值为成功状态的Promie对象
+3.其他情况，直接返回该值为成功状态的Promise对象
  */
 Promise.resolve = function (param) {
   if (param instanceof Promise) {
@@ -175,7 +175,7 @@ Promise.resolve = function (param) {
     if (param && param.then && typeof param.then === 'function') {
       setTimeout(() => {
         param.then(resolve, reject);
-      })
+      });
     } else {
       resolve(param);
     }
@@ -197,13 +197,13 @@ Promise.prototype.catch = function (onRejected) {
 }
 /* Promise.prototype.finally 不管成功还是失败，都会走到finally中，并且finally之后，还可以继续then。并且会将值原封不动的传递给后面的then */
 Promise.prototype.finally = function (callback) {
-  return this.then((value) => {
-    return new Promise.resolve(callback()).then(() => {
-      return value;
+  return this.then(value => {
+    return Promise.resolve(callback()).then(() => {
+      return value
     })
-  }, (err) => {
-    return new Promise.resolve(callback()).then(() => {
-      throw err;
+  }, err => {
+    return Promise.resolve(callback()).then(() => {
+      throw err
     })
   })
 }
