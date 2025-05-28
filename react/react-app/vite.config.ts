@@ -36,7 +36,7 @@ export default defineConfig({
           exclude: /node_modules/
         }),
         postcssPxToRem({
-          rootValue: 30,               // 对应设计稿的 1rem = 37.5px
+          rootValue: 37.5,               // 对应设计稿的 1rem = 37.5px
           propList: ['*'],              // 转换所有 CSS 属性
           selectorBlackList: [
             /^html$/,
