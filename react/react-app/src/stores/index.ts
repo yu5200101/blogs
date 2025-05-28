@@ -1,5 +1,5 @@
 import { configureStore } from '@reduxjs/toolkit'
-import counter from '@/pages/Home/stores'
+import counter from '@/pages/home/stores'
 import auth from './authSlice'
 import { apiSlice } from '@/api/apiSlice'
 

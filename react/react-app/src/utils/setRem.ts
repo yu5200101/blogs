@@ -1,7 +1,7 @@
 function setRem() {
   const docEl = document.documentElement
   const designWidth = 750 // 设计稿宽度
-  const baseSize = 150   // 1rem = 100px（方便计算，如 750px 宽度下 1rem = 100px）
+  const baseSize = 75   // 1rem = 75px（方便计算，如 750px 宽度下 1rem = 75px）
 
   const scale = docEl.clientWidth / designWidth
   docEl.style.fontSize = baseSize * Math.min(scale, 2) + 'px' // 限制最大缩放比例

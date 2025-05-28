@@ -1,14 +1,16 @@
 import { createBrowserRouter } from 'react-router'
 import type { LoaderFunctionArgs } from 'react-router'
-import Layout from '@/pages/Home/Layout'
-import Home from '@/pages/Home'
-import Child from '@/pages/Home/Child'
-import About from '@/pages/About'
+import Layout from '@/pages/home/Layout'
+import home from '@/pages/home'
+import order from '@/pages/order'
+import mine from '@/pages/mine'
+import search from '@/pages/search'
+import shop from '@/pages/shop'
 import NotFound from '@/pages/NotFound'
 
 const router = createBrowserRouter([
   {
-    path: '/:id',
+    path: '/main',
     // loader可以做路由守卫的功能
     loader: () => {
       // const navigate = useNavigate()
@@ -20,17 +22,24 @@ const router = createBrowserRouter([
     children: [{
       index: true,
       loader: loader,
-      Component: Home
+      Component: home
     }, {
-      path: 'child',
+      path: 'order',
       loader: loader,
-      Component: Child
+      Component: order
+    }, {
+      path: 'mine',
+      loader: loader,
+      Component: mine
     }]
-  },
-  {
-    path: '/about',
+  }, {
+    path: '/search',
     loader: loader,
-    Component: About
+    Component: search
+  }, {
+    path: '/shop',
+    loader: loader,
+    Component: shop
   }, {
     path: '*',
     loader: loader,

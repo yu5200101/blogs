@@ -12,6 +12,7 @@
   "dependencies": {
     "@reduxjs/toolkit": "^2.8.2",
     "antd-mobile": "^5.39.0",
+    "antd-mobile-icons": "^0.3.0",
     "classnames": "^2.5.1",
     "core-js": "^3.42.0",
     "dayjs": "^1.11.13",

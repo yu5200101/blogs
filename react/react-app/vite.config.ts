@@ -24,11 +24,28 @@ export default defineConfig({
     postcss: {
       plugins: [
         postcssPxToRem({
-          rootValue: 75,               // 对应设计稿的 1rem = 100px
+          rootValue: 75,               // 对应设计稿的 1rem = 75px
           propList: ['*'],              // 转换所有 CSS 属性
-          selectorBlackList: [/^html$/, /^ant-/, /^un-rem-/],
+          selectorBlackList: [
+            /^html$/,
+            /^un-rem-/,
+            /^\.am-/, // 排除antd-mobile特有类名（可选）
+          ],
           // 允许在媒体查询中转换px。
-          mediaQuery: true
+          mediaQuery: true,
+          exclude: /node_modules/
+        }),
+        postcssPxToRem({
+          rootValue: 30,               // 对应设计稿的 1rem = 37.5px
+          propList: ['*'],              // 转换所有 CSS 属性
+          selectorBlackList: [
+            /^html$/,
+            /^un-rem-/,
+            /^\.am-/, // 排除antd-mobile特有类名（可选）
+          ],
+          // 允许在媒体查询中转换px。
+          mediaQuery: true,
+          exclude: /node_modules[\\/](?!antd-mobile)/ // 只处理antd-mobile
         })
       ]
     }

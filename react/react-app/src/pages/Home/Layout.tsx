@@ -1,28 +1,14 @@
 import {
-  // useLoaderData,
-  useParams,
   Outlet,
-  NavLink,
-  Link,
   ScrollRestoration
 } from 'react-router'
+import FooterBar from '@/components/FooterBar'
 
 const Layout = () => {
-  const params = useParams()
 
   return (
     <div>
-      <NavLink to={{
-        pathname: `/${params.id}`
-      }}>
-        home
-      </NavLink>
-      <Link
-        to={{
-          pathname: `/${params.id}/child`
-        }}>
-        child
-      </Link>
+      <FooterBar />
       <main>
         {/* 滚动恢复原位置 */}
         <ScrollRestoration />

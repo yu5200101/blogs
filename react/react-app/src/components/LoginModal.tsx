@@ -1,4 +1,3 @@
-// src/components/LoginModal.tsx
 import { Popup, Button, Form, Input } from 'antd-mobile';
 import { useAppDispatch, useAppSelector } from '@/stores/hook';
 import { closeLoginModal } from '@/stores/authSlice';
