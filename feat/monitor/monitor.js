@@ -8,6 +8,7 @@ class FrontendMonitor {
 
   constructor(config) {
     Object.assign(this.config, config)
+    this.requestCount = 0
     this.init();
   }
 
@@ -96,6 +97,7 @@ class FrontendMonitor {
           });
         }
       });
+      FrontendMonitor.getInstance().requestCount++
 
       return originalSend.apply(this, arguments);
     };
@@ -108,6 +110,7 @@ class FrontendMonitor {
       const startTime = Date.now();
       try {
         const response = await originalFetch(...args);
+        this.requestCount++
         if (!response.ok) {
           this.reportError({
             type: 'FetchError',

@@ -5,6 +5,7 @@ const jwt = require('jsonwebtoken');
 const jwtKoa = require('koa-jwt');
 const bodyParser = require('koa-bodyparser');
 const fs = require('fs');
+const cors = require('@koa/cors');
 const path = require('path');
 
 // 配置文件路径
@@ -28,6 +29,21 @@ function encryptPassword(password) {
         .update(password)
         .digest('hex');
 }
+// 配置 CORS
+app.use(cors({
+  origin: ctx => ['http://localhost:1001'].includes(ctx.get('Origin'))
+    ? ctx.get('Origin')
+    : false,
+  allowMethods: ['GET', 'POST'],
+  allowHeaders: [
+    'authorization',
+    'X-Custom-Header',
+    'content-type'
+  ],
+  exposeHeaders: ['X-Response-Time'],
+  credentials: true,
+  maxAge: 3600
+}))
 
 // 处理请求体
 app.use(bodyParser());
@@ -90,7 +106,8 @@ router.post('/register', async (ctx) => {
     users.push(newUser);
     fs.writeFileSync(USERS_FILE, JSON.stringify(users, null, 2));
     ctx.body = {
-        code: 200,
+        code: 0,
+        data: null,
         message: '注册成功'
     };
 });
@@ -129,8 +146,8 @@ router.post('/login', async (ctx) => {
     );
 
     ctx.body = {
-        code: 200,
-        token,
+        code: 0,
+        data: {token},
         expiresIn: 3600
     };
 });
@@ -139,11 +156,27 @@ router.post('/login', async (ctx) => {
 router.get('/getUserInfo', async (ctx) => {
   try {
     const authorization = ctx.header.authorization
+    if (!authorization) {
+      ctx.body = {
+        code: 1,
+        data: null,
+        message: 'not-login'
+      };
+      return
+    }
     const token = authorization.replace('Bearer ', '')
     const result = jwt.verify(token, SECRET_KEY)
-    ctx.body = { result };
+    ctx.body = {
+      code: 0,
+      data: result,
+      message: 'success'
+    };
   } catch (err) {
-    ctx.body = { error: err.message };
+    ctx.body = {
+      code: 1,
+      data: null,
+      message: err.message
+    };
   }
 });
 

@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <style>
+        /* 基础样式 */
+        body {
+            margin: 0;
+            font-family: Arial;
+            line-height: 1.6;
+        }
+        
+        /* 固定导航栏 */
+        nav {
+            position: fixed;
+            top: 0;
+            width: 100%;
+            background: white;
+            padding: 1rem;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            z-index: 100;
+        }
+        
+        ul {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+            display: flex;
+            gap: 2rem;
+            justify-content: center;
+        }
+        
+        a {
+            text-decoration: none;
+            color: #333;
+            padding: 0.5rem 1rem;
+            border-radius: 4px;
+            transition: background 0.3s;
+        }
+        
+        a.active {
+            background: #007bff;
+            color: white;
+        }
+        
+        /* 内容区域 */
+        section {
+            padding: 4rem 2rem;
+            min-height: 100vh;
+            border-bottom: 1px solid #ddd;
+        }
+        
+        h2 {
+            margin-top: 0;
+        }
+    </style>
+</head>
+<body>
+    <nav>
+        <ul>
+            <li><a href="#section1" class="active">Section 1</a></li>
+            <li><a href="#section2">Section 2</a></li>
+            <li><a href="#section3">Section 3</a></li>
+        </ul>
+    </nav>
+
+    <section id="section1">
+        <h2>Section 1</h2>
+        <p>First content section...</p>
+    </section>
+
+    <section id="section2">
+        <h2>Section 2</h2>
+        <p>Second content section...</p>
+    </section>
+
+    <section id="section3">
+        <h2>Section 3</h2>
+        <p>Third content section...</p>
+    </section>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // 获取所有导航链接和章节元素
+            const links = document.querySelectorAll('nav a');
+            const sections = document.querySelectorAll('section');
+
+            // 点击导航处理
+            links.forEach(link => {
+                link.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    const targetId = link.getAttribute('href');
+                    document.querySelector(targetId).scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'start'
+                    });
+                });
+            });
+
+            // 创建 IntersectionObserver
+            const observer = new IntersectionObserver(
+                (entries) => {
+                    entries.forEach(entry => {
+                        const id = entry.target.getAttribute('id');
+                        const link = document.querySelector(`nav a[href="#${id}"]`);
+                        if (entry.isIntersecting && entry.intersectionRatio >= 0.5) {
+                            links.forEach(l => l.classList.remove('active'));
+                            link.classList.add('active');
+                        }
+                    });
+                },
+                {
+                    threshold: [0, 0.25, 0.5, 0.75, 1],
+                    rootMargin: '-50px 0px -50px 0px' // 调整检测区域
+                }
+            );
+
+            // 观察所有章节
+            sections.forEach(section => {
+                observer.observe(section);
+            });
+        });
+    </script>
+</body>
+</html>

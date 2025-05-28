@@ -1,0 +1,73 @@
+<!-- HTML -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+  <link rel="stylesheet" href="./index.css">
+  <style>
+    .progress-bar {
+      width: 100%;
+      height: 4px;
+      background: #eee;
+      position: fixed;
+      top: 0;
+      left: 0;
+    }
+    .progress {
+      height: 100%;
+      width: 0;
+      background: #2196f3;
+      transition: width 0.3s ease;
+    }
+    </style>
+</head>
+<body>
+  <div class="progress-bar">
+    <div class="progress"></div>
+  </div>
+
+    <script>
+    // 获取进度条DOM
+    const progressBar = document.querySelector('.progress');
+
+    // 记录总资源数和已加载数
+    let totalResources = 0;
+    let loadedResources = 0;
+
+    // 创建性能观察者
+    const observer = new PerformanceObserver((list) => {
+      const entries = list.getEntriesByType('resource');
+      totalResources = entries.length;
+      entries.forEach(entry => {
+        if (entry.duration > 0) {
+          loadedResources++;
+          requestAnimationFrame(updateProgress)
+        }
+      });
+    });
+
+    // 开始观察资源类型
+    observer.observe({ type: 'resource', buffered: true });
+
+    // 更新进度条
+    function updateProgress() {
+      const progress = (loadedResources / totalResources) * 100;
+      progressBar.style.width = progress + '%';
+
+      // 加载完成后隐藏
+      if (progress >= 100) {
+        setTimeout(() => {
+          document.querySelector('.progress-bar').style.opacity = '0';
+        }, 500);
+      }
+    }
+
+    // 兼容性处理：如果浏览器不支持 PerformanceObserver
+    window.addEventListener('load', () => {
+      progressBar.style.width = '100%';
+    });
+    </script>
+  </body>
+</html>

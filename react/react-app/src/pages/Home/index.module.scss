@@ -1,0 +1,25 @@
+.active {
+  color: red;
+}
+
+.pending {
+  color: blue;
+}
+
+.transitioning {
+  color: aquamarine;
+  /* css transition is running */
+}
+
+.header {
+  color: aquamarine;
+}
+
+.box {
+  background: seashell;
+  padding: 20px;
+
+  .title {
+    color: salmon;
+  }
+}

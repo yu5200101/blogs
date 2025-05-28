@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+  <style>
+    #update-banner {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      padding: 15px;
+      background: #4CAF50;
+      color: white;
+      border-radius: 5px;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+    }
+    .hidden { display: none; }
+  </style>
+</head>
+<body>
+  <div id="update-banner" class="hidden">
+    <p>新版本已就绪！</p>
+    <button id="refresh-btn">立即刷新</button>
+  </div>
+  <script>
+    if ('serviceWorker' in navigator) {
+        // 由于 127.0.0.1:8000 是所有测试 Demo 的 host
+        // 为了防止作用域污染，将安装前注销所有已生效的 Service Worker
+        navigator.serviceWorker.getRegistrations()
+          .then(regs => {
+            for (let reg of regs) {
+              reg.unregister()
+            }
+            navigator.serviceWorker.register('./sw.js', {
+              // scope: '/',
+              updateViaCache: 'none'
+            }).then(registration => {
+            });
+          })
+      }
+    function showUpdateBanner(version) {
+      const bannerEle = document.getElementById('update-banner')
+      bannerEle.classList.remove('hidden')
+    }
+    // 主页面监听消息
+    navigator.serviceWorker.addEventListener('message', event => {
+      if (event.data.type === 'NEW_VERSION_AVAILABLE') {
+        showUpdateBanner(event.data.version);
+      }
+    });
+
+    // 定期检查更新
+    function checkForUpdates() {
+      navigator.serviceWorker.getRegistration().then(reg => {
+        reg.update().then(() => {
+          console.log('Checked for updates');
+        });
+      });
+    }
+
+    // 每5s检查一次
+    setInterval(checkForUpdates, 5 * 1000);
+
+    // 用户交互更新
+    document.getElementById('refresh-btn').addEventListener('click', () => {
+      window.location.reload(true);
+    });
+  </script>
+</body>
+</html>

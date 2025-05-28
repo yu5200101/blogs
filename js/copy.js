@@ -8,5 +8,16 @@ function copyValue (val) {
   document.execCommand('Copy') // 执行浏览器复制命令
   temp.style.display = 'none'
   document.body.removeChild(temp)
-  this.$message.success('复制成功')
+  console.log('copy success')
 }
+
+function showCustomMenu() {
+  // 监听点击鼠标右键
+  document.addEventListener('contextmenu', (event) => {
+    event.preventDefault()
+    const selection = window.getSelection()
+    copyValue(selection.toString())
+  })
+}
+
+showCustomMenu()
