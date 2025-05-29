@@ -88,3 +88,55 @@ type Resolved = UnwrapPromise<Promise<number>>
 // 将函数参数类型转为元组类型（类似内置的 Parameters<T>）
 type MyParams<T> = T extends (...arg: infer P) => any ? P : never
 type Params = MyParams<(a: number, b: string) => void>
+
+interface User {
+  id: number,
+  name: string
+}
+
+type partial = Partial<User>
+// 等价于 { id?: number; name?: string; }
+
+type required = Required<User>
+// 等价于 { id: number; name: string; }
+
+type readonly = Readonly<User>
+// 等价于 { Readonly id: number; Readonly name: string; }
+
+type pick = Pick<User, 'id'>
+// 等价于 { id: number }
+
+type omit = Omit<User, 'id'>
+// 等价于 { name: string }
+
+type record = Record<string, User>
+// 等价于 { [key: string]: User }
+
+type none = NonNullable<string | number | null | undefined>
+// 等价于 string | number
+
+type exclude = Exclude<'a' | 'b' | 'c', 'a'>
+// 等价于 'b' | 'c'
+
+type exact = Extract<'a' | 1 | false, string>
+// 等价于 'a'
+
+type returnType = ReturnType<() => number>
+// 返回 number
+
+type parameters = Parameters<(a: number, b: string) => void>
+// 等价于 [number, string]
+
+function pa1(...args: parameters) {
+  console.log(args)
+}
+pa1(1, '1')
+
+class C {
+  constructor(a: number, b: string) {}
+}
+type constructorParameters = ConstructorParameters<typeof C>
+// [a: number, b: string]
+
+type instanceType = InstanceType<typeof C>
+// C
