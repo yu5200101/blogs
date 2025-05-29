@@ -1,8 +1,10 @@
 // 从特定于 React 的入口点导入 RTK Query 方法
-import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react'
+import { createApi, fetchBaseQuery, retry } from '@reduxjs/toolkit/query/react'
 import type { BaseQueryFn } from '@reduxjs/toolkit/query';
 import { openLoginModal } from '@/stores/authSlice'
 import storage from '@/utils/storage'
+import { sleepTime } from '@/utils/tools'
+import { isRetryError } from './tools'
 
 // 定义后端响应格式
 interface BackendResponse<T> {
@@ -30,7 +32,7 @@ const rawBaseQuery = fetchBaseQuery({
     return headers
   },
   timeout: DEFAULT_TIMEOUT,
-});
+})
 
 const baseQueryWithInterceptors: BaseQueryFn = async (args, api, extraOptions) => {
   // ----------------------------
@@ -54,6 +56,21 @@ const baseQueryWithInterceptors: BaseQueryFn = async (args, api, extraOptions) =
   // ----------------------------
   // 响应拦截器逻辑
   // ----------------------------
+  // 如果发生特定错误，则重试
+  const retryData = isRetryError(result.error)
+  if (retryData.flag) {
+    // 重试逻辑
+    const maxRetries = retryData.maxRetries;
+    let attempt = 1;
+    while (attempt <= maxRetries) {
+      // 指数退避策略
+      const delay = Math.min(1000 * 2 ** attempt, 30000);
+      await sleepTime(delay)
+      result = await rawBaseQuery(args, api, extraOptions);
+      if (!result.error) break; // 成功则退出
+      attempt++;
+    }
+  }
 
   // 处理网络错误或 HTTP 错误（如 4xx/5xx）
   if (result.error) {
@@ -93,6 +110,9 @@ export const apiSlice = createApi({
   reducerPath: 'api',
   // 我们所有的请求都有以 “/api 开头的 URL
   baseQuery: baseQueryWithInterceptors,
+  // 全局配置重试
+  refetchOnReconnect: true, // 网络重连时重试
+  refetchOnFocus: true,    // 窗口聚焦时重试
   // “endpoints” 代表对该服务器的操作和请求
   endpoints: () => ({
     // `register` endpoint 是一个返回数据的 “Query” 操作

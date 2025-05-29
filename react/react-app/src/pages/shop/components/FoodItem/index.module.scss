@@ -1,0 +1,22 @@
+.box {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 20px;
+
+  &-attr {
+    width: 100px;
+    height: 100px;
+    background: firebrick;
+    margin: 10px;
+  }
+
+  &-con {
+    flex: 1;
+
+    &-price {
+      margin: 10px;
+    }
+  }
+}
