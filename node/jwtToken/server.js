@@ -10,6 +10,7 @@ const path = require('path');
 
 // 配置文件路径
 const USERS_FILE = path.join(__dirname, 'user.json');
+const LIST_FILE = path.join(__dirname, 'list.json');
 const SECRET_KEY = 'your_secure_secret_key_here'; // 生产环境建议使用环境变量
 
 const app = new Koa();
@@ -19,6 +20,9 @@ const router = new Router();
 function initUserFile() {
     if (!fs.existsSync(USERS_FILE)) {
         fs.writeFileSync(USERS_FILE, '[]');
+    }
+    if (!fs.existsSync(LIST_FILE)) {
+        fs.writeFileSync(LIST_FILE, '[]');
     }
 }
 initUserFile();
@@ -170,6 +174,41 @@ router.get('/getUserInfo', async (ctx) => {
       code: 0,
       data: result,
       message: 'success'
+    };
+  } catch (err) {
+    ctx.body = {
+      code: 1,
+      data: null,
+      message: err.message
+    };
+  }
+});
+
+// 用户信息接口保持不变
+router.get('/getListByType', async (ctx) => {
+  try {
+    const authorization = ctx.header.authorization
+    if (!authorization) {
+      ctx.body = {
+        code: 1,
+        data: null,
+        message: 'not-login'
+      };
+      return
+    }
+    const token = authorization.replace('Bearer ', '')
+    jwt.verify(token, SECRET_KEY)
+    const { type } = ctx.request.query;
+    const list = JSON.parse(fs.readFileSync(LIST_FILE));
+    const resList = list.find(item => item.type === type).list
+    if (!resList.length) {
+        ctx.status = 400;
+        throw new Error('没有该类型的数据');
+    }
+    ctx.body = {
+        code: 0,
+        data: resList,
+        message: 'success'
     };
   } catch (err) {
     ctx.body = {
