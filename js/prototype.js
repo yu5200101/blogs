@@ -6,7 +6,8 @@ function Person(name) {
   }
 }
 const personObj = new Person('test-name')
-console.log(personObj instanceof Person);
+console.log(personObj instanceof Person, 'Person');
+console.log(personObj instanceof Object, 'Object');
 
 // 原型链指向:__proto__
 // 原型对象prototype
@@ -36,7 +37,7 @@ function fn2() {
 
 fn2()
 
-// 原型链继承
+// 原型链继承 使用父类属性和方法
 function Parent() {
   this.name = 'parent'
   this.play = [1, 2, 3]
@@ -52,9 +53,9 @@ const child1 = new Child()
 const child2 = new Child()
 child1.play.push(4)
 // 两个值全等 [1, 2, 3, 4]
-console.log(child1.play, child2.play)
+console.log('child1.play', child1.play, 'child2.play', child2.play)
 
-// 构造函数继承
+// 构造函数继承 只能使用父类的属性
 function Parent1() {
   this.name = 'parent1'
 }
@@ -62,13 +63,14 @@ Parent1.prototype.getName = function() {
   return this.name
 }
 function Child1() {
+  // 使用父类的name
   Parent1.call(this)
   this.type = 'child1'
 }
 
 const child3 = new Child1()
 // 没问题
-console.log(child3)
+console.log('child3', child3)
 // 报错
 try {
   console.log(child3.getName())
@@ -85,20 +87,27 @@ Parent3.prototype.getName = function() {
   return this.name
 }
 function Child3() {
+  // 把name play 置为子类属性,不加的话可以访问到，继承的父类的属性，对于引用类型改一个都改了
   Parent3.call(this)
-  this.type = 'child3'
+  this.type = 'child4-type'
 }
 
+// 使用父类的属性和方法
 Child3.prototype = new Parent3()
-// 修复构造函数指向
+// 必须放在继承后面才有此方法
+Child3.prototype.getType = function() {
+  return this.type
+}
+// 修复构造函数指向 this指向child3
 Child3.prototype.constructor = Child3
 
 const child4 = new Child3()
 const child5 = new Child3()
+console.log(child4, child4.getName(), child4.type, child4.getType(), 'child4')
 child4.play.push(4)
-console.log(child4.play, child5.play)
-console.log(child4.getName())
-console.log(child5.getName())
+child4.name = 'child4-name'
+console.log('child4-play', child4.play, 'child5-play', child5.play)
+console.log('child4-name', child4.getName(), 'child5-name', child5.getName())
 
 // 原型式继承
 let parent4 = {
@@ -113,11 +122,9 @@ person4.name = 'name4'
 person4.friends.push('f4')
 let person5 = Object.create(parent4)
 person5.friends.push('f5')
-console.log(person4.name);
-console.log(person4.getName());
-console.log(person4.friends);
-console.log(person5.name);
-console.log(person5.friends);
+// friends引用类型都是一样的
+console.log('person4', person4.name, person4.getName(), person4.friends);
+console.log('person5', person5.name, person5.friends)
 
 // 寄生式继承
 let parent5 = {
@@ -141,13 +148,9 @@ person6.friends.push('f6')
 let person7 = clone(parent5)
 person7.friends.push('f7')
 
-console.log(person6.name);
-console.log(person6.getName());
-console.log(person6.friends);
-console.log(person6.getFriends());
-console.log(person7.name);
-console.log(person7.friends);
-console.log(person7.getFriends());
+// friends引用类型都是一样的
+console.log('person6', person6.name, person6.getName(), person6.friends, person6.getFriends());
+console.log('person7', person7.name, person7.getName(), person7.friends, person7.getFriends());
 
 // 寄生组合式继承
 function clone6(parent, child) {

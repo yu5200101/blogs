@@ -1,0 +1,686 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>简易 React Fiber 实现</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background: linear-gradient(135deg, #1a2a6c, #b21f1f, #1a2a6c);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            background: rgba(255, 255, 255, 0.92);
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            overflow: hidden;
+        }
+        header {
+            background: linear-gradient(to right, #4b6cb7, #182848);
+            color: white;
+            padding: 25px 30px;
+            text-align: center;
+        }
+        h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            letter-spacing: 1px;
+        }
+        .subtitle {
+            font-size: 1.2rem;
+            opacity: 0.9;
+            max-width: 700px;
+            margin: 0 auto;
+        }
+        .content {
+            display: flex;
+            padding: 20px;
+            gap: 30px;
+        }
+        .explanation {
+            flex: 1;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 10px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+        }
+        .demo-area {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+        .visualization {
+            background: #2c3e50;
+            border-radius: 10px;
+            padding: 20px;
+            min-height: 300px;
+            color: white;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+            position: relative;
+            overflow: hidden;
+        }
+        .controls {
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+        }
+        h2 {
+            color: #2c3e50;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #3498db;
+        }
+        .fiber-node {
+            position: absolute;
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            transition: all 0.5s ease;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+            text-align: center;
+            padding: 5px;
+            font-size: 14px;
+        }
+        .fiber-link {
+            position: absolute;
+            height: 4px;
+            background: #3498db;
+            transform-origin: 0 0;
+            transition: all 0.5s ease;
+        }
+        .fiber-counter {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            font-size: 1.2rem;
+            background: rgba(0,0,0,0.3);
+            padding: 8px 15px;
+            border-radius: 20px;
+        }
+        .control-group {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 15px;
+            flex-wrap: wrap;
+        }
+        button {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            background: #3498db;
+            color: white;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+            flex: 1;
+            min-width: 120px;
+        }
+        button:hover {
+            background: #2980b9;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+        }
+        button:active {
+            transform: translateY(0);
+        }
+        button.pause {
+            background: #e74c3c;
+        }
+        button.pause:hover {
+            background: #c0392b;
+        }
+        button.resume {
+            background: #2ecc71;
+        }
+        button.resume:hover {
+            background: #27ae60;
+        }
+        .progress-container {
+            height: 10px;
+            background: #ecf0f1;
+            border-radius: 5px;
+            overflow: hidden;
+            margin: 15px 0;
+        }
+        .progress-bar {
+            height: 100%;
+            background: linear-gradient(to right, #3498db, #2ecc71);
+            width: 0%;
+            transition: width 0.3s;
+        }
+        .status {
+            text-align: center;
+            font-weight: bold;
+            color: #2c3e50;
+            margin-top: 10px;
+            min-height: 24px;
+        }
+        .priority {
+            background: #9b59b6;
+        }
+        .code-block {
+            background: #2c3e50;
+            color: #ecf0f1;
+            padding: 15px;
+            border-radius: 8px;
+            font-family: 'Courier New', monospace;
+            margin: 15px 0;
+            overflow-x: auto;
+            font-size: 0.9rem;
+        }
+        .step {
+            margin-bottom: 15px;
+            padding: 10px;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+        }
+        .step h3 {
+            color: #3498db;
+            margin-bottom: 8px;
+        }
+        @media (max-width: 768px) {
+            .content {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>React Fiber 流程解析</h1>
+            <p class="subtitle">简易实现演示可中断渲染、优先级调度和增量更新</p>
+        </header>
+        
+        <div class="content">
+            <div class="explanation">
+                <h2>Fiber 架构核心原理</h2>
+                
+                <div class="step">
+                    <h3>1. Fiber 节点结构</h3>
+                    <p>每个组件对应一个Fiber节点，形成链表结构：</p>
+                    <div class="code-block">
+                        class FiberNode {<br>
+                        &nbsp;&nbsp;constructor(type, props) {<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;this.type = type;     // 组件类型<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;this.props = props;   // 属性<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;this.dom = null;      // 关联的DOM节点<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;this.child = null;    // 第一个子节点<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;this.sibling = null;  // 下一个兄弟节点<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;this.return = null;   // 父节点<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;this.alternate = null; // 双缓存节点<br>
+                        &nbsp;&nbsp;}<br>
+                        }
+                    </div>
+                </div>
+                
+                <div class="step">
+                    <h3>2. 可中断渲染</h3>
+                    <p>将渲染过程分解为小任务单元，通过时间分片实现可中断：</p>
+                    <div class="code-block">
+                        function workLoop(deadline) {<br>
+                        &nbsp;&nbsp;while (nextUnitOfWork && deadline.timeRemaining() > 1) {<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;nextUnitOfWork = performUnitOfWork(nextUnitOfWork);<br>
+                        &nbsp;&nbsp;}<br>
+                        &nbsp;&nbsp;if (nextUnitOfWork) {<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;requestIdleCallback(workLoop);<br>
+                        &nbsp;&nbsp;}<br>
+                        }
+                    </div>
+                </div>
+                
+                <div class="step">
+                    <h3>3. 双缓冲技术</h3>
+                    <p>使用两棵Fiber树（current和workInProgress）实现无闪烁更新：</p>
+                    <div class="code-block">
+                        function commitRoot() {<br>
+                        &nbsp;&nbsp;// 提交所有更新到DOM<br>
+                        &nbsp;&nbsp;commitWork(wipRoot.child);<br>
+                        &nbsp;&nbsp;// 切换当前树<br>
+                        &nbsp;&nbsp;currentRoot = wipRoot;<br>
+                        &nbsp;&nbsp;wipRoot = null;<br>
+                        }
+                    </div>
+                </div>
+            </div>
+            
+            <div class="demo-area">
+                <div class="visualization">
+                    <div class="fiber-counter">已处理节点: <span id="node-count">0</span></div>
+                    <div class="fiber-node" style="top: 50px; left: 50px; background: #3498db;">Root</div>
+                    <!-- Fiber节点将由JS动态生成 -->
+                </div>
+                
+                <div class="controls">
+                    <h2>Fiber 流程控制</h2>
+                    
+                    <div class="control-group">
+                        <button id="start-btn">开始渲染</button>
+                        <button id="pause-btn" class="pause">暂停渲染</button>
+                        <button id="resume-btn" class="resume">继续渲染</button>
+                    </div>
+                    
+                    <div class="control-group">
+                        <button id="high-priority">高优先级更新</button>
+                        <button id="normal-priority">普通更新</button>
+                        <button id="low-priority">低优先级更新</button>
+                    </div>
+                    
+                    <div class="progress-container">
+                        <div class="progress-bar" id="progress-bar"></div>
+                    </div>
+                    
+                    <div class="status" id="status">准备开始渲染</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 简化版Fiber节点类
+        class FiberNode {
+            constructor(type, props) {
+                this.type = type;       // 节点类型 (如 'div', 'Component')
+                this.props = props;     // 属性对象
+                this.dom = null;        // 关联的DOM节点
+                this.child = null;      // 第一个子节点
+                this.sibling = null;    // 下一个兄弟节点
+                this.return = null;     // 父节点
+                this.alternate = null;  // 双缓存节点
+                this.effectTag = null;  // 更新类型 (PLACEMENT, UPDATE, DELETION)
+                this.priority = 0;      // 优先级
+            }
+        }
+
+        // 创建虚拟DOM树（简化版）
+        function createElement(type, props, ...children) {
+            return {
+                type,
+                props: {
+                    ...props,
+                    children: children.map(child => 
+                        typeof child === "object" 
+                            ? child 
+                            : createTextElement(child)
+                    ),
+                },
+            };
+        }
+
+        function createTextElement(text) {
+            return {
+                type: "TEXT_ELEMENT",
+                props: {
+                    nodeValue: text,
+                    children: [],
+                },
+            };
+        }
+
+        // 创建Fiber树的函数
+        function createFiberTree(element) {
+            if (!element) return null;
+            
+            const fiber = new FiberNode(
+                element.type, 
+                element.props
+            );
+            
+            // 创建子节点
+            const children = element.props.children || [];
+            let prevSibling = null;
+            
+            children.forEach((child, index) => {
+                const childFiber = createFiberTree(child);
+                if (index === 0) {
+                    fiber.child = childFiber;
+                } else {
+                    prevSibling.sibling = childFiber;
+                }
+                if (childFiber) {
+                    childFiber.return = fiber;
+                }
+                prevSibling = childFiber;
+            });
+            
+            return fiber;
+        }
+
+        // DOM操作函数
+        function createDom(fiber) {
+            const dom =
+                fiber.type === "TEXT_ELEMENT"
+                    ? document.createTextNode("")
+                    : document.createElement(fiber.type);
+            
+            updateDom(dom, {}, fiber.props);
+            
+            return dom;
+        }
+
+        function updateDom(dom, prevProps, nextProps) {
+            // 简化版的属性更新
+            Object.keys(prevProps)
+                .filter(name => name !== "children")
+                .forEach(name => {
+                    dom[name] = "";
+                });
+            
+            Object.keys(nextProps)
+                .filter(name => name !== "children")
+                .forEach(name => {
+                    dom[name] = nextProps[name];
+                });
+        }
+
+        // 渲染相关变量
+        let nextUnitOfWork = null;
+        let wipRoot = null;
+        let currentRoot = null;
+        let pendingPriorityUpdate = null;
+        let isWorking = false;
+        let processedNodeCount = 0;
+        let totalNodeCount = 0;
+
+        // 渲染流程控制
+        function render(element, container) {
+            wipRoot = new FiberNode("ROOT", {});
+            wipRoot.dom = container;
+            wipRoot.props = {
+                children: [element],
+            };
+            
+            // 创建Fiber树
+            const rootElement = createElement("div", null, element);
+            wipRoot.child = createFiberTree(rootElement);
+            wipRoot.child.return = wipRoot;
+            
+            // 计算总节点数
+            totalNodeCount = countNodes(wipRoot);
+            document.getElementById('node-count').textContent = `0/${totalNodeCount}`;
+            
+            nextUnitOfWork = wipRoot;
+            isWorking = true;
+            
+            // 开始工作循环
+            requestIdleCallback(workLoop);
+        }
+
+        // 计算节点数
+        function countNodes(fiber) {
+            if (!fiber) return 0;
+            let count = 1; // 当前节点
+            
+            let child = fiber.child;
+            while (child) {
+                count += countNodes(child);
+                child = child.sibling;
+            }
+            
+            return count;
+        }
+
+        // 工作循环 - Fiber核心
+        function workLoop(deadline) {
+            let shouldYield = false;
+            while (nextUnitOfWork && !shouldYield) {
+                nextUnitOfWork = performUnitOfWork(nextUnitOfWork);
+                processedNodeCount++;
+                
+                // 更新进度显示
+                document.getElementById('node-count').textContent = 
+                    `${processedNodeCount}/${totalNodeCount}`;
+                
+                const progress = Math.min(100, (processedNodeCount / totalNodeCount) * 100);
+                document.getElementById('progress-bar').style.width = `${progress}%`;
+                
+                shouldYield = deadline.timeRemaining() < 1;
+            }
+            
+            if (!nextUnitOfWork && wipRoot) {
+                commitRoot();
+            }
+            
+            if (nextUnitOfWork) {
+                requestIdleCallback(workLoop);
+                document.getElementById('status').textContent = 
+                    `渲染中... (剩余时间: ${deadline.timeRemaining().toFixed(1)}ms)`;
+            } else {
+                document.getElementById('status').textContent = '渲染完成!';
+                isWorking = false;
+            }
+        }
+
+        // 执行工作单元
+        function performUnitOfWork(fiber) {
+            // 1. 创建DOM节点
+            if (!fiber.dom) {
+                fiber.dom = createDom(fiber);
+                visualizeFiberNode(fiber);
+            }
+            
+            // 2. 为子元素创建Fibers
+            const elements = fiber.props.children || [];
+            reconcileChildren(fiber, elements);
+            
+            // 3. 选择下一个工作单元 (深度优先遍历)
+            if (fiber.child) {
+                return fiber.child;
+            }
+            
+            let nextFiber = fiber;
+            while (nextFiber) {
+                if (nextFiber.sibling) {
+                    return nextFiber.sibling;
+                }
+                nextFiber = nextFiber.return;
+            }
+        }
+
+        // 协调子节点（简化版）
+        function reconcileChildren(wipFiber, elements) {
+            let index = 0;
+            let prevSibling = null;
+            let oldFiber = wipFiber.alternate && wipFiber.alternate.child;
+            
+            while (index < elements.length || oldFiber) {
+                const element = elements[index];
+                let newFiber = null;
+                
+                // 简化对比逻辑
+                if (element && oldFiber) {
+                    // 更新
+                    newFiber = new FiberNode(
+                        element.type,
+                        element.props
+                    );
+                    newFiber.dom = oldFiber.dom;
+                    newFiber.alternate = oldFiber;
+                    newFiber.effectTag = "UPDATE";
+                } else if (element && !oldFiber) {
+                    // 新增
+                    newFiber = new FiberNode(
+                        element.type,
+                        element.props
+                    );
+                    newFiber.effectTag = "PLACEMENT";
+                } else if (oldFiber) {
+                    // 删除
+                    oldFiber.effectTag = "DELETION";
+                }
+                
+                if (index === 0) {
+                    wipFiber.child = newFiber;
+                } else if (element) {
+                    prevSibling.sibling = newFiber;
+                }
+                
+                if (newFiber) {
+                    newFiber.return = wipFiber;
+                }
+                
+                prevSibling = newFiber;
+                index++;
+            }
+        }
+
+        // 提交所有更新到DOM
+        function commitRoot() {
+            commitWork(wipRoot.child);
+            currentRoot = wipRoot;
+            wipRoot = null;
+        }
+
+        function commitWork(fiber) {
+            if (!fiber) return;
+            
+            let domParentFiber = fiber.return;
+            while (!domParentFiber.dom) {
+                domParentFiber = domParentFiber.return;
+            }
+            const domParent = domParentFiber.dom;
+            
+            if (fiber.effectTag === "PLACEMENT" && fiber.dom) {
+                domParent.appendChild(fiber.dom);
+            } else if (fiber.effectTag === "UPDATE" && fiber.dom) {
+                updateDom(fiber.dom, fiber.alternate.props, fiber.props);
+            } else if (fiber.effectTag === "DELETION") {
+                domParent.removeChild(fiber.dom);
+            }
+            
+            commitWork(fiber.child);
+            commitWork(fiber.sibling);
+        }
+
+        // 可视化相关函数
+        function visualizeFiberNode(fiber) {
+            const container = document.querySelector('.visualization');
+            const node = document.createElement('div');
+            node.className = 'fiber-node';
+            node.textContent = fiber.type === 'TEXT_ELEMENT' 
+                ? `Text: ${fiber.props.nodeValue}` 
+                : fiber.type;
+            
+            // 随机位置（实际应用中应根据层级定位）
+            const top = 100 + Math.floor(Math.random() * 150);
+            const left = 50 + Math.floor(Math.random() * 300);
+            
+            node.style.top = `${top}px`;
+            node.style.left = `${left}px`;
+            
+            // 设置不同颜色
+            const colors = ['#3498db', '#2ecc71', '#e74c3c', '#9b59b6', '#f1c40f'];
+            node.style.background = colors[Math.floor(Math.random() * colors.length)];
+            
+            container.appendChild(node);
+            fiber.vizNode = node;
+            
+            // 添加连线
+            if (fiber.return && fiber.return.vizNode) {
+                const link = document.createElement('div');
+                link.className = 'fiber-link';
+                
+                const startRect = fiber.return.vizNode.getBoundingClientRect();
+                const endRect = node.getBoundingClientRect();
+                const containerRect = container.getBoundingClientRect();
+                
+                const startX = startRect.left + startRect.width/2 - containerRect.left;
+                const startY = startRect.top + startRect.height/2 - containerRect.top;
+                const endX = endRect.left + endRect.width/2 - containerRect.left;
+                const endY = endRect.top + endRect.height/2 - containerRect.top;
+                
+                const length = Math.sqrt(Math.pow(endX - startX, 2) + Math.pow(endY - startY, 2));
+                const angle = Math.atan2(endY - startY, endX - startX) * 180 / Math.PI;
+                
+                link.style.width = `${length}px`;
+                link.style.transform = `rotate(${angle}deg)`;
+                link.style.top = `${startY}px`;
+                link.style.left = `${startX}px`;
+                
+                container.appendChild(link);
+                fiber.vizLink = link;
+            }
+        }
+
+        // 初始化
+        document.addEventListener('DOMContentLoaded', () => {
+            // 创建虚拟DOM树
+            const virtualDom = createElement('div', { className: 'container' },
+                createElement('h1', null, 'Hello Fiber'),
+                createElement('p', null, 'This is a simple Fiber implementation'),
+                createElement('div', { className: 'content' },
+                    createElement('button', { onClick: () => console.log('Clicked!') }, 'Click Me'),
+                    createElement('p', null, 'Current count: 0')
+                )
+            );
+            
+            // 设置按钮事件
+            document.getElementById('start-btn').addEventListener('click', () => {
+                if (!isWorking) {
+                    processedNodeCount = 0;
+                    document.querySelector('.visualization').innerHTML = 
+                        '<div class="fiber-counter">已处理节点: <span id="node-count">0</span></div>' +
+                        '<div class="fiber-node" style="top: 50px; left: 50px; background: #3498db;">Root</div>';
+                    render(virtualDom, document.querySelector('.visualization'));
+                    document.getElementById('status').textContent = '渲染开始...';
+                }
+            });
+            
+            document.getElementById('pause-btn').addEventListener('click', () => {
+                if (isWorking) {
+                    nextUnitOfWork = null;
+                    document.getElementById('status').textContent = '渲染已暂停';
+                }
+            });
+            
+            document.getElementById('resume-btn').addEventListener('click', () => {
+                if (isWorking && !nextUnitOfWork) {
+                    nextUnitOfWork = wipRoot;
+                    requestIdleCallback(workLoop);
+                    document.getElementById('status').textContent = '继续渲染...';
+                }
+            });
+            
+            // 优先级按钮
+            document.getElementById('high-priority').addEventListener('click', () => {
+                document.getElementById('status').textContent = '高优先级更新已调度';
+                if (isWorking) {
+                    // 在实际React中，高优先级更新会中断当前渲染
+                    alert('高优先级更新将中断当前渲染并重新开始');
+                    processedNodeCount = 0;
+                    document.querySelector('.visualization').innerHTML = 
+                        '<div class="fiber-counter">已处理节点: <span id="node-count">0</span></div>' +
+                        '<div class="fiber-node" style="top: 50px; left: 50px; background: #3498db;">Root</div>';
+                    render(virtualDom, document.querySelector('.visualization'));
+                }
+            });
+            
+            document.getElementById('normal-priority').addEventListener('click', () => {
+                document.getElementById('status').textContent = '普通更新已调度';
+            });
+            
+            document.getElementById('low-priority').addEventListener('click', () => {
+                document.getElementById('status').textContent = '低优先级更新已调度';
+            });
+        });
+    </script>
+</body>
+</html>

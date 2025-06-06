@@ -1,0 +1,769 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>JavaScript Redux 实现（含中间件支持）</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+    
+    body {
+      background: linear-gradient(135deg, #1a2a6c, #b21f1f, #1a2a6c);
+      color: #fff;
+      min-height: 100vh;
+      padding: 20px;
+    }
+    
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 20px;
+    }
+    
+    header {
+      text-align: center;
+      margin-bottom: 40px;
+      padding: 30px;
+      background: rgba(0, 0, 0, 0.3);
+      border-radius: 15px;
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+    
+    h1 {
+      font-size: 2.8rem;
+      margin-bottom: 10px;
+      text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+      color: #61dafb;
+    }
+    
+    .subtitle {
+      font-size: 1.2rem;
+      opacity: 0.9;
+      max-width: 800px;
+      margin: 0 auto;
+      line-height: 1.6;
+      color: #f8f8f8;
+    }
+    
+    .content {
+      display: flex;
+      gap: 30px;
+      flex-wrap: wrap;
+      margin-bottom: 40px;
+    }
+    
+    .panel {
+      flex: 1;
+      min-width: 300px;
+      background: rgba(20, 30, 48, 0.85);
+      border-radius: 15px;
+      padding: 25px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+    
+    h2 {
+      font-size: 1.8rem;
+      margin-bottom: 20px;
+      color: #61dafb;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding-bottom: 10px;
+      border-bottom: 2px solid rgba(97, 218, 251, 0.3);
+    }
+    
+    .user-form {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 20px;
+      flex-wrap: wrap;
+    }
+    
+    input {
+      flex: 1;
+      min-width: 200px;
+      padding: 12px 15px;
+      border-radius: 8px;
+      border: none;
+      background: rgba(0, 0, 0, 0.3);
+      color: white;
+      font-size: 1rem;
+    }
+    
+    input::placeholder {
+      color: #aaa;
+    }
+    
+    button {
+      background: linear-gradient(to right, #2193b0, #6dd5ed);
+      color: white;
+      border: none;
+      padding: 12px 25px;
+      font-size: 1rem;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      font-weight: bold;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+    }
+    
+    button:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
+    }
+    
+    button:active {
+      transform: translateY(1px);
+    }
+    
+    .action-btn {
+      background: linear-gradient(to right, #8e2de2, #4a00e0);
+    }
+    
+    .reset-btn {
+      background: linear-gradient(to right, #ff416c, #ff4b2b);
+    }
+    
+    .user-list {
+      margin-top: 20px;
+    }
+    
+    .user-card {
+      background: rgba(255, 255, 255, 0.08);
+      border-radius: 10px;
+      padding: 15px;
+      margin-bottom: 15px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      animation: fadeIn 0.3s ease;
+    }
+    
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    
+    .user-info {
+      flex: 1;
+    }
+    
+    .user-name {
+      font-size: 1.2rem;
+      font-weight: bold;
+      margin-bottom: 5px;
+      color: #61dafb;
+    }
+    
+    .user-email {
+      font-size: 0.9rem;
+      color: #aaa;
+    }
+    
+    .user-actions button {
+      padding: 8px 15px;
+      font-size: 0.9rem;
+      margin-left: 10px;
+    }
+    
+    .logs {
+      background: rgba(0, 0, 0, 0.25);
+      border-radius: 10px;
+      padding: 15px;
+      height: 400px;
+      overflow-y: auto;
+      margin-top: 20px;
+      font-family: monospace;
+    }
+    
+    .log-entry {
+      padding: 10px 15px;
+      margin-bottom: 10px;
+      border-radius: 8px;
+      background: rgba(255, 255, 255, 0.08);
+      font-size: 0.9rem;
+    }
+    
+    .log-entry:nth-child(odd) {
+      background: rgba(255, 255, 255, 0.12);
+    }
+    
+    .log-timestamp {
+      color: #61dafb;
+      margin-right: 10px;
+      font-weight: bold;
+    }
+    
+    .log-action {
+      color: #ffcc00;
+    }
+    
+    .log-state {
+      color: #4caf50;
+      margin-left: 10px;
+    }
+    
+    .code-block {
+      background: rgba(0, 0, 0, 0.3);
+      border-radius: 10px;
+      padding: 20px;
+      margin-top: 20px;
+      overflow-x: auto;
+      font-family: monospace;
+      font-size: 0.95rem;
+      line-height: 1.5;
+    }
+    
+    pre {
+      white-space: pre-wrap;
+      color: #f8f8f2;
+    }
+    
+    .features {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 20px;
+      margin-top: 20px;
+    }
+    
+    .feature {
+      background: rgba(97, 218, 251, 0.15);
+      padding: 15px;
+      border-radius: 10px;
+      border-left: 4px solid #61dafb;
+    }
+    
+    .feature h3 {
+      margin-bottom: 10px;
+      color: #61dafb;
+    }
+    
+    .feature p {
+      font-size: 0.95rem;
+      line-height: 1.5;
+    }
+    
+    .status-bar {
+      display: flex;
+      justify-content: space-between;
+      margin-top: 20px;
+      padding: 10px 15px;
+      background: rgba(0, 0, 0, 0.3);
+      border-radius: 8px;
+      font-size: 0.9rem;
+    }
+    
+    .user-count {
+      color: #61dafb;
+      font-weight: bold;
+    }
+    
+    .loading {
+      color: #ffcc00;
+      font-weight: bold;
+    }
+    
+    @media (max-width: 768px) {
+      .content {
+        flex-direction: column;
+      }
+      
+      h1 {
+        font-size: 2.2rem;
+      }
+      
+      .user-form {
+        flex-direction: column;
+      }
+      
+      input, button {
+        width: 100%;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1>JavaScript Redux 实现</h1>
+      <p class="subtitle">包含完整的核心功能、中间件支持和用户管理示例。此实现遵循Redux的核心原则：单一状态树、状态不可变和纯函数reducer。</p>
+    </header>
+    
+    <div class="content">
+      <div class="panel">
+        <h2>用户管理</h2>
+        
+        <div class="user-form">
+          <input type="text" id="nameInput" placeholder="输入用户名">
+          <input type="email" id="emailInput" placeholder="输入邮箱">
+          <button id="addUser">添加用户</button>
+        </div>
+        
+        <div class="button-group">
+          <button class="action-btn" id="fetchUsers">获取模拟用户数据</button>
+          <button class="reset-btn" id="clearUsers">清空用户</button>
+        </div>
+        
+        <div class="status-bar">
+          <div>用户数量: <span class="user-count" id="userCount">0</span></div>
+          <div class="loading" id="loadingStatus"></div>
+        </div>
+        
+        <div class="user-list" id="userList">
+          <!-- 用户列表将在这里显示 -->
+          <div class="empty-state">暂无用户，请添加或获取用户数据</div>
+        </div>
+      </div>
+      
+      <div class="panel">
+        <h2>操作日志</h2>
+        <div class="logs" id="logs">
+          <div class="log-entry">
+            <span class="log-timestamp">[系统]</span>
+            <span>Redux已初始化，等待操作...</span>
+          </div>
+        </div>
+        
+        <h2>Redux 核心功能</h2>
+        <div class="features">
+          <div class="feature">
+            <h3>createStore</h3>
+            <p>创建Redux store，管理应用状态</p>
+          </div>
+          <div class="feature">
+            <h3>combineReducers</h3>
+            <p>合并多个reducer，管理复杂状态</p>
+          </div>
+          <div class="feature">
+            <h3>applyMiddleware</h3>
+            <p>扩展dispatch功能，支持中间件</p>
+          </div>
+          <div class="feature">
+            <h3>中间件支持</h3>
+            <p>内置logger和thunk中间件</p>
+          </div>
+        </div>
+        
+        <div class="code-block">
+          <pre>// Redux核心实现
+const createStore = (reducer, enhancer) => {
+  if (enhancer) {
+    return enhancer(createStore)(reducer);
+  }
+  
+  let state = reducer(undefined, { type: '@@INIT' });
+  let listeners = [];
+  
+  const getState = () => state;
+  
+  const dispatch = (action) => {
+    state = reducer(state, action);
+    listeners.forEach(listener => listener());
+    return action;
+  };
+  
+  const subscribe = (listener) => {
+    listeners.push(listener);
+    return () => {
+      listeners = listeners.filter(l => l !== listener);
+    };
+  };
+  
+  return { getState, dispatch, subscribe };
+};
+
+// 合并reducer
+const combineReducers = (reducers) => {
+  return (state = {}, action) => {
+    return Object.keys(reducers).reduce((nextState, key) => {
+      nextState[key] = reducers[key](state[key], action);
+      return nextState;
+    }, {});
+  };
+};
+
+// 应用中间件
+const applyMiddleware = (...middlewares) => {
+  return (createStore) => (reducer) => {
+    const store = createStore(reducer);
+    let dispatch = () => {};
+    
+    const middlewareAPI = {
+      getState: store.getState,
+      dispatch: (action) => dispatch(action)
+    };
+    
+    const chain = middlewares.map(middleware => middleware(middlewareAPI));
+    dispatch = chain.reduceRight((next, middleware) => middleware(next), store.dispatch);
+    
+    return {
+      ...store,
+      dispatch
+    };
+  };
+};
+
+// 日志中间件
+const loggerMiddleware = ({ getState }) => next => action => {
+  console.log('Dispatching:', action);
+  const result = next(action);
+  console.log('Next state:', getState());
+  return result;
+};
+
+// 异步中间件
+const thunkMiddleware = ({ dispatch, getState }) => next => action => {
+  if (typeof action === 'function') {
+    return action(dispatch, getState);
+  }
+  return next(action);
+};</pre>
+        </div>
+      </div>
+    </div>
+    
+    <div class="panel">
+      <h2>Redux 工作流程</h2>
+      <div class="features">
+        <div class="feature">
+          <h3>1. Action</h3>
+          <p>描述状态变化的对象，包含type和payload</p>
+        </div>
+        <div class="feature">
+          <h3>2. Reducer</h3>
+          <p>纯函数，根据action计算新状态</p>
+        </div>
+        <div class="feature">
+          <h3>3. Store</h3>
+          <p>保存应用状态，提供dispatch和subscribe方法</p>
+        </div>
+        <div class="feature">
+          <h3>4. Middleware</h3>
+          <p>扩展dispatch功能，处理异步等副作用</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const createStore = (reducer, enhancer) => {
+      if (enhancer) {
+        return enhancer(createStore)(reducer)
+      }
+      let state = reducer(undefined, {type: 'init'})
+      let listeners = []
+
+      const getState = () => state
+
+      const subscribe = (listener) => {
+        listeners.push(listener)
+        return () => {
+          listeners = listeners.filter(item => listener !== item)
+        }
+      }
+
+      const dispatch = (action) => {
+        state = reducer(state, action)
+        listeners.forEach(listener => listener())
+        return action
+      }
+
+      return {
+        getState,
+        subscribe,
+        dispatch
+      }
+    }
+
+    const combineReducers = (reducers) => {
+      return (state = {}, action) => {
+        return Object.keys(reducers).reduce((nextState, key) => {
+          nextState[key] = reducers[key](state[key], action)
+          return nextState
+        }, {})
+      }
+    }
+
+    // 组合函数（从右向左执行）
+    const compose = (...funcs) => {
+      if (funcs.length === 0) return arg => arg;
+      if (funcs.length === 1) return funcs[0];
+      return funcs.reduce((a, b) => (...arg) => a(b(...arg)));
+    };
+
+    /**************************
+     * 自定义增强器示例
+     **************************/
+    const customerEnhance = createStore => (reducer) => {
+      // 创建基础 store
+      const store = createStore(reducer);
+      
+      // 增强 dispatch 功能
+      const enhancedDispatch = (action) => {
+        console.log(`[CustomerEnhance] Dispatching: ${JSON.stringify(action)}`);
+        
+        // 特殊处理：如果是特殊类型的 action，添加时间戳
+        if (action.type === 'SET_USERS') {
+          const newAction = {
+            ...action,
+            timestamp: Date.now()
+          };
+          return store.dispatch(newAction);
+        }
+        
+        return store.dispatch(action);
+      };
+      // 添加额外 API
+      const getEnhancedState = () => {
+        const state = store.getState();
+        console.log('[CustomerEnhance] Current state:', state);
+        return state;
+      };
+      
+      return {
+        ...store,
+        dispatch: enhancedDispatch,  // 覆盖原 dispatch
+        getEnhancedState,            // 新增 API
+        getState: getEnhancedState   // 覆盖原 getState
+      };
+    }
+    const applyMiddleware = (...middlewares) => {
+      return (createStore) => (reducer) => {
+        const store = createStore(reducer)
+        let dispatch = () => {}
+        const middlewareApi = {
+          getState: store.getState,
+          dispatch: (action) => dispatch(action)
+        }
+
+        const chains = middlewares.map(middleware => middleware(middlewareApi))
+        dispatch = compose(...chains)(store.dispatch)
+        return {
+          ...store,
+          dispatch
+        }
+      }
+    }
+
+
+    // 日志中间件（增强版，带UI日志）
+    const loggerMiddleware = ({ getState }) => next => action => {
+      const timestamp = new Date().toLocaleTimeString();
+      const log = document.getElementById('logs');
+      
+      // 记录action
+      const actionLog = document.createElement('div');
+      actionLog.className = 'log-entry';
+      actionLog.innerHTML = `<span class="log-timestamp">[${timestamp}]</span>
+                            <span class="log-action">Action: ${action.type}</span>`;
+      log.prepend(actionLog);
+      
+      // 如果日志太多，移除最旧的
+      if (log.children.length > 20) {
+        log.removeChild(log.lastChild);
+      }
+      
+      // 执行action
+      const result = next(action);
+      
+      // 记录新状态
+      const stateLog = document.createElement('div');
+      stateLog.className = 'log-entry';
+      stateLog.innerHTML = `<span class="log-timestamp">[${timestamp}]</span>
+                           <span class="log-state">New State:</span> 
+                           <pre>${JSON.stringify(getState(), null, 2)}</pre>`;
+      log.prepend(stateLog);
+      
+      return result;
+    };
+    
+    // 异步中间件
+    const thunkMiddleware = ({dispatch, getState}) => next => action => {
+      if (typeof action === 'function') {
+        action(dispatch, getState)
+        return
+      }
+      next(action)
+    }
+    
+    // ========== 应用代码 ==========
+    // 用户reducer
+    const userReducer = (state = [], action) => {
+      switch (action.type) {
+        case 'ADD_USER':
+          return [...state, action.payload];
+        case 'REMOVE_USER':
+          return state.filter(user => user.id !== action.payload);
+        case 'SET_USERS':
+          return action.payload.map(item => ({
+            ...item,
+            timestamp: action.timestamp
+          }))
+        case 'CLEAR_USERS':
+          return [];
+        default:
+          return state;
+      }
+    };
+        
+    // 状态reducer
+    const statusReducer = (state = { isLoading: false }, action) => {
+      switch (action.type) {
+        case 'FETCH_USERS_START':
+          return { ...state, isLoading: true };
+        case 'FETCH_USERS_SUCCESS':
+        case 'FETCH_USERS_ERROR':
+          return { ...state, isLoading: false };
+        default:
+          return state;
+      }
+    };
+    
+    // 组合reducer
+    const rootReducer = combineReducers({
+      users: userReducer,
+      status: statusReducer
+    });
+    
+    // 创建store并应用中间件
+    const store = createStore(
+      rootReducer,
+      compose(
+        applyMiddleware(thunkMiddleware, loggerMiddleware),
+        customerEnhance
+      )
+    );
+    
+    // 模拟API请求
+    const fetchUsers = () => {
+      return (dispatch) => {
+        dispatch({ type: 'FETCH_USERS_START' });
+        
+        // 模拟API延迟
+        setTimeout(() => {
+          const mockUsers = [
+            { id: 1, name: '张三', email: 'zhangsan@example.com' },
+            { id: 2, name: '李四', email: 'lisi@example.com' },
+            { id: 3, name: '王五', email: 'wangwu@example.com' },
+            { id: 4, name: '赵六', email: 'zhaoliu@example.com' }
+          ];
+          // 特殊 action（会被 customerEnhance 处理）
+          dispatch({ type: 'ADD_WITH_TIMESTAMP', payload: 5 });
+          dispatch({ type: 'SET_USERS', payload: mockUsers });
+          dispatch({ type: 'FETCH_USERS_SUCCESS' });
+        }, 1500);
+      };
+    };
+    
+    // 添加用户
+    const addUser = () => {
+      const nameInput = document.getElementById('nameInput');
+      const emailInput = document.getElementById('emailInput');
+      
+      const name = nameInput.value.trim();
+      const email = emailInput.value.trim();
+      
+      if (name && email) {
+        const newUser = {
+          id: Date.now(), // 使用时间戳作为ID
+          name,
+          email
+        };
+        
+        store.dispatch({
+          type: 'ADD_USER',
+          payload: newUser
+        });
+        
+        // 清空输入
+        nameInput.value = '';
+        emailInput.value = '';
+        nameInput.focus();
+      }
+    };
+    
+    // 删除用户
+    const removeUser = (id) => {
+      store.dispatch({
+        type: 'REMOVE_USER',
+        payload: id
+      });
+    };
+    
+    // 清空用户
+    const clearUsers = () => {
+      store.dispatch({ type: 'CLEAR_USERS' });
+    };
+    
+    // 渲染用户列表
+    const renderUsers = () => {
+      const userList = document.getElementById('userList');
+      const userCount = document.getElementById('userCount');
+      const state = store.getState();
+      const users = state.users || [];
+      const isLoading = state.status.isLoading;
+      
+      // 更新用户数量
+      userCount.textContent = users.length;
+      
+      // 更新加载状态
+      const loadingStatus = document.getElementById('loadingStatus');
+      loadingStatus.textContent = isLoading ? '加载中...' : '';
+      
+      // 渲染用户列表
+      if (users.length === 0) {
+        userList.innerHTML = '<div class="empty-state">暂无用户，请添加或获取用户数据</div>';
+      } else {
+        userList.innerHTML = '';
+        users.forEach(user => {
+          const userCard = document.createElement('div');
+          userCard.className = 'user-card';
+          userCard.innerHTML = `
+            <div class="user-info">
+              <div class="user-name">${user.name}</div>
+              <div class="user-email">${user.email}</div>
+              <div class="user-email">${user.timestamp}</div>
+            </div>
+            <div class="user-actions">
+              <button class="reset-btn" onclick="removeUser(${user.id})">删除</button>
+            </div>
+          `;
+          userList.appendChild(userCard);
+        });
+      }
+    };
+    
+    // 初始化事件监听
+    document.getElementById('addUser').addEventListener('click', addUser);
+    document.getElementById('fetchUsers').addEventListener('click', () => {
+      store.dispatch(fetchUsers());
+    });
+    document.getElementById('clearUsers').addEventListener('click', clearUsers);
+    
+    // 支持在输入框按Enter添加用户
+    document.getElementById('nameInput').addEventListener('keypress', (e) => {
+      if (e.key === 'Enter') addUser();
+    });
+    document.getElementById('emailInput').addEventListener('keypress', (e) => {
+      if (e.key === 'Enter') addUser();
+    });
+    
+    // 订阅状态变化
+    store.subscribe(renderUsers);
+    
+    // 初始渲染
+    renderUsers();
+    
+    // 暴露函数给全局用于删除按钮
+    window.removeUser = removeUser;
+  </script>
+</body>
+</html>

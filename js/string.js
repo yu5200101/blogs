@@ -10,7 +10,7 @@ function underscoreToCamel(obj) {
   const camelObj = {};
   for (const key in obj) {
     if (Object.prototype.hasOwnProperty.call(obj, key)) {
-      // 转换键名：下划线后的小写字母转大写并移除下划线
+      // 转换键名：下划线后的小写字母转大写并移除下划线 函数中_指匹配到的值
       const camelKey = key.replace(/_([a-z])/g, (_, char) => char.toUpperCase());
       // 递归处理值
       camelObj[camelKey] = underscoreToCamel(obj[key]);

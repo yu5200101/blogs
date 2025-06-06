@@ -49,6 +49,43 @@ fun1();
 let fun2 = sayHi.bind(obj)();
 fun2(); */
 
+function test(a,b){
+  console.log(b)
+  return {
+    test:function(c){
+      return test(c,a)
+    }
+  }
+}
+const retA = test(0);
+// a = 0
+// log undefined
+// retA = {
+//   test:function(c){
+//     return test(c,a)
+//   }
+// }
+console.log(retA, 'retA')
+retA.test(2);
+// c = 2 a = 0
+// log 0 a = 2
+retA.test(4);
+// log 0 a = 4
+retA.test(8);
+// log 0 a = 8
+var retB = test(0).test(2).test(4).test(8);
+// a = 0
+// a = 2
+// a = 4
+// a = 8
+// log undefined 0 2 4
+var retC = test('good').test('bad');
+// log undefined good
+retC.test('good')
+// log bad
+retC.test('bad')
+// log bad
+
 var number = 5;
 var obj = {
   number: 3,
@@ -207,8 +244,8 @@ Function.prototype.myBind = function(context, ...presetArgs) {
 
 // 测试普通调用
 const obj2 = { x: 42 };
-function test(a, b) { return this.x + a + b; }
-const boundTest = test.myBind(obj2, 2);
+function test1(a, b) { return this.x + a + b; }
+const boundTest = test1.myBind(obj2, 2);
 console.log(boundTest(3)); // 42 + 2 + 3 = 47
 
 // 测试 new 调用
@@ -226,7 +263,7 @@ person2.sayHi(); // Hi, I'm Alice
 console.log(person2.age); // 30
 
 // 测试构造函数返回对象
-function Test() { return { foo: 'bar' }; }
-const BoundTest = Test.myBind(null);
+function Test2() { return { foo: 'bar' }; }
+const BoundTest = Test2.myBind(null);
 const testObj = new BoundTest();
 console.log(testObj.foo); // 'bar'

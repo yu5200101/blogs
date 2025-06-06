@@ -1,0 +1,130 @@
+react/packages/react-dom/src/client/ReactDOMRootFB.js
+createRoot
+createRootImpl
+
+react/packages/react-dom/src/client/ReactDOMRoot.js
+createRoot
+createContainer root
+return new ReactDOMRoot(root);
+
+react/packages/react-reconciler/src/ReactFiberReconciler.js
+createContainer
+createFiberRoot
+
+react/packages/react-reconciler/src/ReactFiberRoot.js
+createFiberRoot
+FiberRootNode current = null
+const uninitializedFiber = createHostRootFiber(tag, isStrictMode); tag = 1 判断是ConcurrentRoot
+
+react/packages/react-reconciler/src/ReactFiber.js
+createHostRootFiber
+createFiber
+
+createFiberImplClass
+
+root.current = uninitializedFiber;
+FiberRootNode -> current,HostRoot fiber
+此时current,tag = 3
+
+react/packages/react-dom/src/client/ReactDOMRoot.js
+ReactDOMRoot.prototype.render
+
+updateContainer
+
+react/packages/react-reconciler/src/ReactFiberReconciler.js
+updateContainer
+requestUpdateLane
+updateContainerImpl
+createUpdate
+enqueueUpdate
+scheduleUpdateOnFiber
+
+找根节点
+react/packages/react-reconciler/src/ReactFiberClassUpdateQueue.js
+createUpdate
+enqueueUpdate
+enqueueConcurrentClassUpdate
+
+react/packages/react-reconciler/src/ReactFiberConcurrentUpdates.js
+enqueueConcurrentClassUpdate
+enqueueUpdate
+getRootForUpdatedFiber-找到根节点
+
+react/packages/react-reconciler/src/ReactFiberWorkLoop.js
+scheduleUpdateOnFiber
+markRootUpdated
+warnIfUpdatesNotWrappedWithActDEV
+ensureRootIsScheduled
+
+react/packages/react-reconciler/src/ReactFiberRootScheduler.js
+ensureRootIsScheduled
+ensureScheduleIsScheduled
+scheduleImmediateRootScheduleTask
+scheduleMicrotask()=>
+processRootScheduleInImmediateTask
+processRootScheduleInMicrotask-设置下一个
+scheduleTaskForRootDuringMicrotask设置工作树,lanes优先级
+调用scheduleCallback
+performWorkOnRootViaSchedulerTask.bind
+performWorkOnRoot
+
+react/packages/react-reconciler/src/ReactFiberWorkLoop.js
+performWorkOnRoot
+renderRootConcurrent || renderRootSync
+
+renderRootConcurrent执行workLoopSync|workLoopConcurrent|workLoopConcurrentByScheduler
+renderRootSync执行workLoopSync
+
+workLoopSync|workLoopConcurrent|workLoopConcurrentByScheduler
+执行performUnitOfWork
+
+react/packages/react-reconciler/src/ReactFiberBeginWork.js
+beginWork
+updateHostRoot-processUpdateQueue
+执行reconcileChildren 生成fiber
+设置flag给fiber用于更新
+renderWithHooks
+
+completeUnitOfWork
+completeWork 设置属性 绑定事件
+
+recursivelyTraverseMutationEffects
+commitDeletionEffects
+commitMutationEffectsOnFiber
+
+commitReconciliationEffects
+
+react/packages/react-reconciler/src/ReactFiberWorkLoop.js
+
+commitRoot
+commitBeforeMutationEffects
+flushMutationEffects
+flushLayoutEffects
+
+react/packages/react-reconciler/src/ReactFiberCommitWork.js
+commitBeforeMutationEffects
+有getSnapshotBeforeUpdate
+commitBeforeMutationEffects_begin
+轮询有flag标记的nextEffect
+轮询-设置blur
+commitBeforeMutationEffects_complete
+commitBeforeMutationEffectsOnFiber
+
+flushMutationEffects
+commitMutationEffects
+commitMutationEffectsOnFiber
+recursivelyTraverseMutationEffects
+执行deletion
+轮询执行commitMutationEffectsOnFiber
+commitReconciliationEffects-插入元素
+清除函数-useEffect useInsertionEffect
+挂载useEffect useInsertionEffect
+清除函数-useLayoutEffect
+移除ref
+
+commitLayoutEffects
+commitLayoutEffectOnFiber
+recursivelyTraverseLayoutEffects
+轮询执行commitLayoutEffectOnFiber
+挂载useLayoutEffect
+挂载ref
