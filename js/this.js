@@ -197,29 +197,6 @@ bar.apply(null, ['teacher', 25]);
 bind和call/apply有一个很重要的区别，一个函数被call/apply的时候，会直接调用，但是bind会创建一个新函数。当这个新函数被调用时，bind()的第一个参数将作为它运行时的this,之后的一系列参数将会在传递的实参前传入作为它的参数。
 */
 
-function fn () {
-  this.user = 'user-name'
-  return {}
-}
-const fnObj = new fn()
-// 打印{}
-console.log('fnObj', fnObj)
-
-function myNew(func, ...arg) {
-  const obj = {}
-  obj.__proto__ = func.prototype
-  const result = func.apply(obj, arg)
-  return result instanceof Object ? result : obj
-}
-
-function getUser(name, age) {
-  this.name = name
-  this.age = age
-}
-
-const user = myNew(getUser, '白白', 18)
-console.log(user, 'user')
-
 Function.prototype.myBind = function(context, ...presetArgs) {
   const originalFunc = this;
   function boundFunc(...callArgs) {
@@ -267,3 +244,15 @@ function Test2() { return { foo: 'bar' }; }
 const BoundTest = Test2.myBind(null);
 const testObj = new BoundTest();
 console.log(testObj.foo); // 'bar'
+
+var a = 2
+var obj3 = {
+  a: 3,
+  fn: function(){
+    (() => {
+      console.log(this.a)
+    })()
+  }
+}
+// 3
+obj3.fn()

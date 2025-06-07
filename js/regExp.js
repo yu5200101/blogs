@@ -20,6 +20,8 @@ console.log(str.match(regWithG))
 console.log(reg1.exec(str))
 // 返回匹配项包含分组和内容 ['javascript', index: 6, input: 'hello javascript, is cool javascript', groups: undefined]
 console.log(regWithG.exec(str))
+// 返回匹配项包含分组和内容 ['javascript', index: 26, input: 'hello javascript, is cool javascript', groups: undefined]
+console.log(regWithG.exec(str))
 
 // 判断 DOM 标签的合法性，标签的闭合，span 里面不能有 div，写一个匹配 DOM 标签的正则
 function validateDom(html) {
@@ -31,7 +33,7 @@ function validateDom(html) {
     const tagName = match[2].toLowerCase()
     const isSelfClose = match[4] === '/'
     if (isClose) {
-      if (stack.length === 0 || stack.pop() !== tagName) {
+      if (!stack.length || stack.pop() !== tagName) {
         return false
       }
     } else if (isSelfClose) {
@@ -47,7 +49,7 @@ function validateDom(html) {
       stack.push(tagName)
     }
   }
-  return stack.length === 0
+  return !stack.length
 }
 
 const html = '<div class="example" data-info="test"><span class="test" data-info="yes">hhhhh</span><img src="data.img" /></div>'

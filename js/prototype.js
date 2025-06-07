@@ -295,3 +295,26 @@ console.log(Child111.name); // 输出: "Parent"（继承自 child.prototype.name
 
 Child112.name = "Child";
 console.log(Child112.name); // 输出: "Parent"（修改的是实例自身属性，不影响原型）
+
+function fn () {
+  this.user = 'user-name'
+  return {}
+}
+const fnObj = new fn()
+// 打印{}
+console.log('fnObj', fnObj)
+
+function myNew(func, ...arg) {
+  const obj = {}
+  obj.__proto__ = func.prototype
+  const result = func.apply(obj, arg)
+  return result instanceof Object ? result : obj
+}
+
+function getUser(name, age) {
+  this.name = name
+  this.age = age
+}
+
+const user = myNew(getUser, '白白', 18)
+console.log(user, 'user')

@@ -26,23 +26,23 @@
   /* grid-template-columns: fit-content(100px) auto 100px; */
 
   /* stretch: 网格项拉伸填满单元格 */
-  /* justify-items,用于控制网格项在网格单元格内的 水平对齐 方式,可选值：start end center stretch*/
-  /* justify-items: center; */
   /* align-items,用于控制网格项在网格单元格内的 垂直对齐 方式,可选值：start end center stretch baseline*/
   /* align-items: end; */
-  /* place-items: center center; */
+  /* justify-items,用于控制网格项在网格单元格内的 水平对齐 方式,可选值：start end center stretch*/
+  /* justify-items: center; */
+  /* place-items: end center; */
 
   /* align-content，控制网格内容在 垂直方向 上的对齐方式，可选值：start end center stretch space-between space-around space-evenly*/
   /* align-content: space-evenly; */
   /* justify-content，控制网格内容在 水平方向 上的对齐方式，可选值：start end center stretch space-between space-around space-evenly*/
-  /* justify-content: space-between; */
+  justify-content: space-between;
   /* place-content: center center; */
 
   /* 2行 列高100px，2列 行宽300px */
   /* grid-template: repeat(2, 100px) /repeat(2, 300px); */
 
   /* 超出的每列 列高200px */
-  grid-auto-rows: 200px;
+  /* grid-auto-rows: 200px; */
   /* 超出的每行 行宽200px */
   /* grid-auto-columns: 200px; */
 }

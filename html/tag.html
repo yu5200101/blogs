@@ -48,28 +48,27 @@
   <script>
     // 获取标签个数最多的标签
     function getMostFrequentTag(root) {
-      let tagCountObj = {}
-      function calTagCount(ele) {
+      const tagMap = {}
+      const calTag = (ele) => {
         const tagName = ele.tagName.toLowerCase()
-        tagCountObj[tagName] = (tagCountObj[tagName] || 0) + 1
+        tagMap[tagName] = (tagMap[tagName] || 0) + 1
         if (ele.children) {
-          for (const value of ele.children) {
-            calTagCount(value)
+          for(const child of ele.children) {
+            calTag(child)
           }
         }
       }
-      // 确定是元素节点
       if (root.nodeType === 1) {
-        calTagCount(root)
+        calTag(root)
       }
-      let maxCount = 0
+      let maxTagCount = 0
       let maxTagName = ''
-      Object.keys(tagCountObj).forEach(key => {
-        if (tagCountObj[key] > maxCount) {
-          maxCount = tagCountObj[key]
+      for (let [key, value] of Object.entries(tagMap)) {
+        if (value > maxTagCount) {
+          maxTagCount = value
           maxTagName = key
         }
-      })
+      }
       return maxTagName
     }
     const tagName = getMostFrequentTag(document.body)

@@ -144,9 +144,32 @@ type Result = ToArray<string | number>
 
 // 映射类型
 // 语法：{ [Key in KeySet]: ValueType }
+// 获取函数属性名的联合类型
 type FunctionType<T> = {
   [K in keyof T as T[K] extends Function ? K : never]: T[K]
 }
+
+// 提取函数属性的对象类型
+type FunctionKey<T> = {
+  [K in keyof T]: T[K] extends Function ? T[K] : never
+}[keyof T]
+
+class User1 {
+  id: number = 0;
+  name: string = "";
+  save() {}
+  update() {}
+}
+type UserFuncKeys = FunctionKey<User1>
+// 'save' | 'updata'
+type UserFuncProps = FunctionType<User1>
+/* 结果:
+{
+  save: () => void;
+  update: () => void;
+}
+*/
+
 // 模板文字类型
 // 语法：使用反引号（`）和 ${} 插值语法：
 // 结合映射类型
