@@ -12,7 +12,9 @@ const App: React.FC<AppProps> = ({ title = 'React + TypeScript' }) => {
   useEffect(() => {
     document.title = `${title} - Clicks: ${count}`;
   }, [count, title]);
-  const increment = () => setCount(prev => prev + 1);
+  const increment = () => {
+    setCount(prev => prev + 1)
+  };
   return (
     <div className="app">
       <h1>{title}</h1>

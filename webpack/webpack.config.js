@@ -63,15 +63,10 @@ const config = {
             loader: 'babel-loader',
             options: {
               presets: [
-                '@babel/preset-env',
                 '@babel/preset-react',
                 '@babel/preset-typescript'
               ],
               plugins: [
-                // 减少代码冗余：避免重复的 helper 函数。
-                // 如果使用corejs:3, 可以避免全局污染：将 Promise 等 API 转为模块化引用（如 _Promise），不修改全局对象
-                // regenerator: true 使用async await generator功能
-                ['@babel/plugin-transform-runtime', { regenerator: true }],
                 isProduction && ['babel-plugin-transform-remove-console', { exclude: ['error', 'warn'] }]
               ].filter(Boolean)
             }

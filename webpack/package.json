@@ -1,6 +1,7 @@
 {
   "scripts": {
-    "start": "webpack-dev-server --mode development",
+    "dev": "webpack-dev-server --mode development",
+    "start": "yarn dll:start && webpack-dev-server --mode development",
     "build": "yarn dll:build && cross-env NODE_ENV=production webpack --mode production",
     "analyze": "cross-env NODE_ENV=production webpack --mode production && open dist/bundle-report.html",
     "analyze:stats": "webpack-bundle-analyzer dist/stats.json",
@@ -8,6 +9,7 @@
     "dll:build": "cross-env NODE_ENV=production webpack --config webpack.dll.config.js"
   },
   "dependencies": {
+    "@babel/runtime-corejs3": "^7.27.6",
     "react": "^19.1.0",
     "react-dom": "^19.1.0"
   },
@@ -17,7 +19,6 @@
     "@babel/preset-env": "^7.27.2",
     "@babel/preset-react": "^7.27.1",
     "@babel/preset-typescript": "^7.27.1",
-    "@babel/runtime": "^7.27.6",
     "@types/react": "^19.1.6",
     "@types/react-dom": "^19.1.6",
     "add-asset-html-webpack-plugin": "^6.0.0",

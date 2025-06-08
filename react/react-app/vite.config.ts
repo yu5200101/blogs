@@ -1,11 +1,17 @@
 import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
+import legacy from '@vitejs/plugin-legacy'
 import path from 'path'
 import postcssPxToRem from 'postcss-pxtorem'
 
 // https://vite.dev/config/
 export default defineConfig({
-  plugins: [react()],
+  plugins: [
+    react(),
+    legacy({
+      targets: ['chrome < 60', 'edge < 15'],
+    })
+  ],
   server: {
     host: '0.0.0.0',
     // 设置服务启动端口号

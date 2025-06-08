@@ -1,3 +1,38 @@
+// 应用配置，修改全局的window.promise 需要安装core-js @babel/runtime
+// 1.若配置 "useBuiltIns": "entry"
+// 入口文件需要引入
+// import "core-js/stable";
+// import "regenerator-runtime/runtime";
+// 2.若配置"useBuiltIns": "usage"
+// {
+//   "presets": [["@babel/preset-env", {
+//     "useBuiltIns": "usage", // 关键：按需引入 polyfill
+//     "corejs": 3,           // 指定 core-js 版本 需要安装core-js
+//     "targets": "> 0.5%, not dead" // 指定目标环境
+//   }]],
+//   "plugins": [
+//     ["@babel/plugin-transform-runtime", {
+//       "helpers": true,       // 启用 helpers 优化
+//       "regenerator": true,    // 处理 async/await需要安装@babel/runtime
+//       "corejs": false        // 禁用 runtime 的 polyfill
+//     }]
+//   ]
+// }
+
+// 库配置，局部按需注入 _promise,需要安装@babel/runtime-corejs3
 {
-  "presets": ["@babel/preset-env", "@babel/preset-react"]
+  "presets": [
+    ["@babel/preset-env", {
+      "useBuiltIns": false, // 禁用全局 polyfill
+      "corejs": false       // 禁用 core-js 全局注入
+    }]
+  ],
+// 减少代码冗余：避免重复的 helper 函数。
+// 如果使用corejs:3, 可以避免全局污染：将 Promise 等 API 转为模块化引用（如 _Promise），不修改全局对象
+  "plugins": [
+    ["@babel/plugin-transform-runtime", {
+      "corejs": 3,         // 启用 corejs 3 按需引入
+      "regenerator": true   // 处理 async/await
+    }]
+  ]
 }
