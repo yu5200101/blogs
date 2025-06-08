@@ -49,6 +49,9 @@ const config = {
       },
     },
   },
+  cache: {
+    type: 'filesystem', // 使用文件系统缓存
+  },
   module: {
     rules: [
       // TypeScript/TSX 文件处理
@@ -65,16 +68,21 @@ const config = {
                 '@babel/preset-typescript'
               ],
               plugins: [
+                // 减少代码冗余：避免重复的 helper 函数。
+                // 如果使用corejs:3, 可以避免全局污染：将 Promise 等 API 转为模块化引用（如 _Promise），不修改全局对象
+                // regenerator: true 使用async await generator功能
                 ['@babel/plugin-transform-runtime', { regenerator: true }],
                 isProduction && ['babel-plugin-transform-remove-console', { exclude: ['error', 'warn'] }]
               ].filter(Boolean)
             }
           },
+          // 多线程处理器
+          'thread-loader',
           {
             loader: 'ts-loader', // 使用ts-loader处理TypeScript
             options: {
               transpileOnly: true, // 只转译不进行类型检查
-              happyPackMode: true  // 使用多进程处理
+              happyPackMode: true  // 启用对多线程处理工具
             }
           },
           {
@@ -157,8 +165,6 @@ const config = {
     new webpack.DefinePlugin({ // 另一个使用 webpack 的地方
       'NODE_ENV': JSON.stringify(process.env.NODE_ENV),
     }),
-    // 每次构建前清空 dist/
-    new CleanWebpackPlugin(),
     new SimpleWebpackPlugin({
       version: '2.0.0' // 传递自定义参数
     }),
@@ -191,7 +197,7 @@ const config = {
       filepath: path.resolve(__dirname, 'dll/vendor.dll.js'),
       publicPath: './', // 可选，文件在输出目录中的路径
     }),
-    // ...其他插件
+    // ts类型检查
     new ForkTsCheckerWebpackPlugin({
       typescript: {
         diagnosticOptions: {
@@ -255,10 +261,17 @@ const config = {
         // 分离公共代码
         common: {
           name: 'common',
+          // 被2个及以上入口引用就拆分
           minChunks: 2,
+          // 数值越大优先级越高，先命中优先级高的组，默认值0，
           priority: 5,
+          // 'initial' - 只处理初始 chunks
+          // 'async' - 只处理异步 chunks
+          // 'all' - 处理所有 chunks（最常用）
           chunks: 'all',
+           // 重用已存在的 chunk，避免重复打包相同模块
           reuseExistingChunk: true,
+          // 强制生成 chunk（忽略 minSize 等限制）
           enforce: true
         },
         utils: {
@@ -269,7 +282,7 @@ const config = {
         }
       }
     },
-    // 运行时文件分离
+    // 运行时文件分离，长缓存优化
     runtimeChunk: {
       name: 'runtime'
     }
@@ -301,6 +314,8 @@ if (isProduction) {
 }
 if (isProduction) {
   const list = [
+    // 每次构建前清空 dist/
+    new CleanWebpackPlugin(),
     new MiniCssExtractPlugin({
       filename: 'css/[name].[contenthash:8].css',
       chunkFilename: 'css/[id].[contenthash:8].css'

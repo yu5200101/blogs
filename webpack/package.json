@@ -1,6 +1,6 @@
 {
   "scripts": {
-    "start": "yarn dll:start && webpack-dev-server --mode development",
+    "start": "webpack-dev-server --mode development",
     "build": "yarn dll:build && cross-env NODE_ENV=production webpack --mode production",
     "analyze": "cross-env NODE_ENV=production webpack --mode production && open dist/bundle-report.html",
     "analyze:stats": "webpack-bundle-analyzer dist/stats.json",
@@ -36,6 +36,7 @@
     "sass": "^1.89.1",
     "sass-loader": "^16.0.5",
     "style-loader": "^4.0.0",
+    "thread-loader": "^4.0.4",
     "ts-loader": "^9.5.2",
     "typescript": "^5.8.3",
     "webpack": "^5.98.0",
