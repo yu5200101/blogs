@@ -101,12 +101,6 @@ class Promise {
     );
   }
   /*
-  安装测试脚本
-  npm install -g promises-aplus-tests
-  那么在对应的目录执行以下命令:
-  promises-aplus-tests promise.js
-  */
-  /*
   1.onFulfilled和onRejected的调用需要放在setTimeout，因为规范中表示onFulfilled or onRejected must not be called until the execution context stack contains only platform code, 使用setTimeout只是模拟异步，原生Promise并非是这样实现的。
   2.在resolvePromise的函数中，为何需要used这个flag，同样是因为规范中表示：if both resolvePromise and rejectPromise are called, or multiple calls to same argument are made, the first call takes precedence, and ant further calls are ignored. 因此我们需要这样的flag 来确保只会执行一次。
   3.self.onFulfilled 和 self.onRejected中存储了成功的回调和失败的回调，根据规范2.6显示，当promise从pending态改变的时候，需要按照顺序去指定then对应的回调。
@@ -194,6 +188,12 @@ class Promise {
       });
     });
   }
+  /*
+  安装测试脚本
+  npm install -g promises-aplus-tests
+  那么在对应的目录执行以下命令:
+  promises-aplus-tests promise.js
+  */
   /*
   有专门的测试脚本可以测试所编写的代码是否符合PromiseA+的规范。
   首先，在promise实现的代码中，增加以下代码
