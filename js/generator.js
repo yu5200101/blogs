@@ -52,5 +52,6 @@ function* ary() {
   return 5
 }
 for(let value of ary()) {
+  // 1 2 3 4
   console.log(value)
 }

@@ -209,6 +209,7 @@ const config = {
     minimize: true,
     minimizer: [
       new TerserPlugin({
+        // 会启动多个子进程（Worker Pool），同时处理多个文件，充分利用多核 CPU 资源。
         parallel: true,
         terserOptions: {
           compress: {
@@ -277,7 +278,9 @@ const config = {
         }
       }
     },
-    // 运行时文件分离，长缓存优化
+    // 运行时文件分离，长缓存优化，或按需指定名称
+    // runtimeChunk: 'single'：生成一个共享的运行时文件（如 runtime.js）。
+    // runtimeChunk: 'multiple' 或对象：为每个入口生成独立的运行时文件。
     runtimeChunk: {
       name: 'runtime'
     }

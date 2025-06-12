@@ -147,21 +147,20 @@ fn.apply(obj, [argsArray]),调用一个函数，具有一个指定的this值，�
 如果不传入参数或者参数为null，默认指向为 window / global
 删除参数上的函数
 */
-// Function.prototype.call = function (context) {
-//   /* 
-//   如果第一个参数传入的是null或者是undefined，那么this指向window/global
-//   如果第一个参数传入的不是null或者是undefined，那么必须是一个对象
-//   */
-//   if (!context) {
-//     //  context为null或者是undefined
-//     context = typeof window === 'undefined' ? global : window;
-//   }
-//   context.fn = this;// this指向的是当前的函数（Function的实例）
-//   let args = [...arguments].slice(1); //获取除了this指向对象以外的参数，空数组slice后返回的仍然是空数组
-//   let result = context.fn(...args);// 隐式绑定，当前函数的this指向了context
-//   delete context.fn;
-//   return result;
-// }
+Function.prototype.call = function (context) {
+  // 如果第一个参数传入的是null或者是undefined，那么this指向window/global
+  // 如果第一个参数传入的不是null或者是undefined，那么必须是一个对象
+
+  if (!context) {
+    //  context为null或者是undefined
+    context = typeof window === 'undefined' ? global : window;
+  }
+  context.fn = this;// this指向的是当前的函数（Function的实例）
+  let args = [...arguments].slice(1); //获取除了this指向对象以外的参数，空数组slice后返回的仍然是空数组
+  let result = context.fn(...args);// 隐式绑定，当前函数的this指向了context
+  delete context.fn;
+  return result;
+}
 
 bar.call(foo, 'programmer', 20);
 // Selina programmer 20
@@ -172,21 +171,22 @@ bar.call(null, 'teacher', 25);
 /*
 apply的实现和call很类似，但是需要注意他们的参数是不一样的，apply的第二个参数是数组或类数组.
 */
-// Function.prototype.apply = function(context, rest) {
-//   if(!context) {
-//     context = typeof window === 'undefined' ? global : window;
-//   }
-//   context.fn = this;
-//   let result = null;
-//   if (rest === undefined || rest === null) {
-//     //undefined 或者是null不是Iterator对象， 不能被...
-//     result = context.fn(rest);
-//   } else if(typeof rest === 'object') {
-//     result = context.fn(...rest);
-//   }
-//   delete context.fn;
-//   return result;
-// }
+Function.prototype.apply = function(context, rest) {
+  if(!context) {
+    context = typeof window === 'undefined' ? global : window;
+  }
+  context.fn = this;
+  let result = null;
+  if (rest === undefined || rest === null) {
+    //undefined 或者是null不是Iterator对象， 不能被...
+    result = context.fn(rest);
+  } else if(typeof rest === 'object') {
+    result = context.fn(...rest);
+  }
+  delete context.fn;
+  return result;
+}
+
 bar.apply(foo, ['programmer', 20]);
 // Selina programmer 20
 bar.apply(null, ['teacher', 25]);
@@ -219,6 +219,24 @@ Function.prototype.myBind = function(context, ...presetArgs) {
   return boundFunc;
 };
 
+Function.prototype.bind1 = function(context, ...preArgs) {
+  const originFn = this
+  const boundFunc = function(...args) {
+    const allArgs = [...preArgs, ...args]
+    const isNew = this instanceof boundFunc
+    if (isNew) {
+      const instance = originFn.apply(this, allArgs)
+      if ((typeof instance === 'object' && instance !== null) || typeof instance === 'function') {
+        return instance
+      }
+      return this
+    }
+    return originFn.apply(context, allArgs)
+  }
+  boundFunc.prototype = Object.create(originFn.prototype)
+  return boundFunc
+}
+
 // 测试普通调用
 const obj2 = { x: 42 };
 function test1(a, b) { return this.x + a + b; }
@@ -232,18 +250,29 @@ function Person(name, age) {
 }
 Person.prototype.sayHi = function() { console.log(`Hi, I'm ${this.name}`); };
 
-// 测试构造函数返回函数
+// 测试构造函数返回实例-函数
 const BoundPerson = Person.myBind(null, 'Alice');
 const person2 = new BoundPerson(30);
 console.log(person2 instanceof Person); // true
 person2.sayHi(); // Hi, I'm Alice
 console.log(person2.age); // 30
 
-// 测试构造函数返回对象
-function Test2() { return { foo: 'bar' }; }
+// 测试构造函数返回实例-对象
+function Test2() {
+  return { foo: 'bar' };
+}
 const BoundTest = Test2.myBind(null);
 const testObj = new BoundTest();
 console.log(testObj.foo); // 'bar'
+
+// 测试构造函数返回this
+function Test3() {
+  return ''
+}
+const BoundTest1 = Test3.myBind(null);
+const testObj2 = new BoundTest1();
+console.log(testObj2 instanceof Test3);
+console.log(testObj2 instanceof BoundTest1);
 
 var a = 2
 var obj3 = {
