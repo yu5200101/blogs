@@ -1,0 +1,559 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Vuex 源码实现</title>
+  <script src="https://cdn.jsdelivr.net/npm/vue@2.6.14/dist/vue.js"></script>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+    
+    body {
+      background: linear-gradient(135deg, #1a2a6c, #b21f1f, #1a2a6c);
+      color: #fff;
+      min-height: 100vh;
+      padding: 20px;
+    }
+    
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 20px;
+    }
+    
+    header {
+      text-align: center;
+      margin-bottom: 40px;
+      padding: 20px;
+      background: rgba(0, 0, 0, 0.3);
+      border-radius: 15px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+    }
+    
+    h1 {
+      font-size: 3rem;
+      margin-bottom: 10px;
+      text-shadow: 0 2px 10px rgba(0, 0, 0, 0.5);
+    }
+    
+    .subtitle {
+      font-size: 1.2rem;
+      opacity: 0.9;
+      max-width: 800px;
+      margin: 0 auto;
+      line-height: 1.6;
+    }
+    
+    .content {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 30px;
+    }
+    
+    @media (max-width: 768px) {
+      .content {
+        grid-template-columns: 1fr;
+      }
+    }
+    
+    .panel {
+      background: rgba(30, 30, 50, 0.7);
+      border-radius: 15px;
+      padding: 25px;
+      box-shadow: 0 8px 25px rgba(0, 0, 0, 0.4);
+    }
+    
+    .panel-title {
+      font-size: 1.8rem;
+      margin-bottom: 20px;
+      padding-bottom: 10px;
+      border-bottom: 2px solid #4db8ff;
+      color: #4db8ff;
+    }
+    
+    .counter-display {
+      font-size: 5rem;
+      text-align: center;
+      margin: 30px 0;
+      color: #4db8ff;
+      text-shadow: 0 0 15px rgba(77, 184, 255, 0.5);
+    }
+    
+    .btn-group {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+      gap: 15px;
+      margin: 20px 0;
+    }
+    
+    button {
+      background: linear-gradient(to right, #4db8ff, #1e90ff);
+      color: white;
+      border: none;
+      padding: 12px 20px;
+      border-radius: 8px;
+      font-size: 1rem;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      font-weight: bold;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+    }
+    
+    button:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 6px 15px rgba(0, 0, 0, 0.4);
+    }
+    
+    button:active {
+      transform: translateY(1px);
+    }
+    
+    .state-view {
+      background: rgba(0, 0, 0, 0.2);
+      border-radius: 10px;
+      padding: 20px;
+      margin-top: 20px;
+      font-family: monospace;
+      font-size: 1.1rem;
+      overflow-x: auto;
+      max-height: 300px;
+    }
+    
+    .state-item {
+      display: flex;
+      justify-content: space-between;
+      padding: 8px 0;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    }
+    
+    .state-key {
+      color: #4db8ff;
+    }
+    
+    .state-value {
+      color: #ffcc00;
+    }
+    
+    .code-block {
+      background: #1e1e2e;
+      border-radius: 10px;
+      padding: 20px;
+      margin: 20px 0;
+      overflow-x: auto;
+      font-family: 'Fira Code', monospace;
+      font-size: 0.9rem;
+    }
+    
+    .code-comment {
+      color: #6a9955;
+    }
+    
+    .code-keyword {
+      color: #569cd6;
+    }
+    
+    .code-function {
+      color: #dcdcaa;
+    }
+    
+    .code-var {
+      color: #9cdcfe;
+    }
+    
+    .code-string {
+      color: #ce9178;
+    }
+    
+    .explanation {
+      margin: 20px 0;
+      line-height: 1.7;
+    }
+    
+    .highlight {
+      color: #ffcc00;
+      font-weight: bold;
+    }
+    
+    .architecture {
+      text-align: center;
+      margin: 40px auto;
+      max-width: 800px;
+    }
+    
+    .architecture img {
+      max-width: 100%;
+      border-radius: 10px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+    }
+    
+    .diagram-title {
+      font-size: 1.5rem;
+      margin: 20px 0;
+      color: #4db8ff;
+    }
+    
+    footer {
+      text-align: center;
+      margin-top: 50px;
+      padding: 20px;
+      color: rgba(255, 255, 255, 0.7);
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1>Vuex 核心源码实现</h1>
+      <p class="subtitle">
+        本示例展示 Vuex 状态管理的核心实现原理，包含 State、Getters、Mutations、Actions 等核心概念，
+        以及响应式状态更新机制。右侧演示区域展示了一个完整的计数器应用。
+      </p>
+    </header>
+    
+    <div class="content">
+      <div class="panel">
+        <h2 class="panel-title">Vuex 核心实现代码</h2>
+        
+        <div class="code-block">
+          <pre><span class="code-comment">// 简化版 Vuex 实现</span>
+<span class="code-keyword">class</span> <span class="code-function">Store</span> {
+  <span class="code-function">constructor</span>(options = {}) {
+    <span class="code-comment">// 初始化 state (使用 Vue 的响应式系统)</span>
+    <span class="code-keyword">this</span>._vm = <span class="code-keyword">new</span> <span class="code-function">Vue</span>({
+      data: {
+        $$state: options.state
+      }
+    });
+
+    <span class="code-comment">// 保存 mutations 和 actions</span>
+    <span class="code-keyword">this</span>._mutations = options.mutations || {};
+    <span class="code-keyword">this</span>._actions = options.actions || {};
+    
+    <span class="code-comment">// 绑定 commit 和 dispatch 的上下文</span>
+    <span class="code-keyword">this</span>.commit = <span class="code-keyword">this</span>.commit.bind(<span class="code-keyword">this</span>);
+    <span class="code-keyword">this</span>.dispatch = <span class="code-keyword">this</span>.dispatch.bind(<span class="code-keyword">this</span>);
+    
+    <span class="code-comment">// 初始化 getters</span>
+    <span class="code-keyword">this</span>.getters = {};
+    <span class="code-keyword">const</span> <span class="code-var">computed</span> = {};
+    <span class="code-keyword">const</span> <span class="code-var">store</span> = <span class="code-keyword">this</span>;
+    
+    <span class="code-keyword">if</span> (options.getters) {
+      <span class="code-function">Object</span>.keys(options.getters).forEach(<span class="code-var">key</span> => {
+        <span class="code-comment">// 使用计算属性实现 getters 缓存</span>
+        <span class="code-var">computed</span>[key] = <span class="code-keyword">function</span>() {
+          <span class="code-keyword">return</span> options.getters[key](store.state);
+        };
+        
+        <span class="code-comment">// 为 getters 定义只读属性</span>
+        <span class="code-function">Object</span>.defineProperty(store.getters, key, {
+          get: () => store._vm[key],
+          enumerable: <span class="code-keyword">true</span>
+        });
+      });
+    }
+    
+    <span class="code-comment">// 将 getters 挂载到 Vue 实例</span>
+    <span class="code-keyword">this</span>._vm._computedWatchers = {};
+    <span class="code-function">Object</span>.keys(<span class="code-var">computed</span>).forEach(<span class="code-var">key</span> => {
+      <span class="code-function">Object</span>.defineProperty(<span class="code-keyword">this</span>._vm, key, {
+        get: () => <span class="code-keyword">this</span>._vm[key],
+        enumerable: <span class="code-keyword">true</span>
+      });
+    });
+    <span class="code-keyword">this</span>._vm.$options.computed = <span class="code-var">computed</span>;
+  }
+  
+  <span class="code-comment">// 获取 state</span>
+  <span class="code-keyword">get</span> <span class="code-function">state</span>() {
+    <span class="code-keyword">return</span> <span class="code-keyword">this</span>._vm._data.$$state;
+  }
+  
+  <span class="code-comment">// 设置 state (不允许直接修改)</span>
+  <span class="code-keyword">set</span> <span class="code-function">state</span>(v) {
+    <span class="code-keyword">throw</span> <span class="code-keyword">new</span> <span class="code-function">Error</span>(<span class="code-string">'不能直接修改 state，请使用 mutations'</span>);
+  }
+  
+  <span class="code-comment">// commit 方法：执行 mutation</span>
+  <span class="code-function">commit</span>(type, payload) {
+    <span class="code-keyword">const</span> <span class="code-var">entry</span> = <span class="code-keyword">this</span>._mutations[type];
+    <span class="code-keyword">if</span> (!entry) {
+      console.error(`[Vuex] 未知的 mutation 类型: ${type}`);
+      <span class="code-keyword">return</span>;
+    }
+    
+    <span class="code-comment">// 执行 mutation 函数</span>
+    <span class="code-var">entry</span>(<span class="code-keyword">this</span>.state, payload);
+  }
+  
+  <span class="code-comment">// dispatch 方法：执行 action</span>
+  <span class="code-function">dispatch</span>(type, payload) {
+    <span class="code-keyword">const</span> <span class="code-var">entry</span> = <span class="code-keyword">this</span>._actions[type];
+    <span class="code-keyword">if</span> (!entry) {
+      console.error(`[Vuex] 未知的 action 类型: ${type}`);
+      <span class="code-keyword">return</span>;
+    }
+    
+    <span class="code-comment">// 执行 action 函数</span>
+    <span class="code-keyword">return</span> <span class="code-var">entry</span>(<span class="code-keyword">this</span>, payload);
+  }
+}
+
+<span class="code-comment">// Vue 插件安装方法</span>
+<span class="code-function">Store</span>.install = <span class="code-keyword">function</span>(Vue) {
+  Vue.mixin({
+    beforeCreate() {
+      <span class="code-keyword">const</span> <span class="code-var">options</span> = <span class="code-keyword">this</span>.$options;
+      <span class="code-keyword">if</span> (options.store) {
+        <span class="code-comment">// 根组件</span>
+        <span class="code-keyword">this</span>.$store = options.store;
+      } <span class="code-keyword">else</span> <span class="code-keyword">if</span> (options.parent && options.parent.$store) {
+        <span class="code-comment">// 子组件</span>
+        <span class="code-keyword">this</span>.$store = options.parent.$store;
+      }
+    }
+  });
+};</pre>
+        </div>
+        
+        <div class="explanation">
+          <h3>核心实现解析：</h3>
+          <p><span class="highlight">响应式状态：</span>使用 Vue 实例的 data 属性存储 state，利用 Vue 的响应式系统实现状态变化时的自动更新。</p>
+          <p><span class="highlight">Mutations：</span>通过 commit 方法触发，是同步修改 state 的唯一方式，确保状态变更是可追踪的。</p>
+          <p><span class="highlight">Actions：</span>通过 dispatch 方法触发，可以包含异步操作，最终通过 commit 提交 mutation 来修改状态。</p>
+          <p><span class="highlight">Getters：</span>使用 Vue 的计算属性实现，具有缓存特性，只有当依赖的状态变化时才会重新计算。</p>
+          <p><span class="highlight">插件系统：</span>通过 Vue.mixin 在 beforeCreate 生命周期钩子中为所有组件注入 $store 属性。</p>
+        </div>
+      </div>
+      
+      <div class="panel">
+        <h2 class="panel-title">Vuex 功能演示</h2>
+        
+        <div id="app">
+          <div class="counter-display">
+            {{ count }}
+          </div>
+          <p class="subtitle" style="text-align: center; margin-bottom: 20px;">
+            当前计数: {{ count }} | 双倍计数: {{ doubleCount }}
+          </p>
+          
+          <div class="btn-group">
+            <button @click="increment">增加 (+1)</button>
+            <button @click="decrement">减少 (-1)</button>
+            <button @click="incrementBy(5)">增加 5</button>
+            <button @click="asyncIncrement">异步增加</button>
+          </div>
+          
+          <div class="state-view">
+            <div class="state-item">
+              <span class="state-key">state.count:</span>
+              <span class="state-value">{{ $store.state.count }}</span>
+            </div>
+            <div class="state-item">
+              <span class="state-key">getters.doubleCount:</span>
+              <span class="state-value">{{ $store.getters.doubleCount }}</span>
+            </div>
+            <div class="state-item">
+              <span class="state-key">上次更新时间:</span>
+              <span class="state-value">{{ lastUpdated || '尚未更新' }}</span>
+            </div>
+          </div>
+          
+          <h3 class="diagram-title">Vuex 数据流架构</h3>
+          <div class="architecture">
+            <img src="https://vuex.vuejs.org/vuex.png" alt="Vuex 数据流">
+            <p>Vuex 采用单向数据流模式，确保状态变化的可预测性和可追踪性</p>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <footer>
+      <p>Vuex 核心实现演示 | 展示了状态管理库的核心原理</p>
+      <p>实际 Vuex 源码包含更多功能：模块系统、插件、严格模式等</p>
+    </footer>
+  </div>
+
+  <script>
+    // Vuex 核心实现
+    class Store {
+      constructor(options = {}) {
+        // 使用 Vue 实例实现响应式 state
+        this._vm = new Vue({
+          data: {
+            $$state: options.state
+          }
+        });
+
+        // 保存 mutations 和 actions
+        this._mutations = options.mutations || {};
+        this._actions = options.actions || {};
+        
+        // 绑定上下文
+        this.commit = this.commit.bind(this);
+        this.dispatch = this.dispatch.bind(this);
+        
+        // 初始化 getters
+        this.getters = {};
+        const computed = {};
+        const store = this;
+        
+        if (options.getters) {
+          Object.keys(options.getters).forEach(key => {
+            // 使用计算属性实现 getters 缓存
+            computed[key] = function() {
+              return options.getters[key](store.state);
+            };
+            
+            // 为 getters 定义只读属性
+            Object.defineProperty(store.getters, key, {
+              get: () => store._vm[key],
+              enumerable: true
+            });
+          });
+        }
+        
+        // 将 getters 挂载到 Vue 实例
+        this._vm._computedWatchers = {};
+        Object.keys(computed).forEach(key => {
+          Object.defineProperty(this._vm, key, {
+            get: () => this._vm[key],
+            enumerable: true
+          });
+        });
+        this._vm.$options.computed = computed;
+      }
+      
+      // 获取 state
+      get state() {
+        return this._vm._data.$$state;
+      }
+      
+      // 设置 state (不允许直接修改)
+      set state(v) {
+        throw new Error('不能直接修改 state，请使用 mutations');
+      }
+      
+      // commit 方法
+      commit(type, payload) {
+        const entry = this._mutations[type];
+        if (!entry) {
+          console.error(`[Vuex] 未知的 mutation 类型: ${type}`);
+          return;
+        }
+        
+        // 执行 mutation 函数
+        entry(this.state, payload);
+      }
+    
+      // dispatch 方法
+      dispatch(type, payload) {
+        const entry = this._actions[type];
+        if (!entry) {
+          console.error(`[Vuex] 未知的 action 类型: ${type}`);
+          return;
+        }
+        
+        // 执行 action 函数
+        return entry(this, payload);
+      }
+    }
+
+    // Vue 插件安装
+    Store.install = function(Vue) {
+      Vue.mixin({
+        beforeCreate() {
+          const options = this.$options;
+          if (options.store) {
+            // 根组件
+            this.$store = options.store;
+          } else if (options.parent && options.parent.$store) {
+            // 子组件
+            this.$store = options.parent.$store;
+          }
+        }
+      });
+    };
+
+    // 注册 Vuex
+    Vue.use(Store);
+
+    // 创建 Vuex store
+    const store = new Store({
+      state: {
+        count: 0,
+        lastUpdated: null
+      },
+      mutations: {
+        increment(state) {
+          state.count++;
+          state.lastUpdated = new Date().toLocaleTimeString();
+        },
+        decrement(state) {
+          state.count--;
+          state.lastUpdated = new Date().toLocaleTimeString();
+        },
+        incrementBy(state, payload) {
+          state.count += payload.amount;
+          state.lastUpdated = new Date().toLocaleTimeString();
+        },
+        setLastUpdated(state, time) {
+          state.lastUpdated = time;
+        }
+      },
+      actions: {
+        asyncIncrement({ commit }) {
+          return new Promise(resolve => {
+            setTimeout(() => {
+              commit('increment');
+              commit('setLastUpdated', new Date().toLocaleTimeString());
+              resolve();
+            }, 1000);
+          });
+        }
+      },
+      getters: {
+        doubleCount(state) {
+          return state.count * 2;
+        }
+      }
+    });
+
+    // 创建 Vue 实例
+    new Vue({
+      el: '#app',
+      store,
+      computed: {
+        count() {
+          return this.$store.state.count;
+        },
+        doubleCount() {
+          return this.$store.getters.doubleCount;
+        },
+        lastUpdated() {
+          return this.$store.state.lastUpdated;
+        }
+      },
+      methods: {
+        increment() {
+          this.$store.commit('increment');
+        },
+        decrement() {
+          this.$store.commit('decrement');
+        },
+        incrementBy(amount) {
+          this.$store.commit('incrementBy', { amount });
+        },
+        asyncIncrement() {
+          this.$store.dispatch('asyncIncrement');
+        }
+      }
+    });
+  </script>
+</body>
+</html>

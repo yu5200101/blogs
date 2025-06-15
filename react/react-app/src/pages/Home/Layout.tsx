@@ -2,13 +2,13 @@ import {
   Outlet,
   ScrollRestoration
 } from 'react-router'
-import FooterBar from '@/components/FooterBar'
+// import FooterBar from '@/components/FooterBar'
 
 const Layout = () => {
 
   return (
     <div>
-      <FooterBar />
+      {/* <FooterBar /> */}
       <main>
         {/* 滚动恢复原位置 */}
         <ScrollRestoration />

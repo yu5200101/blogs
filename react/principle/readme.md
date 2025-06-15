@@ -80,13 +80,35 @@ workLoopSync|workLoopConcurrent|workLoopConcurrentByScheduler
 
 react/packages/react-reconciler/src/ReactFiberBeginWork.js
 beginWork
-updateHostRoot-processUpdateQueue
-执行reconcileChildren 生成fiber
-设置flag给fiber用于更新
+updateHostRoot
+processUpdateQueue 生成callbacksList
+
+执行reconcileChildren
+单节点diff，循环条件旧节点存在
+1.当key相同type不同时，标记删除旧fiber及其兄弟fiber节点，创建新fiber,终止循环
+2.当key相同type相同时计算旧fiber设置新的props返回,标记删除兄弟fiber节点,终止循环
+3.当key不同时，删除旧fiber，节点指向兄弟fiber节点，开启新一次循环判断
+
+多节点diff，两次循环
+第一次循环：循环条件旧节点和新节点都存在
+1.当key不同时，终止循环
+2.当key相同，type不同时，标记删除旧fiber，旧节点指向下一个兄弟节点，开启新一次循环判断
+3.新节点没有了，老节点还有，删除老节点
+4.老节点没有了，新节点还有，创建新节点
+
+第二次循环：此时新老节点都存在，把老节点map存下来，key为key或index,value为fiber，默认lastPlacedIndex = 0，循环新节点
+1.通过index获取旧fiber,设置新fiber对应的alternate为旧fiber
+2.1步骤旧fiber存在，如果lastPlacedIndex>旧fiber的index,则标记新fiber为移动Placement，否则设置oldIndex = lastPlacedIndex
+3.1步骤旧fiber不存在，则标记新fiber为新建Placement
+
+1.生成fiber
+2.deletions.push标记删除的子节点
+3.给fiber打flags: ChildDeletion| Forked | Placement
+
 renderWithHooks
 
 completeUnitOfWork
-completeWork 设置属性 绑定事件
+completeWork 设置fiber属性,设置subtreeFlags记录所有节点的flags,
 
 recursivelyTraverseMutationEffects
 commitDeletionEffects
@@ -97,34 +119,39 @@ commitReconciliationEffects
 react/packages/react-reconciler/src/ReactFiberWorkLoop.js
 
 commitRoot
-commitBeforeMutationEffects
+设置了subtreeFlags的节点进入commitBeforeMutationEffects
 flushMutationEffects
 flushLayoutEffects
+flushSpawnedWork
 
 react/packages/react-reconciler/src/ReactFiberCommitWork.js
-commitBeforeMutationEffects
+设置了subtreeFlags的节点进入commitBeforeMutationEffects
 有getSnapshotBeforeUpdate
 commitBeforeMutationEffects_begin
-轮询有flag标记的nextEffect
-轮询-设置blur
+循环fiber.deletions执行beforeActiveInstanceBlur设置blur
+循环有flags标记的nextEffect，指向sibling，再指向父节点
 commitBeforeMutationEffects_complete
 commitBeforeMutationEffectsOnFiber
 
 flushMutationEffects
-commitMutationEffects
+设置了subtreeFlags的节点进入commitMutationEffects
 commitMutationEffectsOnFiber
 recursivelyTraverseMutationEffects
-执行deletion
+循环有flags标记的nextEffect，指向sibling，再指向父节点
+循环fiber.deletions执行commitDeletionEffects,删除节点
 轮询执行commitMutationEffectsOnFiber
 commitReconciliationEffects-插入元素
-清除函数-useEffect useInsertionEffect
-挂载useEffect useInsertionEffect
-清除函数-useLayoutEffect
-移除ref
+有flags和update清除函数-useEffect useInsertionEffect,挂载useEffect useInsertionEffect,清除函数-useLayoutEffect
+有flags和ref移除ref
 
-commitLayoutEffects
+设置了subtreeFlags的节点进入commitLayoutEffects
 commitLayoutEffectOnFiber
 recursivelyTraverseLayoutEffects
 轮询执行commitLayoutEffectOnFiber
-挂载useLayoutEffect
-挂载ref
+flags & Update挂载useLayoutEffect
+flags & Update执行componentDidMount和componentDidUpdate生命周期
+flags & Callback执行updateQueue的callbacksList，
+flags & Ref挂载ref
+
+flushSpawnedWork
+requestPaint进入绘制中断循环workLoop
