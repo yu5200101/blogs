@@ -208,7 +208,7 @@ type Theme = {
 */
 
 // is 类型谓词
-function isString(value: unknown): value is string {
+function isString1(value: unknown): value is string {
   return typeof value === "string";
 }
 

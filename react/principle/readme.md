@@ -155,3 +155,5 @@ flags & Ref挂载ref
 
 flushSpawnedWork
 requestPaint进入绘制中断循环workLoop
+
+中断后使用performWorkUntilDeadline

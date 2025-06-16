@@ -163,3 +163,21 @@ interface Point3d extends Point2 {
 }
 
 let point3d: Point3d = {x: 1, y: 2, z: 3};
+
+// override —— 显式覆盖父类方法（TypeScript 4.3+）
+// 表示明确在子类中重写父类的方法/属性
+// 如果父类中没有这个方法/属性，TS 会报错（防止拼写错误）
+
+class Base {
+  greet() {
+    console.log("Hello from base");
+  }
+}
+
+class Derived extends Base {
+  override greet() {
+    console.log("Hello from derived");
+  }
+
+  // override sayHi() {} // ❌ 报错：Base 没有 sayHi 方法
+}
