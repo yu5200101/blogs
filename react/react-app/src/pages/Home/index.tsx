@@ -3,7 +3,7 @@ import styles from './index.module.scss'
 // import { useGetUserInfoQuery, selectUsersData } from '@/stores/userSlice'
 // import classNames from 'classnames'
 // import { Link } from 'react-router'
-import { useState } from 'react'
+import { useEffect, useState, useRef } from 'react'
 // import { SearchOutline } from 'antd-mobile-icons'
 
 function Home() {
@@ -15,10 +15,31 @@ function Home() {
   // const count = useAppSelector()
   // const dispatch = useAppDispatch()
   const [count, setCount] = useState(0);
+  const [otherCount, setOtherCount] = useState(0);
+  const timer = useRef<ReturnType<typeof setTimeout> | null | number>(0)
 
-  const showMessage = () => {
-    setCount(count + 1);
+  const handleClick = (type: string) => {
+    if (type === '-') {
+      setCount(count - 1);
+    } else if (type === '+') {
+      setCount(count + 1)
+    } else if (type === 'start') {
+      setTimeout(() => {
+        setOtherCount(otherCount + 1)
+      }, 1000)
+    } else if (type === 'end') {
+      clearTimeout(timer.current as number)
+    }
   };
+  useEffect(() => {
+    timer.current = setTimeout(() => {
+      setOtherCount(otherCount + 1)
+    }, 1000)
+    return () => {
+      clearTimeout(timer.current as number)
+    }
+  }, [otherCount])
+
   return <>
     <div className={styles.container}>
       {/* <Link
@@ -32,11 +53,12 @@ function Home() {
         好吃的店铺
       </Link> */}
       <div>
+        <button onClick={() => handleClick('-')}>-1</button>
         <span>{count}</span>
-        {count === 1 && <span key="1">展示1</span>}
-        {count === 2 && <span key="2">展示2</span>}
-        {count === 3 && <span key="3">展示3</span>}
-        <button onClick={showMessage}>+1</button>
+        <button onClick={() => handleClick('+')}>+1</button>
+        <button onClick={() => handleClick('start')}>start</button>
+        <span>{otherCount}</span>
+        <button onClick={() => handleClick('end')}>end</button>
       </div>
     </div>
   </>

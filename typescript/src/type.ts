@@ -76,6 +76,10 @@ type myReadonly = MyReadonly<User>
 type pick = Pick<User, 'id'>
 // 等价于 { id: number }
 
+type myPick<T, K extends keyof T> = {
+  [P in K]: T[P]
+}
+
 type omit = Omit<User, 'id'>
 // 等价于 { name: string }
 

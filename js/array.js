@@ -231,3 +231,18 @@ const setViolationNo = function (data, idList) {
 }
 // 扁平化数组
 const flatten = arr => arr.reduce((item, next) => item.concat(Array.isArray(next) ? flatten(next) : next, []))
+
+const ary = [[1,2], [2,3,[2,3]]]
+
+const result = []
+const flatArray = (ary) => {
+  if (!Array.isArray(ary)) {
+    result.push(ary)
+    return
+  }
+  for(let i = 0; i < ary.length; i++) {
+    flatArray(ary[i])
+  }
+}
+flatArray(ary)
+console.log(result)
