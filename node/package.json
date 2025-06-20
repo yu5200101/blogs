@@ -1,5 +1,5 @@
 {
   "dependencies": {
-    "@koa/cors": "^5.0.0"
+    "express": "^5.1.0"
   }
 }
