@@ -104,7 +104,53 @@ const buf13 = Buffer.from([
   0xFF
 ]);
 
-console.log(buf13.readDoubleLE(2))
 // 反转后
 // [0x40, 0x24, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00]
+console.log(buf13.readDoubleLE(2))
+
+// 假设接收到的二进制数据（大端序浮点数的字节序列）
+const buf14 = Buffer.from([0x40, 0x24, 0x00, 0x00]);
+// 01000000 00100100 00000000 00000000
+// 1位符号位（S），8位指数位（E），23位尾数位（M）
+// S:0 E:1000000 0 M:0100100 00000000 00000000
+// 计算公式：(-1)^s * (1 + m) * 2^(e - 127)
+// (-1)^0 * (1 + 2^(-2) + 2^(-5)) * 2^(2^7 - 127) = 2.5625
+// 读取大端序浮点数
+console.log(buf14.readFloatBE(0))
+
+const buf15 = Buffer.from([0x00, 0x00, 0x24, 0x40]);
+// 反转后
+// [0x40, 0x24, 0x00, 0x00]
+console.log(buf15.readFloatLE(0))
+
+const buf16 = Buffer.from([0, 5])
+console.log(buf16.readInt16BE(0))
+// Prints: 5
+
+// 5*16^2 = 1280
+console.log(buf16.readInt16LE(0))
+// Prints: 1280
+
+const buf17 = Buffer.from([0x00, 0x00, 0x24, 0x40])
+// 2*16^3+4*16^2+4*16 = 9280
+console.log(buf17.readIntBE(0, 4))
+// Prints: 9280
+
+// 2*16 + 4 = 36
+console.log(buf17.readIntBE(1, 2))
+// Prints: 36
+
+const buf18 = Buffer.from([0x40, 0x24, 0x00, 0x00])
+// 翻转后[0x00, 0x00, 0x24, 0x40]
+console.log(buf18.readIntLE(0, 4))
+
+const buf19 = Buffer.from([1, -2]);
+
+console.log(buf19.readUInt8(0));
+// Prints: 1
+
+// -2+256 = 254
+console.log(buf19.readUInt8(1));
+// Prints: 254
+
 
