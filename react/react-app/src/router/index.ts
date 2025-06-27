@@ -6,6 +6,7 @@ import order from '@/pages/order'
 import mine from '@/pages/mine'
 import search from '@/pages/search'
 import shop from '@/pages/shop'
+import activity from '@/pages/activity'
 import NotFound from '@/pages/NotFound'
 
 const router = createBrowserRouter([
@@ -40,6 +41,10 @@ const router = createBrowserRouter([
     path: '/shop',
     loader: loader,
     Component: shop
+  }, {
+    path: '/activity',
+    loader: loader,
+    Component: activity
   }, {
     path: '*',
     loader: loader,

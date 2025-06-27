@@ -3,7 +3,8 @@ import styles from './index.module.scss'
 // import { useGetUserInfoQuery, selectUsersData } from '@/stores/userSlice'
 // import classNames from 'classnames'
 // import { Link } from 'react-router'
-import { useEffect, useState, useRef } from 'react'
+import { useState, useRef } from 'react'
+// import { useEffect } from 'react'
 // import { SearchOutline } from 'antd-mobile-icons'
 
 function Home() {
@@ -31,14 +32,14 @@ function Home() {
       clearTimeout(timer.current as number)
     }
   };
-  useEffect(() => {
-    timer.current = setTimeout(() => {
-      setOtherCount(otherCount + 1)
-    }, 1000)
-    return () => {
-      clearTimeout(timer.current as number)
-    }
-  }, [otherCount])
+  // useEffect(() => {
+  //   timer.current = setTimeout(() => {
+  //     setOtherCount(otherCount + 1)
+  //   }, 1000)
+  //   return () => {
+  //     clearTimeout(timer.current as number)
+  //   }
+  // }, [otherCount])
 
   return <>
     <div className={styles.container}>
