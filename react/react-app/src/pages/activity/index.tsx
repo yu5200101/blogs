@@ -38,8 +38,8 @@ const WheelOfFortune: React.FC = () => {
 
   // 开始抽奖
   const startSpin = () => {
-    if (spinning) return;
-    setSpinning(true);
+    if (spinning) return
+    setSpinning(true)
     // 随机选择奖品
     const winningIndex = Math.floor(Math.random() * prizes.length);
     const winningPrize = prizes[winningIndex];
