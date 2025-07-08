@@ -1,0 +1,32 @@
+
+.main {
+  width: 100%;
+  background: white;
+  transition: all 0.3s ease;
+
+  &.closing {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+}
+
+.modalContent {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  text-align: center;
+}
+
+.title {
+  font-size: 18px;
+  font-weight: bold;
+  color: #333;
+  margin: 0;
+}
+
+.message {
+  font-size: 14px;
+  color: #666;
+  margin: 0;
+  line-height: 1.5;
+}

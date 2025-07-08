@@ -6,6 +6,8 @@ import styles from './index.module.scss'
 import { useState, useRef } from 'react'
 // import { useEffect } from 'react'
 // import { SearchOutline } from 'antd-mobile-icons'
+import ModalContainer from './components/ModalContainer';
+import UserActions from './components/UserActions';
 
 function Home() {
   // const {
@@ -62,6 +64,8 @@ function Home() {
         <button onClick={() => handleClick('end')}>end</button>
       </div>
     </div>
+    <UserActions />
+    <ModalContainer />
   </>
 }
 
