@@ -41,6 +41,20 @@ M<!DOCTYPE html>
     <input type="text" id="myInput" placeholder="请输入国家名称">
     <div id="autocomplete-list" class="autocomplete-items"></div>
 </div>
+  <br><br>
+  <!-- 方法1：直接使用autocomplete属性 -->
+  <label>邮箱（方法1）：</label>
+  <input type="email" autocomplete="new-email" placeholder="不会自动填充">
+  <br><br>
+  <!-- 方法2：动态修改name属性 -->
+  <label>邮箱（方法2）：</label>
+  <input type="email" id="dynamicEmail" name="preventAutofill" placeholder="不会自动填充">
+  <script>
+    // 页面加载后动态修改name属性
+    window.addEventListener('DOMContentLoaded', () => {
+      document.getElementById('dynamicEmail').name = 'email';
+    });
+  </script>
 
 <script>
 // 示例数据
