@@ -1,0 +1,77 @@
+.appContainer {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  background: white;
+  border-radius: 15px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+  padding: 20px;
+}
+
+.header {
+  text-align: center;
+  color: $primary;
+  margin-bottom: 10px;
+  font-size: 25px;
+  background: linear-gradient(90deg, $primary, $secondary);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.subtitle {
+  text-align: center;
+  color: $gray;
+  margin-bottom: 20px;
+  font-size: 22px;
+}
+
+.content {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+}
+
+.formSection, .previewSection {
+  display: flex;
+  flex-direction: column;
+}
+
+.formContainer {
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 5px 20px rgba(0, 0, 0, 0.05);
+  overflow: hidden;
+  padding: 20px;
+  border: 1px solid #eef2f7;
+  flex-grow: 1;
+}
+
+@media (max-width: 1024px) {
+  .content {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 768px) {
+  .appContainer {
+    padding: 15px;
+  }
+  
+  .formContainer {
+    padding: 15px;
+  }
+  
+  .header {
+    font-size: 22px;
+  }
+}
+
+@media (max-width: 480px) {
+  .appContainer {
+    padding: 10px;
+  }
+  
+  .formContainer {
+    padding: 10px;
+  }
+}

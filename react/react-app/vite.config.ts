@@ -27,6 +27,11 @@ export default defineConfig({
     }
   },
   css: {
+    preprocessorOptions: {
+      scss: {
+        additionalData: `@import "@/styles/main.scss";`, // 这里添加全局变量文件
+      }
+    },
     postcss: {
       plugins: [
         postcssPxToRem({

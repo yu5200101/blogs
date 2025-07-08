@@ -6,6 +6,7 @@ import order from '@/pages/order'
 import mine from '@/pages/mine'
 import search from '@/pages/search'
 import shop from '@/pages/shop'
+import form from '@/pages/form'
 import activity from '@/pages/activity'
 import NotFound from '@/pages/NotFound'
 
@@ -37,6 +38,14 @@ const router = createBrowserRouter([
     path: '/search',
     loader: loader,
     Component: search
+  }, {
+    path: '/shop',
+    loader: loader,
+    Component: shop
+  }, {
+    path: '/form',
+    loader: loader,
+    Component: form
   }, {
     path: '/shop',
     loader: loader,

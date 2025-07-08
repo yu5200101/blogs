@@ -1,0 +1,168 @@
+// src/components/FormGenerator/FormGenerator.module.scss
+.dynamicForm {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.formHeader {
+  margin-bottom: 10px;
+  text-align: center;
+  h2 {
+    color: $primary;
+    margin-bottom: 10px;
+    font-size: 22px;
+  }
+}
+
+.formDescription {
+  color: $gray;
+  font-size: 22px;
+}
+
+.formGroup {
+  margin-bottom: 15px;
+  padding: 10px;
+  background: #fafbff;
+  border-radius: 8px;
+  transition: all 0.3s ease;
+  border: 1px solid #e6e9ff;
+  
+  &:hover {
+    background: #f5f7ff;
+    border-color: #d0d8ff;
+  }
+  
+  label {
+    display: block;
+    margin-bottom: 10px;
+    font-weight: 600;
+    color: #495057;
+    font-size: 22px
+  }
+}
+
+.required {
+  color: $danger;
+  margin-left: 4px;
+}
+
+input[type="text"],
+textarea {
+  width: 100%;
+  padding: 10px;
+  border: 1px solid #ced4da;
+  border-radius: 6px;
+  font-size: 22px;
+  transition: all 0.3s ease;
+  background: white;
+  
+  &:focus {
+    outline: none;
+    border-color: $primary;
+    box-shadow: 0 0 0 3px rgba($primary, 0.15);
+  }
+}
+
+textarea {
+  min-height: 120px;
+  resize: vertical;
+}
+
+.radioGroup,
+.checkboxGroup {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 15px;
+  margin-top: 10px;
+}
+
+.radioOption,
+.checkboxOption {
+  display: flex;
+  align-items: center;
+  padding: 10px 10px;
+  background: white;
+  border-radius: 6px;
+  border: 1px solid #e2e8f0;
+  transition: all 0.2s ease;
+  
+  &:hover {
+    border-color: $primary;
+    background: #f0f4ff;
+  }
+  
+  input {
+    margin-right: 10px;
+    cursor: pointer;
+  }
+  
+  label {
+    margin-bottom: 0;
+    font-weight: 500;
+    cursor: pointer;
+  }
+}
+
+.submitButton {
+  background: linear-gradient(135deg, $primary 0%, $secondary 100%);
+  color: white;
+  border: none;
+  border-radius: 6px;
+  padding: 10px 20px;
+  font-size: 22px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 10px rgba($primary, 0.25);
+  display: block;
+  margin: 10px auto 0;
+  width: 200px;
+  
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 15px rgba($primary, 0.35);
+  }
+  
+  &:active {
+    transform: translateY(0);
+  }
+}
+
+.errorMessage {
+  color: $danger;
+  font-size: 24px;
+  margin-top: 10px;
+  font-weight: 500;
+}
+
+.error {
+  .errorMessage {
+    display: block;
+  }
+}
+
+.errorInput {
+  border-color: $danger !important;
+  
+  &:focus {
+    box-shadow: 0 0 0 3px rgba($danger, 0.15) !important;
+  }
+}
+
+.formFooter {
+  margin-top: 10px;
+  text-align: center;
+}
+
+@media (max-width: 768px) {
+  .radioGroup,
+  .checkboxGroup {
+    flex-direction: column;
+    gap: 10px;
+  }
+  
+  .submitButton {
+    width: 100%;
+  }
+}
