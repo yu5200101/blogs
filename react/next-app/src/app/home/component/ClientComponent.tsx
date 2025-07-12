@@ -1,25 +1,36 @@
-// components/ClientComponent.tsx
 'use client';
 import { useState } from 'react';
-import { useGetUserInfoQuery } from '@/app/stores/userSlice'
-interface Props {
-  initialData: any
-}
-export default function ClientComponent({ initialData }: Props) {
-  // 使用服务端预加载数据
-  const [data, setData] = useState(initialData);
+import { useLazyGetUserInfoQuery } from '@/app/stores/userSlice'; // 注意：使用 lazy 版本
 
-  // 客户端数据更新
+interface Props {
+  initialData: any;
+}
+
+export default function ClientComponent({ initialData }: Props) {
+  const [data, setData] = useState(initialData);
+  // 使用 lazy query 替代常规查询
+  const [trigger, { isFetching }] = useLazyGetUserInfoQuery();
+
   const fetchNewData = async () => {
-    const {
-      data
-    } = useGetUserInfoQuery()
-    setData(data);
+    try {
+      const result = await trigger();
+      // 检查结果是否包含数据
+      if (result.data) {
+        setData(result.data);
+      }
+    } catch (error) {
+      console.error("数据刷新失败:", error);
+    }
   };
 
   return (
     <div>
-      <button onClick={fetchNewData}>刷新数据</button>
+      <button
+        onClick={fetchNewData}
+        disabled={isFetching}
+      >
+        {isFetching ? '加载中...' : '刷新数据'}
+      </button>
       <pre>{JSON.stringify(data, null, 2)}</pre>
     </div>
   );

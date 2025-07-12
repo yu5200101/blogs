@@ -28,7 +28,7 @@ const DEFAULT_TIMEOUT = 10 * 1000
 const rawBaseQuery = fetchBaseQuery({
   baseUrl: 'http://localhost:3000',
   prepareHeaders: (headers) => {
-    const token = storage.localStorage.getItem('token');
+    const token = storage.cookie.getItem('token');
     if (token) headers.set('Authorization', `Bearer ${token}`);
     // 在此处设置headers的优先级最低
     return headers
@@ -104,7 +104,7 @@ const baseQueryWithInterceptors: BaseQueryFn = async (args, api, extraOptions) =
   }
 
   // 业务状态码正常时，返回数据
-  return { data: backendResponse };
+  return { data: backendResponse.data };
 };
 // 定义我们的单个 API Slice 对象
 export const apiSlice = createApi({

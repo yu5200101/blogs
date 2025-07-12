@@ -3,7 +3,6 @@ import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import StoreProvider from '@/app/providers/StoreProvider'
 import 'antd-mobile/es/global'
-import Link from 'next/link'
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -35,7 +34,6 @@ export default function RootLayout({
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
         <StoreProvider>
-          <Link href="/login">Open modal</Link>
             {children}
             {team}
             {analytics}
