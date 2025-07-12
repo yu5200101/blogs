@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import StoreProvider from '@/app/providers/StoreProvider'
+import 'antd-mobile/es/global'
 import Link from 'next/link'
 
 const geistSans = Geist({
@@ -35,9 +36,9 @@ export default function RootLayout({
       >
         <StoreProvider>
           <Link href="/login">Open modal</Link>
-          {children}
-          {team}
-          {analytics}
+            {children}
+            {team}
+            {analytics}
         </StoreProvider>
       </body>
     </html>

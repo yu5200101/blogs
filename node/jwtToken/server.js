@@ -35,7 +35,7 @@ function encryptPassword(password) {
 }
 // 配置 CORS
 app.use(cors({
-  origin: ctx => ['http://localhost:1001'].includes(ctx.get('Origin'))
+  origin: ctx => ['http://localhost:3001'].includes(ctx.get('Origin'))
     ? ctx.get('Origin')
     : false,
   allowMethods: ['GET', 'POST'],

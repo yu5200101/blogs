@@ -3,13 +3,15 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "next dev --turbopack",
+    "dev": "next dev -p 3001 --turbopack",
     "build": "next build",
-    "start": "next start",
+    "start": "next start -p 3001",
     "lint": "next lint"
   },
   "dependencies": {
     "@reduxjs/toolkit": "^2.8.2",
+    "antd-mobile": "^5.39.0",
+    "axios": "^1.10.0",
     "dayjs": "^1.11.13",
     "js-cookie": "^3.0.5",
     "lodash": "^4.17.21",
