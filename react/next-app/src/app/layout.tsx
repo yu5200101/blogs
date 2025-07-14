@@ -33,11 +33,19 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
+        {/* 服务端组件部分 - 无Provider */}
+        <header>
+          <h1>应用标题 (服务端渲染)</h1>
+        </header>
         <StoreProvider>
           {children}
           {team}
           {analytics}
         </StoreProvider>
+        {/* 服务端组件部分 - 无Provider */}
+        <footer>
+          <p>页脚内容 (服务端渲染)</p>
+        </footer>
       </body>
     </html>
   );

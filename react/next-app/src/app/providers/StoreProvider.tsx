@@ -4,7 +4,6 @@ import { PersistGate } from 'redux-persist/integration/react';
 import React, { useRef} from 'react';
 import { makeStore, AppStore } from '@/app/stores';
 import { persistStore, Persistor } from 'redux-persist';
-import LoadingOverlay from '@/components/ui/LoadingOverlay';
 
 export default function StoreProvider({
   children
@@ -18,7 +17,7 @@ export default function StoreProvider({
   return (
     <Provider store={storeRef.current}>
       <PersistGate
-        loading={<LoadingOverlay />}
+        loading={null}
         persistor={persistorRef.current}
       >
         {children}
