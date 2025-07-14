@@ -5,46 +5,44 @@ import storage from '@/app/utils/storage'
 import lodash from '@/app/utils/lodash'
 import { useRouter } from 'next/navigation';
 
-const LoginModal: React.FC = () => {
+interface UserData {
+  mobile: string
+  password: string
+}
 
-  interface userData {
-    mobile: string
-    password: string
-  }
+// 使用高阶组件包裹登录表单
+const LoginFormCore: React.FC = () => {
   const [login] = useLoginMutation()
   const router = useRouter();
-  const handleLogin = async (values: userData) => {
+  const handleLogin = async (values: UserData) => {
     try {
-      // 调用登录接口（示例）
       const res = await login(values).unwrap()
       const token = lodash.get(res, 'token') || ''
       storage.cookie.setItem('token', token)
-      // 登录成功后刷新导航状态
       router.refresh();
-      // 跳转到首页或受保护页面
-      router.push('/home');
+      router.replace('/home');
     } catch (error) {
       console.error('登录失败:', error);
     }
   };
 
   return (
-      <Form
-        layout='horizontal'
-        onFinish={handleLogin}
-        footer={
-          <Button block type='submit' color='primary' size='large'>
-            提交
-          </Button>
-        }>
-        <Form.Item name="mobile" label='手机号' rules={[{ required: true }]}>
-          <Input placeholder="手机号" />
-        </Form.Item>
-        <Form.Item name='password' label='密码' rules={[{ required: true }]}>
-          <Input placeholder='请输入' />
-        </Form.Item>
-      </Form>
+    <Form
+      layout='horizontal'
+      onFinish={handleLogin}
+      footer={
+        <Button block type='submit' color='primary' size='large'>
+          提交
+        </Button>
+      }>
+      <Form.Item name="mobile" label='手机号' rules={[{ required: true }]}>
+        <Input placeholder="手机号" />
+      </Form.Item>
+      <Form.Item name='password' label='密码' rules={[{ required: true }]}>
+        <Input placeholder='请输入' type="password" />
+      </Form.Item>
+    </Form>
   );
 };
 
-export default LoginModal;
+export default LoginFormCore;

@@ -3,7 +3,7 @@ import counter from '@/app/example/stores/counterSlice'
 import auth from './authSlice'
 import { apiSlice } from '@/app/api/apiSlice'
 import storage from 'redux-persist/lib/storage/session'; // sessionStorage作为存储引擎
-import { persistStore, persistReducer } from 'redux-persist';
+import { persistReducer } from 'redux-persist';
 import { createWrapper } from 'next-redux-wrapper';
 
 const rootReducer = combineReducers({
@@ -33,9 +33,6 @@ export const makeStore = () => {
       }).concat(apiSlice.middleware),
     devTools: process.env.NODE_ENV !== 'production',
   });
-  // 创建 persistor 并附加到 store 对象
-  const persistor = persistStore(store);
-  (store as any).__persistor = persistor
   return store;
 }
 
