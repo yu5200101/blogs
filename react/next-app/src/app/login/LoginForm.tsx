@@ -17,7 +17,7 @@ const LoginModal: React.FC = () => {
     try {
       // 调用登录接口（示例）
       const res = await login(values).unwrap()
-      const token = lodash.get(res, 'data.token') || ''
+      const token = lodash.get(res, 'token') || ''
       storage.cookie.setItem('token', token)
       // 登录成功后刷新导航状态
       router.refresh();
