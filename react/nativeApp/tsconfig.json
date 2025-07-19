@@ -1,0 +1,11 @@
+{
+  "extends": "@react-native/typescript-config",
+  "compilerOptions": {
+    "baseUrl": ".",        // 设置基础路径
+    "paths": {
+      "@/*": ["./src/*"]   // 匹配别名路径
+    },
+  },
+  "include": ["src/**/*"],
+  "exclude": ["node_modules"]
+}
