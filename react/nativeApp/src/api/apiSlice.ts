@@ -1,10 +1,10 @@
 // 从特定于 React 的入口点导入 RTK Query 方法
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react'
 import type { BaseQueryFn } from '@reduxjs/toolkit/query';
-import { openLoginModal } from '@/stores/authSlice'
-import storage from '@/utils/storage'
+import { clearToken } from '@/stores/authSlice'
 import { sleepTime } from '@/utils/tools'
 import { isRetryError } from './tools'
+import AsyncStorage from '@react-native-async-storage/async-storage'
 
 // 定义后端响应格式
 interface BackendResponse<T> {
@@ -25,8 +25,9 @@ const DEFAULT_TIMEOUT = 10 * 1000
 // 原生基础查询
 const rawBaseQuery = fetchBaseQuery({
   baseUrl: 'http://localhost:3000',
-  prepareHeaders: (headers) => {
-    const token = storage.localStorage.getItem('token');
+  prepareHeaders: async (headers) => {
+    headers.set('Cache-Control', 'no-store')
+    const token = await AsyncStorage.getItem('token')
     if (token) headers.set('Authorization', `Bearer ${token}`);
     // 在此处设置headers的优先级最低
     return headers
@@ -81,8 +82,8 @@ const baseQueryWithInterceptors: BaseQueryFn = async (args, api, extraOptions) =
   const backendResponse = result.data as BackendResponse<unknown>;
   if (result.data?.code !== 0 || result.error?.status === 401) {
     // 处理 401 未授权：清除令牌并跳转登录
-    localStorage.removeItem('token');
-    api.dispatch(openLoginModal())
+    api.dispatch(clearToken())
+    await AsyncStorage.removeItem('token')
     return {
       error: {
         status: 'CUSTOM_ERROR',
