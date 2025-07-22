@@ -6,19 +6,21 @@ export default function Demo() {
   useAuth()
   const insets = useSafeAreaInsets();
   return (
-    <View
-      style={{
-        flex: 1,
-        justifyContent: 'space-between',
-        alignItems: 'center',
-        paddingTop: insets.top,
-        paddingBottom: insets.bottom,
-        paddingLeft: insets.left,
-        paddingRight: insets.right,
-      }}
-    >
-      <Text>This is top text.</Text>
-      <Text>This is bottom text.</Text>
-    </View>
+    <>
+      <View
+        style={{
+          flex: 1,
+          justifyContent: 'space-between',
+          alignItems: 'center',
+          paddingTop: insets.top,
+          paddingBottom: insets.bottom,
+          paddingLeft: insets.left,
+          paddingRight: insets.right,
+        }}
+      >
+        <Text>This is top text.</Text>
+        <Text>This is bottom text.</Text>
+      </View>
+    </>
   );
 }

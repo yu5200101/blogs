@@ -36,7 +36,8 @@ export const extendedApiSlice = apiSlice.injectEndpoints({
 export const {
   useLoginMutation,
   useGetUserInfoQuery,
-  useRegisterMutation
+  useLazyGetUserInfoQuery,
+  useRegisterMutation,
 } = extendedApiSlice
 // 调用 `someEndpoint.select(someArg)` 生成一个新的 selector，该 selector将返回
 // 带有这些参数的查询的查询结果对象。

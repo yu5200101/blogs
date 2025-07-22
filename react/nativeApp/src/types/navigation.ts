@@ -2,6 +2,7 @@ export type HomeTabList = {
   Main: {},
   Mine: {}
 }
+
 export type HomeTabKey = keyof HomeTabList
 export type RootStackParamList = {
   Home: {}

@@ -39,7 +39,7 @@ const LoginScreen = ({ route }: Props) => {
     try {
       // 调用登录接口（示例）
       const res = await login(values).unwrap()
-      const token = lodash.get(res, 'data.token') || ''
+      const token = lodash.get(res, 'token') || ''
       dispatch(setToken(token))
       await AsyncStorage.setItem('token', token)
       navigateToDetails()

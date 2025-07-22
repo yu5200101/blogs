@@ -53,6 +53,7 @@ const baseQueryWithInterceptors: BaseQueryFn = async (args, api, extraOptions) =
   // 执行请求
   // ----------------------------
   let result = await rawBaseQuery(modifiedArgs, api, extraOptions);
+  console.log('api-result', result)
 
   // ----------------------------
   // 响应拦截器逻辑
@@ -103,7 +104,7 @@ const baseQueryWithInterceptors: BaseQueryFn = async (args, api, extraOptions) =
   }
 
   // 业务状态码正常时，返回数据
-  return { data: backendResponse };
+  return { data: backendResponse.data };
 };
 // 定义我们的单个 API Slice 对象
 export const apiSlice = createApi({
