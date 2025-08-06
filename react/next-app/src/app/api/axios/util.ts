@@ -1,4 +1,3 @@
-/* eslint-disable max-statements */
 export const random16Hex = () => (0x10000 | Math.random() * 0x10000).toString(16).substr(1)
 export const random64Hex = () => random16Hex() + random16Hex() + random16Hex() + random16Hex()
 

@@ -6,7 +6,10 @@
     "dev": "next dev -p 3001 --turbopack",
     "build": "next build",
     "start": "next start -p 3001",
-    "lint": "next lint"
+    "lint": "next lint",
+    "debug": "next build --debug",
+    "info": "next info",
+    "profiler": "next build --profile"
   },
   "dependencies": {
     "@reduxjs/toolkit": "^2.8.2",

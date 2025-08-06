@@ -126,9 +126,12 @@ export const isUseWxOpenTags = () => {
   try {
     const ua = getUa()
     const testUa = (regexp: RegExp) => regexp.test(ua)
-    const testVs = (regexp: RegExp) => ua && ua.match(regexp).toString()
-      .replace(/[^0-9|_.]/g, '')
-      .replace(/_/g, '.')
+    const testVs = (regexp: RegExp) => {
+      const match = ua && ua.match(regexp);
+      return match
+        ? match.toString().replace(/[^0-9|_.]/g, '').replace(/_/g, '.')
+        : '';
+    }
     const shellWxVsLowest = '7.0.12'
     const isWx = testUa(/micromessenger/g)
 

@@ -8,6 +8,6 @@ export async function isAuthenticated() {
     const res = await api.getUserInfo();
     return res.data
   } catch (error) {
-    return false;
+    return false
   }
 }

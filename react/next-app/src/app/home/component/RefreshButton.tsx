@@ -11,7 +11,7 @@ export default function ClientComponent({ setData }: Props) {
 
   const fetchNewData = async () => {
     try {
-      const result = await trigger();
+      const result = await trigger({})
       // 检查结果是否包含数据
       if (result.data) {
         setData(result.data);

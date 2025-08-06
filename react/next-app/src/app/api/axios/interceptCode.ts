@@ -5,7 +5,7 @@ const showLogin = () => {
   console.log('展示登录弹窗')
 }
 const account = {
-  interceptHttpCode(code) {
+  interceptHttpCode(code: number): void {
     console.log(`报错:${code}`)
   }
 }

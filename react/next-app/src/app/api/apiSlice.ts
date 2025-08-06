@@ -2,7 +2,7 @@
 
 // 从特定于 React 的入口点导入 RTK Query 方法
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react'
-import type { BaseQueryFn } from '@reduxjs/toolkit/query';
+import type { BaseQueryFn, FetchBaseQueryError } from '@reduxjs/toolkit/query';
 import { openLoginModal } from '@/app/stores/authSlice'
 import storage from '@/app/utils/storage'
 import { sleepTime } from '@/app/utils/tools'
@@ -36,7 +36,7 @@ const rawBaseQuery = fetchBaseQuery({
   timeout: DEFAULT_TIMEOUT,
 })
 
-const baseQueryWithInterceptors: BaseQueryFn = async (args, api, extraOptions) => {
+const baseQueryWithInterceptors: BaseQueryFn<any, unknown, unknown> = async (args, api, extraOptions) => {
   // ----------------------------
   // 请求拦截器逻辑
   // ----------------------------
@@ -53,13 +53,16 @@ const baseQueryWithInterceptors: BaseQueryFn = async (args, api, extraOptions) =
   // ----------------------------
   // 执行请求
   // ----------------------------
-  let result = await rawBaseQuery(modifiedArgs, api, extraOptions);
+  let result: any = await rawBaseQuery(modifiedArgs, api, extraOptions);
 
   // ----------------------------
   // 响应拦截器逻辑
   // ----------------------------
   // 如果发生特定错误，则重试
-  const retryData = isRetryError(result.error)
+  let retryData = { flag: false, maxRetries: 0 };
+  if (result.error) {
+    retryData = isRetryError(result.error as FetchBaseQueryError);
+  }
   if (retryData.flag) {
     // 重试逻辑
     const maxRetries = retryData.maxRetries;
@@ -76,12 +79,13 @@ const baseQueryWithInterceptors: BaseQueryFn = async (args, api, extraOptions) =
 
   // 处理网络错误或 HTTP 错误（如 4xx/5xx）
   if (result.error) {
-    return result; // 直接返回原生错误
+    return { error: result.error };
   }
 
   // 解析业务响应
   const backendResponse = result.data as BackendResponse<unknown>;
-  if (result.data?.code !== 0 || result.error?.status === 401) {
+  const dataWithCode = result.data as BackendResponse<unknown> | undefined;
+  if (dataWithCode?.code !== 0 || (result.error && (result.error as { status?: number }).status === 401)) {
     // 处理 401 未授权：清除令牌并跳转登录
     localStorage.removeItem('token');
     api.dispatch(openLoginModal())
@@ -90,7 +94,7 @@ const baseQueryWithInterceptors: BaseQueryFn = async (args, api, extraOptions) =
         status: 'CUSTOM_ERROR',
         data: backendResponse
       }
-    }
+    };
   }
 
   // 业务状态码异常时，构造 RTK Query 错误对象
@@ -100,7 +104,7 @@ const baseQueryWithInterceptors: BaseQueryFn = async (args, api, extraOptions) =
         status: 'CUSTOM_ERROR',
         data: backendResponse
       }
-    }
+    };
   }
 
   // 业务状态码正常时，返回数据
