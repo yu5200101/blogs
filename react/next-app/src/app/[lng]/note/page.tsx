@@ -1,7 +1,7 @@
 const Page = () => {
   return (
     <div>
-      <span>@analytics-page</span>
+      PAGE
     </div>
   )
 }

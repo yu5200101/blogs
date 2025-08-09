@@ -1,33 +1,37 @@
-import { NextResponse } from 'next/server';
+// middleware.js
+import { match } from '@formatjs/intl-localematcher'
 import type { NextRequest } from 'next/server';
-import { isAuthenticated } from '@/lib/auth';
+import Negotiator from 'negotiator'
+import { locales, defaultLocale } from './config'
 
-export async function middleware(request: NextRequest) {
+const publicFile = /\.(.*)$/
+const excludeFile = ['logo.svg']
+
+function getLocale(request: NextRequest): string {
+  const headers: Record<string, string> = { 'accept-language': request.headers.get('accept-language') || '' };
+  const languages: string[] = new Negotiator({ headers }).languages();
+
+  return match(languages, locales, defaultLocale);
+}
+
+export function middleware(request: NextRequest): Response | undefined {
   const { pathname } = request.nextUrl;
-  const authToken = request.cookies.get('token')?.value;
-  // 保护需要认证的路由
-  const protectedRoutes = ['/home'];
-  if (protectedRoutes.some(route => pathname.startsWith(route))) {
-    if (!authToken) {
-      // 直接重定向到登录页，不带参数
-      return NextResponse.redirect(new URL('/login', request.url));
-    }
-    const isAuth = await isAuthenticated();
-    if (!isAuth) {
-       // 直接重定向到登录页，不带参数
-      return NextResponse.redirect(new URL('/login', request.url));
-    }
-  }
+  // 判断请求路径中是否已存在语言，已存在语言则跳过
+  const pathnameHasLocale: boolean = locales.some(
+    (locale: string) => pathname.startsWith(`/${locale}/`) || pathname === `/${locale}`
+  );
 
-  // 已认证用户访问登录页时重定向到首页
-  if (pathname.startsWith('/login') && authToken) {
-    return NextResponse.redirect(new URL('/home', request.url));
-  }
-  return NextResponse.next();
+  if (pathnameHasLocale) return;
+  // 如果是 public 文件，不重定向
+  if (publicFile.test(pathname) && excludeFile.indexOf(pathname.substr(1)) == -1) return
+
+  // 获取匹配的 locale
+  const locale: string = getLocale(request);
+  request.nextUrl.pathname = `/${locale}${pathname}`;
+  // 重定向，如 /products 重定向到 /en-US/products
+  return Response.redirect(request.nextUrl);
 }
 
 export const config = {
-  matcher: [
-    '/((?!api|_next/static|_next/image|favicon.ico).*)',
-  ],
-};
+  matcher: ['/((?!api|_next/static|_next/image|favicon.ico).*)'],
+}

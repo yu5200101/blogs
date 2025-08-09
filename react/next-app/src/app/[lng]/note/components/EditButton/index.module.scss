@@ -1,0 +1,19 @@
+.link--unstyled {
+  text-decoration: none;
+  color: inherit;
+  .edit-button {
+    padding: 0.5rem 1rem;
+    font-size: 1rem;
+    border-radius: 20px;
+    cursor: pointer;
+    &--solid {
+      background-color: #0070f3;
+      color: white;
+    }
+    &--outline {
+      background-color: transparent;
+      color: #0070f3;
+      border: 2px solid #0070f3;
+    }
+  }
+}
