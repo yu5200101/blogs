@@ -1,6 +1,6 @@
 import dayjs from 'dayjs';
-import NotePreview from '@/app/note/components/NotePreview'
-import EditButton from '@/app/note/components/EditButton'
+import NotePreview from '@/app/[lng]/note/components/NotePreview'
+import EditButton from '@/app/[lng]/note/components/EditButton'
 import styles from './index.module.scss';
 
 interface NoteProps {

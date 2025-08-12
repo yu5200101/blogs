@@ -1,6 +1,6 @@
 'use client'
 import { useState, useActionState, useEffect } from 'react'
-import NotePreview from '@/app/note/components/NotePreview'
+import NotePreview from '@/app/[lng]/note/components/NotePreview'
 import styles from './index.module.scss'
 import classNames from 'classnames'
 import {saveNote, deleteNote} from './actions'

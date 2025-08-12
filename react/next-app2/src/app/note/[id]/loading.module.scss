@@ -1,0 +1,41 @@
+.note {
+  &.skeleton-container {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    padding: 1rem;
+    background-color: #f0f0f0;
+    border-radius: 8px;
+  }
+  &-header {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+  }
+  &-preview {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+  .skeleton {
+    animation: pulse 1.5s infinite;
+    &--title {
+      height: 2rem;
+      width: 60%;
+      background-color: #e0e0e0;
+      border-radius: 4px;
+    }
+    &--button {
+      height: 2.5rem;
+      width: 8rem;
+      background-color: #e0e0e0;
+      border-radius: 4px;
+    }
+    &.v-stack {
+      height: 1.5rem;
+      width: 100%;
+      background-color: #e0e0e0;
+      border-radius: 4px;
+    }
+  }
+}

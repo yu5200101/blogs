@@ -1,5 +1,18 @@
-export default function Home() {
+import { useTranslation } from "@/app/i18n"
+interface PageProps {
+  params: {
+    lng: string;
+  }
+}
+
+export default async function Page({ params }: PageProps) {
+  const { lng } = await params
+  const { t } = await useTranslation(lng)
   return (
-    <div>page-home</div>
-  );
+    <div>
+      <span>
+        {t('initText')}
+      </span>
+    </div>
+  )
 }

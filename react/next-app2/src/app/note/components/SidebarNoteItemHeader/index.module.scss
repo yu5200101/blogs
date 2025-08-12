@@ -1,0 +1,14 @@
+.sidebar-header {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.5rem;
+  strong {
+    font-size: 1.1rem;
+  }
+  small {
+    color: #666;
+    font-size: 0.9rem;
+  }
+}
