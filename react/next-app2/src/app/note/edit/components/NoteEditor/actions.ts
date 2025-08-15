@@ -1,5 +1,6 @@
 'use server'
-import {addNote, updateNote, delNote} from '@/lib/redis';
+// import {addNote, updateNote, delNote} from '@/lib/strapi';
+import {addNote, updateNote, delNote} from '@/lib/prisma';
 import { revalidatePath } from 'next/cache';
 import { sleepTime } from '@/app/utils/tools';
 import { z } from "zod"
@@ -22,8 +23,7 @@ export async function saveNote(
   const noteId = formData.get('noteId') as string;
   const data = {
     title: formData.get('title'),
-    content: formData.get('body'),
-    updateTime: new Date()
+    content: formData.get('body')
   }
 
   // 校验数据
@@ -38,10 +38,10 @@ export async function saveNote(
   await sleepTime(2000);
 
   if (noteId) {
-    updateNote(noteId, JSON.stringify(data));
+    await updateNote(noteId, JSON.stringify(data));
     revalidatePath('/', 'layout');
   } else {
-    const res: string = await addNote(JSON.stringify(data));
+    await addNote(JSON.stringify(data));
     revalidatePath('/', 'layout');
   }
   return { message: "Note saved!" };

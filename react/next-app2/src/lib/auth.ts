@@ -1,7 +1,8 @@
 import NextAuth from "next-auth"
 import GitHub from "next-auth/providers/github"
 import CredentialsProvider from "next-auth/providers/credentials";
-import { addUser, getUser } from "@/lib/redis";
+// import { addUser, getUser } from "@/lib/redis"
+import { addUser, getUser } from "@/lib/prisma"
 
 interface User {
   name?: string;
@@ -53,5 +54,15 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
       if (pathname.startsWith("/note/edit")) return !!auth
       return true
     },
+    async jwt({ token, user, account }) {
+      if (account && account.type === "credentials" && user) {
+        token.userId = user.userId;
+      }
+      return token;
+    },
+    async session({ session, token }) {
+      session.user.userId = token.userId;
+      return session;
+    }
   }
 })

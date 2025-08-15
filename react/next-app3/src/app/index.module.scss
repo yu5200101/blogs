@@ -1,0 +1,9 @@
+.note {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+
+  .main {
+    flex: 1;
+  }
+}

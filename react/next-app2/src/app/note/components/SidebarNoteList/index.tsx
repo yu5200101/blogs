@@ -1,7 +1,8 @@
 // NoteList.tsx
 import React from 'react';
 import styles from './index.module.scss';
-import { getAllNotes } from '@/lib/redis'
+// import { getAllNotes } from '@/lib/strapi'
+import { getAllNotes } from '@/lib/prisma';
 import { sleepTime } from '@/app/utils/tools'
 import SidebarNoteListFilter from '../SidebarNoteListFilter'
 import SidebarNoteItemHeader from '../SidebarNoteItemHeader';

@@ -3,7 +3,8 @@ import { stat, mkdir, writeFile } from 'fs/promises'
 import { join } from "path";
 import mime from "mime";
 import dayjs from 'dayjs';
-import { addNote } from '@/lib/redis';
+// import { addNote } from '@/lib/strapi';
+import { addNote } from '@/lib/prisma';
 import { isErrorData } from '@/app/utils/tools'
 import { revalidatePath } from 'next/cache';
 
@@ -41,8 +42,7 @@ export async function importNote(formData: FormData) {
     // 调用接口，写入数据库
     const res = await addNote(JSON.stringify({
       title: filename,
-      content: buffer.toString('utf-8'),
-      updateTime: new Date()
+      content: buffer.toString('utf-8')
     }))
 
     // 清除缓存

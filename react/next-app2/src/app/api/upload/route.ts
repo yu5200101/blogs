@@ -4,7 +4,8 @@ import { NextResponse } from 'next/server'
 import { revalidatePath } from 'next/cache';
 import mime from "mime";
 import dayjs from 'dayjs';
-import { addNote } from '@/lib/redis';
+// import { addNote } from '@/lib/strapi';
+import { addNote } from '@/lib/prisma';
 import type { NextRequest } from 'next/server';
 import { isErrorData } from '@/app/utils/tools'
 
@@ -51,8 +52,7 @@ export async function POST(request: NextRequest) {
     // 调用接口，写入数据库
     const res = await addNote(JSON.stringify({
       title: filename,
-      content: buffer.toString('utf-8'),
-      updateTime: new Date()
+      content: buffer.toString('utf-8')
     }))
 
     // 清除缓存

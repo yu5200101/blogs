@@ -1,0 +1,22 @@
+version: '3.8'
+
+volumes:
+  redis-data:
+
+services:
+
+  redis:
+    image: redis
+    ports:
+      - '6379:6379'
+    command: redis-server
+    volumes:
+      - ./redis/redis.conf:/usr/local/etc/redis.conf
+      - redis-data:/data
+
+  nextapp:
+    build: .
+    ports:
+      - '4000:3000'
+    depends_on:
+      - redis
