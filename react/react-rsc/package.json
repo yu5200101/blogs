@@ -1,0 +1,15 @@
+{
+  "type": "module",
+  "devDependencies": {
+    "tsx": "^4.20.4"
+  },
+  "scripts": {
+    "start": "tsx watch ./index.ts"
+  },
+  "dependencies": {
+    "escape-html": "^1.0.3",
+    "express": "^5.1.0",
+    "react": "^19.1.1",
+    "react-dom": "^19.1.1"
+  }
+}

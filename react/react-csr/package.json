@@ -1,0 +1,19 @@
+{
+  "name": "react-csr",
+  "version": "1.0.0",
+  "main": "index.js",
+  "license": "MIT",
+  "scripts": {
+    "start": "webpack --config webpack.client.js"
+  },
+  "dependencies": {
+    "@babel/core": "^7.28.3",
+    "@babel/preset-env": "^7.28.3",
+    "@babel/preset-react": "^7.27.1",
+    "babel-loader": "^10.0.0",
+    "react": "^19.1.1",
+    "react-dom": "^19.1.1",
+    "webpack": "^5.101.2",
+    "webpack-cli": "^6.0.1"
+  }
+}
