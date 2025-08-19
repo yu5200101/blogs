@@ -2,6 +2,6 @@
   "compilerOptions": {
     "jsx": "react",
     "target": "ES5",
-    "lib": ["ES5", "es2015", "ES2015.Promise", "DOM"]
+    "lib": ["ES5", "es2015", "ES2015.Promise", "DOM", "es2019"]
   }
 }

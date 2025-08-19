@@ -4,12 +4,17 @@
     "tsx": "^4.20.4"
   },
   "scripts": {
-    "start": "tsx watch ./index.ts"
+    "start": "concurrently \"npm run start:ssr\" \"npm run start:rsc\"",
+    "start:rsc": "tsx watch --conditions=react-server ./server/rsc.ts",
+    "start:ssr": "tsx watch ./server/ssr.ts"
   },
   "dependencies": {
+    "concurrently": "^9.2.0",
     "escape-html": "^1.0.3",
     "express": "^5.1.0",
-    "react": "^19.1.1",
-    "react-dom": "^19.1.1"
+    "node-fetch": "^3.3.2",
+    "react": "18.3.0-canary-c3048aab4-20240326",
+    "react-dom": "18.3.0-canary-c3048aab4-20240326",
+    "react-server-dom-webpack": "18.3.0-canary-c3048aab4-20240326"
   }
 }

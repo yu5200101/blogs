@@ -1,9 +1,36 @@
 import React from 'react';
-import { renderJSXToHTML } from './utils'
+import { renderJSXToClientJSX, stringifyJSX } from './utils'
 import { Layout, IndexPage, PostPage } from './components'
+import { renderToString } from 'react-dom/server';
+import { renderToPipeableStream } from "react-server-dom-webpack/server.node"
+
+// 注意是普通函数，而非 async 函数
+export function jsxGenerator(url) {
+  return renderToPipeableStream(<Router url={url} />)
+}
 
 export async function htmlGenerator(url) {
-  return renderJSXToHTML(<Router url={url} />);
+  let jsx = <Router url={url} />
+  const clientJSX = await renderJSXToClientJSX(jsx);
+  let html = await renderToString(clientJSX);
+  // 获取当前页面的客户端 JSX 对象
+  // 拼接到脚本代码中
+  const clientJSXString = JSON.stringify(clientJSX, stringifyJSX);
+  html += `<script>window.__INITIAL_CLIENT_JSX_STRING__ = `;
+  html += JSON.stringify(clientJSXString).replace(/</g, "\\u003c");
+  html += `</script>`;
+  html += `
+  <script type="importmap">
+    {
+      "imports": {
+        "react": "https://esm.sh/react@18.3.0",
+        "react-dom/client": "https://esm.sh/react-dom@18.3.0/client?dev"
+      }
+    }
+  </script>
+  <script type="module" src="/client.js"></script>
+`;
+  return html;
 }
 
 function Router({ url }) {
