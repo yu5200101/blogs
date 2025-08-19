@@ -9,6 +9,7 @@
     "start:ssr": "tsx watch ./server/ssr.ts"
   },
   "dependencies": {
+    "body-parser": "^2.2.0",
     "concurrently": "^9.2.0",
     "escape-html": "^1.0.3",
     "express": "^5.1.0",
