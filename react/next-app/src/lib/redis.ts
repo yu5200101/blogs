@@ -28,7 +28,8 @@ const initialData: Record<string, string> = {
 };
 
 // 创建 Redis 客户端实例
-const redis = new Redis();
+// const redis = new Redis();
+const redis = new Redis(process.env.REDIS_URL)
 
 /**
  * 获取所有笔记
