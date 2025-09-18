@@ -155,7 +155,7 @@ type FunctionType<T> = {
 
 // 提取函数属性的对象类型
 type FunctionKey<T> = {
-  [K in keyof T]: T[K] extends Function ? T[K] : never
+  [K in keyof T]: T[K] extends Function ? K : never
 }[keyof T]
 
 class User1 {
