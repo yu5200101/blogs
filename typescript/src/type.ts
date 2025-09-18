@@ -264,3 +264,23 @@ const user1 = {
 function identity<T extends string | number>(value: T): T {
   return value;
 }
+
+type User2 = {
+  name: string
+  age: number
+  attr: string
+}
+
+// 提取string 如下：
+// type User2 = {
+//   name: string
+//   attr: string
+// }
+
+type GetUserS<T> = Pick<T, {
+  [K in keyof T]: T[K] extends string ? K : never
+}[keyof T]>
+
+type GetUserS2<T, U> = {
+  [K in keyof T as T[K] extends U ? K : never]: T[K]
+}
