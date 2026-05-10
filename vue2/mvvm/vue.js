@@ -327,8 +327,9 @@ class Vue {
       Object.defineProperty(this, key, {
         get: () => {
           const watcher = watchers[key];
-          // 初始化会触发两次get，第一次是在238行this._getVMValue(exp); 在执行watcher.evaluate()时，触发this.get()，设置Dep.target为lazy=true的watcher,然后触发computed里面对应count、user、name的get函数
-          // 第二次是在242行 new Watcher,此时有Dep.target=渲染的watcher
+          // 初始化会触发两次get，第一次是在238行this._getVMValue(exp); 在执行watcher.evaluate()时，触发this.get()，设置Dep.target为lazy=true的watcher赋值为rootWatch,然后触发computed里面对应count、user、name的get函数,相当于count、user、name变更，rootWatch会notify
+          // 第二次是在242行 new Watcher,此时有Dep.target=渲染的watcher，rootWatch添加了上层渲染的watcher依赖
+          // 所以rootWatch时notify上层渲染的watcher 更新函数执行
           console.log(watcher, 'computed');
           if (watcher.dirty) {
             watcher.evaluate(); // 执行计算

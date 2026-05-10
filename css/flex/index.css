@@ -89,7 +89,7 @@
 /* flex: auto 相当于 1 1 auto */
 /* flex: none 相当于 0 0 auto */
 
-/* flex: auto 和 1 的区别是 auto考虑自身的大小，在缩放时自身的大，其他元素小 */
+/* flex: auto 和 1 的区别是 auto在伸缩时考虑自身的大小 */
 .box2-item-right-auto {
   flex: auto;
   background: lawngreen;
