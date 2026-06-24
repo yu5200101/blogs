@@ -21,7 +21,7 @@
   "packageManager": "yarn@1.22.22+sha1.ac34549e6aa8e7ead463a7407e1c7390f61a6610",
   "devDependencies": {
     "@types/glob": "^8.1.0",
-    "glob": "^11.0.1",
+    "glob": "^11.1.0",
     "typescript": "^5.8.2",
     "vue-tsc": "^2.2.8"
   }
